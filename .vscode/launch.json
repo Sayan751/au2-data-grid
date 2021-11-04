@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "name": "debug project build",
+      "program": "${workspaceFolder}/package/tasks/build.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "cwd": "${workspaceFolder}/package"
+    }
+  ]
+}
