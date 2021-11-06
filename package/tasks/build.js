@@ -39,7 +39,7 @@ function createTransformer(program) {
      * @returns {ts.VisitResult<ts.Node>}
      */
     function sourceFileVisitor(node) {
-      console.log('visiting source file: ', node.getSourceFile().fileName);
+      // console.log('visiting source file: ', node.getSourceFile().fileName);
       return ts.visitEachChild(node, sourceFileContentVisitor, ctx);
     }
 
@@ -82,13 +82,27 @@ function createTransformer(program) {
 
       const ceDefinitionProperties = ceDefinitionExpr.properties;
       const templateExpr = ceDefinitionProperties.find((p) => p.name.getText() === 'template');
-      const templateInitializerSymbol = typeChecker.getSymbolAtLocation(
-        /** @type {typeof ts & { getEffectiveInitializer:(expr: ts.ObjectLiteralElementLike)=>ts.Node }} */(ts).getEffectiveInitializer(templateExpr)
-      );
-      const importClause = /** @type {ts.ImportDeclaration} */templateInitializerSymbol?.getDeclarations()[0].parent;
-      if (!ts.isImportDeclaration(importClause)) return node;
 
-      const template = templateLookup.get(getCanonicalTemplateFileName(node, importClause.moduleSpecifier.getText()));
+      /** @type {ts.ImportDeclaration} */
+      let importDeclaration;
+      if (ts.isPropertyAssignment(templateExpr)) {
+        const templateInitializerSymbol = typeChecker.getSymbolAtLocation(
+        /** @type {typeof ts & { getEffectiveInitializer:(expr: ts.ObjectLiteralElementLike)=>ts.Node }} */(ts).getEffectiveInitializer(templateExpr)
+        );
+        importDeclaration = /** @type {ts.ImportDeclaration} */(templateInitializerSymbol?.getDeclarations()[0].parent);
+      } else if (ts.isShorthandPropertyAssignment(templateExpr)) {
+        importDeclaration = /** @type {ts.ImportDeclaration} */(node
+          .getSourceFile()
+          .getChildren()
+          ?.[0]
+          .getChildren()
+          .find((c) => ts.isImportDeclaration(c)
+            && /** @type {ts.ImportDeclaration} */(c).importClause.getText() === 'template'
+          ));
+      }
+      if (importDeclaration == null || !ts.isImportDeclaration(importDeclaration)) return node;
+
+      const template = templateLookup.get(getCanonicalTemplateFileName(node, importDeclaration.moduleSpecifier.getText()));
       if (template == null) return node;
       const factory = ts.factory;
       const templateLiteral = factory.createNoSubstitutionTemplateLiteral(template);
@@ -112,7 +126,7 @@ function createTransformer(program) {
         console.error(`The template source file '${canonicalTemplateSource}' is not found.`);
         return false;
       }
-      const template = readFileSync(canonicalTemplateSource, 'utf-8').replaceAll('`', '\\`');
+      const template = readFileSync(canonicalTemplateSource, 'utf-8');
       templateLookup.set(canonicalTemplateSource, template);
       return true;
     }

@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "type": "module",
+  "scripts": {
+    "clean": "node ./tasks/clean.js",
+    "prebuild": "npm run clean",
+    "build": "node ./tasks/build.js",
+    "start": "tsc --watch --preserveWatchOutput"
+  },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@aurelia/kernel": "latest",
     "@aurelia/runtime": "latest",

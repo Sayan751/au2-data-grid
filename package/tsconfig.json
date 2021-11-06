@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declarationDir": "./dist/types",
+    "typeRoots": [
+      "../node_modules/@types/",
+      "../custom-types/"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
