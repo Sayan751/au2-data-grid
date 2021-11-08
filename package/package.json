@@ -8,7 +8,7 @@
     "clean": "node ./tasks/clean.js",
     "prebuild": "npm run clean",
     "build": "node ./tasks/build.js",
-    "start": "tsc --watch --preserveWatchOutput"
+    "watch": "node ./tasks/watch.js"
   },
   "keywords": [],
   "author": "",

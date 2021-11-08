@@ -2,14 +2,14 @@
 import { join } from 'path';
 import ts from 'typescript';
 import { getTsConfig } from './utilities.js';
-import { createTransformer } from './transformer.js';
+import { Transformer } from './transformer.js';
 
 const cwd = process.cwd();
 const src = join(cwd, 'src');
 const parsedConfig = getTsConfig(src, cwd);
 const program = ts.createProgram(parsedConfig.fileNames, parsedConfig.options);
 
-const emitResult = program.emit(undefined, undefined, undefined, undefined, { before: [createTransformer(program)] });
+const emitResult = program.emit(undefined, undefined, undefined, undefined, { before: [new Transformer(program.getTypeChecker()).getInlineTemplateFactory()] });
 
 const allDiagnostics = ts
   .getPreEmitDiagnostics(program)
