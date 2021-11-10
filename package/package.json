@@ -2,7 +2,9 @@
   "name": "au2-data-grid",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "typings": "./dist/types/index.d.ts",
   "type": "module",
   "scripts": {
     "clean": "node ./tasks/clean.js",

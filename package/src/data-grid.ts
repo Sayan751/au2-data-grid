@@ -4,5 +4,5 @@ import template from './data-grid.html';
 
 @customElement({ name: 'data-grid', template })
 export class DataGrid {
-
+  public prop: string = '124';
 }
