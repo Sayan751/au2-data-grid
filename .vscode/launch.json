@@ -9,6 +9,16 @@
       ],
       "type": "pwa-node",
       "cwd": "${workspaceFolder}/package"
+    },
+    {
+      "name": "debug project watch",
+      "program": "${workspaceFolder}/package/tasks/watch.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "cwd": "${workspaceFolder}/package"
     }
   ]
 }

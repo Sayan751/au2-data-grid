@@ -4,14 +4,35 @@ import { dirname, resolve } from 'path';
 import ts from 'typescript';
 
 export class Transformer {
-  /** @type {Map<string, string>} */
+  /** @type {Transformer} */
+  static instance;
+
+  /**
+   * @param {ts.TypeChecker} [typeChecker]
+   */
+  static getInstance(typeChecker) {
+    const instance = this.instance;
+    if(instance == null) {
+      return this.instance = new Transformer(typeChecker);
+    }
+    if(typeChecker && instance._typeChecker !== typeChecker) {
+      instance._typeChecker = typeChecker;
+    }
+    return instance;
+  }
+
+  /**
+   * @type {Map<string, string>}
+   * @private
+   */
   templateLookup = new Map();
 
   /**
    * @param {ts.TypeChecker} typeChecker
+   * @private
    */
   constructor(typeChecker) {
-    this.typeChecker = typeChecker;
+    this._typeChecker = typeChecker;
   }
 
   /**
@@ -70,6 +91,13 @@ export class Transformer {
     const sourceDir = dirname(sourceFileName);
     const canonicalTemplateSource = resolve(sourceDir, templateFileName.replace(/['"]/g, ''));
     return canonicalTemplateSource;
+  }
+
+  /**
+   * @param {string} fileName
+   */
+  evictTemplateCache(fileName) {
+    this.templateLookup.delete(fileName);
   }
 }
 
@@ -141,7 +169,7 @@ class InlineTemplateTransformer {
     /** @type {ts.ImportDeclaration} */
     let importDeclaration;
     if (ts.isPropertyAssignment(templateExpr)) {
-      const templateInitializerSymbol = this.transformer.typeChecker.getSymbolAtLocation(
+      const templateInitializerSymbol = this.transformer._typeChecker.getSymbolAtLocation(
                 /** @type {typeof ts & { getEffectiveInitializer:(expr: ts.ObjectLiteralElementLike)=>ts.Node }} */(ts).getEffectiveInitializer(templateExpr)
       );
       importDeclaration = /** @type {ts.ImportDeclaration} */ (templateInitializerSymbol?.getDeclarations()[0].parent);

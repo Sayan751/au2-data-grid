@@ -1,8 +1,9 @@
 // @ts-check
+import { watch } from 'fs';
 import { join } from 'path';
 import ts from 'typescript';
+import { build } from './utilities.js';
 import { Transformer } from './transformer.js';
-import { getTsConfig } from './utilities.js';
 
 const cwd = process.cwd();
 const src = join(cwd, 'src');
@@ -16,38 +17,42 @@ const solutionBuilder = ts.createSolutionBuilderWithWatch(
 );
 
 // first emit
-emit(true);
+emit();
 
+/** @type {NodeJS.Timeout} */
+let timeoutId = null;
+// and watch
+const watcher = watch(
+  src,
+  { recursive: true, persistent: true },
+  (_, fileName) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    } else {
+      console.log('change detected');
+    }
+    timeoutId = setTimeout(() => {
+      Transformer.getInstance().evictTemplateCache(join(src, fileName));
+      emit();
+      timeoutId = null;
+    }, 1000);
+  }
+);
 
-/**
- * @param {boolean} [force]
- */
-function emit(force = false) {
+function emit() {
+  console.log('emitting');
   const project = /** @type {ts.BuildInvalidedProject} */(solutionBuilder.getNextInvalidatedProject());
-  project?.emit(undefined, undefined, undefined, undefined, { before: [getTransformer(project)] });
+  project?.emit(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    { before: [Transformer.getInstance(project.getProgram().getTypeChecker()).getInlineTemplateFactory()] });
 
-  if (project == null && force) {
-    console.log('project is null');
-    solutionBuilder
-      .build(
-        undefined,
-        undefined,
-        undefined,
-        () => ({ before: [getTransformer()] })
-      );
+  if (project == null) {
+    // console.log('doing normal build');
+    build(cwd, src, false);
   }
-}
-
-/**
- *
- * @param {ts.BuildInvalidedProject} [project]
- */
-function getTransformer(project) {
-  let typeChecker = project?.getProgram().getTypeChecker();
-  if (typeChecker == null) {
-    const parsedConfig = getTsConfig(src, cwd);
-    typeChecker = ts.createProgram(parsedConfig.fileNames, parsedConfig.options).getTypeChecker();
-  }
-
-  return new Transformer(typeChecker).getInlineTemplateFactory();
+  console.log('watching for change');
 }
