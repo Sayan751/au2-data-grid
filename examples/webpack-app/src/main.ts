@@ -1,3 +1,4 @@
+import { ConsoleSink, LoggerConfiguration, LogLevel } from '@aurelia/kernel';
 import { Aurelia, StandardConfiguration } from '@aurelia/runtime-html';
 import { DataGridConfiguration } from 'au2-data-grid';
 import { AppRootCustomElement as component } from './app-root';
@@ -7,6 +8,11 @@ import { AppRootCustomElement as component } from './app-root';
 
   const au = new Aurelia()
     .register(
+      LoggerConfiguration.create({
+        $console: console,
+        level: LogLevel.info,
+        sinks: [ConsoleSink]
+      }),
       StandardConfiguration,
       DataGridConfiguration,
     );
