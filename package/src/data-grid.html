@@ -7,7 +7,8 @@
 </style>
 
 <div class="container">
-  <!-- TODO: add header TC -->
-  <!-- TODO: loop over current items -->
-  <!-- TODO: add content TC -->
+  <template grid-headers></template>
+  <template repeat.for="item of model.currentPage">
+    <template grid-content.bind="item"></template>
+  </template>
 </div>

@@ -1,6 +1,6 @@
-export class ListModel {
+export class ListModel<T extends unknown> {
   public constructor(
-    public items: unknown[],
+    public items: T[],
   ) { }
 
   public get currentPage() {
