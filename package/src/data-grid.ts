@@ -123,14 +123,6 @@ export class DataGridHeaders implements ICustomAttributeViewModel {
     parent: IHydratedParentController,
     flags: LifecycleFlags,
   ) {
-    this.activateAllHeaders(initiator, parent, flags);
-  }
-
-  private activateAllHeaders(
-    initiator: IHydratedController,
-    parent: IHydratedParentController,
-    flags: LifecycleFlags,
-  ) {
     const location = this.location;
     const factories = this.factories;
     const len = factories.length;
@@ -141,6 +133,21 @@ export class DataGridHeaders implements ICustomAttributeViewModel {
       activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create()));
     }
     this.queue(() => resolveAll(...activationPromises));
+    return this.promise;
+  }
+
+  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
+    this.queue(() => resolveAll(...this.headers.map((header)=> header.deactivate(initiator, parent, flags))));
+    return this.promise;
+  }
+
+  public dispose(): void {
+    let headers = this.headers;
+    let len = headers.length;
+    for(let i =0; i<len; i++) {
+      headers[i].dispose();
+    }
+    this.headers.length = 0;
   }
 
   private queue(action: () => void | Promise<void>): void {
@@ -179,14 +186,6 @@ export class DataGridContent implements ICustomAttributeViewModel {
     parent: IHydratedParentController,
     flags: LifecycleFlags,
   ) {
-    this.activateAllCells(initiator, parent, flags);
-  }
-
-  private activateAllCells(
-    initiator: IHydratedController,
-    parent: IHydratedParentController,
-    flags: LifecycleFlags,
-  ) {
     const item = this.item;
     const location = this.location;
     const factories = this.factories;
@@ -198,6 +197,21 @@ export class DataGridContent implements ICustomAttributeViewModel {
       activationPromises[i] = cell.activate(initiator, parent, flags, Scope.create(BindingContext.create({ item })));
     }
     this.queue(() => resolveAll(...activationPromises));
+    return this.promise;
+  }
+
+  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
+    this.queue(() => resolveAll(...this.cells.map((cell)=> cell.deactivate(initiator, parent, flags))));
+    return this.promise;
+  }
+
+  public dispose(): void {
+    let cells = this.cells;
+    let len = cells.length;
+    for(let i =0; i<len; i++) {
+      cells[i].dispose();
+    }
+    this.cells.length = 0;
   }
 
   private queue(action: () => void | Promise<void>): void {
