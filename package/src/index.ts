@@ -6,4 +6,5 @@ export {
 } from './configuration.js';
 export {
   ListModel,
+  SelectionMode,
 } from './list-model.js';

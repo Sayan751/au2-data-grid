@@ -41,7 +41,6 @@ const definitionLookup: Map<number, [headers: CustomElementDefinition[], cells: 
 export class DataGrid implements ICustomElementViewModel {
   private static id: number = 0;
   @bindable public model!: ListModel<unknown>;
-  // @bindable private cells!: CustomElementDefinition[];
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
 
   public constructor(
@@ -62,6 +61,12 @@ export class DataGrid implements ICustomElementViewModel {
     this.node.style.setProperty('--num-columns', headers.length.toString());
     container.register(Registration.instance(IHeaderViewFactories, headers.map((item) => new ViewFactory(container, item))));
     container.register(Registration.instance(IContentViewFactories, definitions[1].map((item) => new ViewFactory(container, item))));
+  }
+
+  public selectItem(item: unknown): void {
+    console.log('selectItem');
+    this.model.selectItem(item);
+    console.log(this.model['selectedItems'].length);
   }
 
   public static processContent(content: HTMLElement, platform: IPlatform) {
@@ -113,7 +118,6 @@ export class DataGridHeaders implements ICustomAttributeViewModel {
   private promise: Promise<void> | void = void 0;
 
   public constructor(
-    @IViewFactory private readonly _factory: IViewFactory,
     @IRenderLocation private readonly location: IRenderLocation,
     @IHeaderViewFactories private readonly factories: ViewFactory[],
   ) { }
@@ -144,7 +148,7 @@ export class DataGridHeaders implements ICustomAttributeViewModel {
   public dispose(): void {
     let headers = this.headers;
     let len = headers.length;
-    for(let i =0; i<len; i++) {
+    for (let i = 0; i < len; i++) {
       headers[i].dispose();
     }
     this.headers.length = 0;
@@ -176,7 +180,6 @@ export class DataGridContent implements ICustomAttributeViewModel {
   private promise: Promise<void> | void = void 0;
 
   public constructor(
-    @IViewFactory private readonly _factory: IViewFactory,
     @IRenderLocation private readonly location: IRenderLocation,
     @IContentViewFactories private readonly factories: ViewFactory[],
   ) { }
@@ -201,14 +204,14 @@ export class DataGridContent implements ICustomAttributeViewModel {
   }
 
   public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
-    this.queue(() => resolveAll(...this.cells.map((cell)=> cell.deactivate(initiator, parent, flags))));
+    this.queue(() => resolveAll(...this.cells.map((cell) => cell.deactivate(initiator, parent, flags))));
     return this.promise;
   }
 
   public dispose(): void {
     let cells = this.cells;
     let len = cells.length;
-    for(let i =0; i<len; i++) {
+    for (let i = 0; i < len; i++) {
       cells[i].dispose();
     }
     this.cells.length = 0;

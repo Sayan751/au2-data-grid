@@ -4,11 +4,25 @@
     display: grid;
     grid-template-columns: repeat(var(--num-columns), 1fr);
   }
+
+  .row {
+    display: grid;
+    grid: inherit;
+    gap: inherit;
+    grid-column: 1 / calc(var(--num-columns) + 1);
+  }
+
+  /* .row>div {
+    background: #bbb;
+    color: #333;
+  } */
 </style>
 
 <div class="container">
-  <template grid-headers></template>
-  <template repeat.for="item of model.currentPage">
+  <div class="row">
+    <template grid-headers></template>
+  </div>
+  <div class="row" repeat.for="item of model.currentPage" click.delegate="selectItem(item)">
     <template grid-content.bind="item"></template>
-  </template>
+  </div>
 </div>
