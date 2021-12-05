@@ -4,7 +4,8 @@ import {
 } from '@aurelia/kernel';
 
 const defaultPageSize = 50;
-export class ListModel<T extends unknown> {
+
+export class ListModel<T extends Record<string, unknown>> {
   public isAnySelected: boolean = false;
   public isOneSelected: boolean = false;
   private selectedItems: T[] = [];
@@ -20,11 +21,13 @@ export class ListModel<T extends unknown> {
   private pagePromise: Promise<void> | null = null;
   private countPromise: Promise<void> | null = null;
   private _totalCount: number = undefined!;
+  private _sortOptions: SortOption<T>[] = [];
 
   public constructor(
     allItems: T[] | null,
     pagingOptions: Partial<PagingOptions<T>> | null,
     selectionOptions: Partial<SelectionOptions<T>> | null,
+    public readonly onSortingOptionChange: ApplySorting<T>,
     logger: ILogger,
   ) {
     this.logger = logger.scopeTo('ListModel');
@@ -86,6 +89,13 @@ export class ListModel<T extends unknown> {
 
   public clearSelections() {
     this.selectedItems.length = 0;
+  }
+
+  public applySorting(...sortOptions: SortOption<T>[]) {
+    const oldValue = this._sortOptions;
+    const newValue = this._sortOptions = sortOptions;
+    this.onSortingOptionChange(newValue, oldValue, this.allItems, this);
+    this.setCurrentPageNumber(1, true);
   }
 
   public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
@@ -180,16 +190,38 @@ export enum SelectionMode {
   Single,
   Multiple,
 }
-type SelectionChangeHandler<T extends unknown> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
-export interface SelectionOptions<T extends unknown> {
+type SelectionChangeHandler<T extends Record<string, unknown>> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
+export interface SelectionOptions<T extends Record<string, unknown>> {
   mode: SelectionMode;
   onSelectionChange: SelectionChangeHandler<T>
 }
 
-type FetchCount<T extends unknown> = (listModel: ListModel<T>) => number | Promise<number>;
-type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, listModel: ListModel<T>) => T[] | Promise<T[]>;
-export interface PagingOptions<T extends unknown> {
+type FetchCount<T extends Record<string, unknown>> = (listModel: ListModel<T>) => number | Promise<number>;
+type FetchPage<T extends Record<string, unknown>> = (currentPage: number, pageSize: number, listModel: ListModel<T>) => T[] | Promise<T[]>;
+export interface PagingOptions<T extends Record<string, unknown>> {
   pageSize: number | null;
   fetchPage: FetchPage<T>;
   fetchCount: FetchCount<T>;
+}
+
+type ApplySorting<T extends Record<string, unknown>> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, listModel: ListModel<T>) => void;
+export enum SortDirection {
+  Ascending,
+  Descending
+}
+
+export interface SortOption<T extends Record<string, unknown>> {
+  /**
+   * Name of the property on which to sort
+   * @type {keyof T}
+   * @memberof SortInfo
+   */
+  property: keyof T;
+
+  /**
+   * Direction of sorting
+   * @type {SortDirection}
+   * @memberof SortInfo
+   */
+  direction: SortDirection;
 }
