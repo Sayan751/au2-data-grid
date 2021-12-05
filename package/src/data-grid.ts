@@ -63,12 +63,6 @@ export class DataGrid implements ICustomElementViewModel {
     container.register(Registration.instance(IContentViewFactories, definitions[1].map((item) => new ViewFactory(container, item))));
   }
 
-  public selectItem(item: unknown): void {
-    console.log('selectItem');
-    this.model.selectItem(item);
-    console.log(this.model['selectedItems'].length);
-  }
-
   public static processContent(content: HTMLElement, platform: IPlatform) {
     const columns = content.querySelectorAll('grid-column');
     const numColumns = columns.length;

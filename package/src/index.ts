@@ -7,4 +7,5 @@ export {
 export {
   ListModel,
   SelectionMode,
+  SelectionOptions,
 } from './list-model.js';

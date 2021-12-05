@@ -22,7 +22,7 @@
   <div class="row">
     <template grid-headers></template>
   </div>
-  <div class="row" repeat.for="item of model.currentPage" click.delegate="selectItem(item)">
+  <div class="row" repeat.for="item of model.currentPage" click.delegate="model.selectItem(item)">
     <template grid-content.bind="item"></template>
   </div>
 </div>
