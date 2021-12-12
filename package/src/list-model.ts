@@ -2,12 +2,14 @@ import {
   ILogger,
   noop,
 } from '@aurelia/kernel';
+import { observable } from '@aurelia/runtime';
 
 const defaultPageSize = 50;
 
-export class ListModel<T extends Record<string, unknown>> {
+export class ListModel<T extends unknown> {
   public isAnySelected: boolean = false;
   public isOneSelected: boolean = false;
+  @observable public allItems: T[] | null;
   private selectedItems: T[] = [];
   private readonly selectionMode: SelectionMode;
   private readonly onSelectionChange: SelectionChangeHandler<T>;
@@ -17,7 +19,6 @@ export class ListModel<T extends Record<string, unknown>> {
   private readonly logger: ILogger;
   private _currentPage!: T[];
   private _currentPageNumber: number = 0;
-  private allItems: T[] | null;
   private pagePromise: Promise<void> | null = null;
   private countPromise: Promise<void> | null = null;
   private _totalCount: number = undefined!;
@@ -27,7 +28,7 @@ export class ListModel<T extends Record<string, unknown>> {
     allItems: T[] | null,
     pagingOptions: Partial<PagingOptions<T>> | null,
     selectionOptions: Partial<SelectionOptions<T>> | null,
-    public readonly onSortingOptionChange: ApplySorting<T>,
+    public readonly onSortingOptionChange: ApplySorting<T> | null,
     logger: ILogger,
   ) {
     this.logger = logger.scopeTo('ListModel');
@@ -38,7 +39,7 @@ export class ListModel<T extends Record<string, unknown>> {
     const hasAllItems = allItems !== null;
     if (!hasAllItems && fetchPage === null) throw new Error('Either allItems or pagingOptions is required.');
 
-    const pageSize = pagingOptions?.pageSize;
+    const pageSize = pagingOptions?.pageSize ?? null;
     const isPagingDisabled = pageSize === null;
     this.pageSize = isPagingDisabled ? null : (pageSize ?? defaultPageSize);
 
@@ -94,15 +95,11 @@ export class ListModel<T extends Record<string, unknown>> {
   public applySorting(...sortOptions: SortOption<T>[]) {
     const oldValue = this._sortOptions;
     const newValue = this._sortOptions = sortOptions;
-    this.onSortingOptionChange(newValue, oldValue, this.allItems, this);
+    this.onSortingOptionChange?.(newValue, oldValue, this.allItems, this);
     this.setCurrentPageNumber(1, true);
   }
 
   public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
-    if (this.pageSize === null) {
-      this.logger.warn('Paging is disabled; setCurrentPage has no effect.');
-      return;
-    }
     const oldNumber = this._currentPageNumber;
     if (oldNumber === pageNumber
       && this.pagePromise !== null
@@ -183,6 +180,10 @@ export class ListModel<T extends Record<string, unknown>> {
     this.setCurrentPageNumber(1, true);
     return this.wait(rethrowError);
   }
+
+  private allItemsChanged() {
+    this.setCurrentPageNumber(1, true);
+  }
 }
 
 export enum SelectionMode {
@@ -190,27 +191,27 @@ export enum SelectionMode {
   Single,
   Multiple,
 }
-type SelectionChangeHandler<T extends Record<string, unknown>> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
-export interface SelectionOptions<T extends Record<string, unknown>> {
+type SelectionChangeHandler<T extends unknown> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
+export interface SelectionOptions<T extends unknown> {
   mode: SelectionMode;
   onSelectionChange: SelectionChangeHandler<T>
 }
 
-type FetchCount<T extends Record<string, unknown>> = (listModel: ListModel<T>) => number | Promise<number>;
-type FetchPage<T extends Record<string, unknown>> = (currentPage: number, pageSize: number, listModel: ListModel<T>) => T[] | Promise<T[]>;
-export interface PagingOptions<T extends Record<string, unknown>> {
+type FetchCount<T extends unknown> = (listModel: ListModel<T>) => number | Promise<number>;
+type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, listModel: ListModel<T>) => T[] | Promise<T[]>;
+export interface PagingOptions<T extends unknown> {
   pageSize: number | null;
   fetchPage: FetchPage<T>;
   fetchCount: FetchCount<T>;
 }
 
-type ApplySorting<T extends Record<string, unknown>> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, listModel: ListModel<T>) => void;
+type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, listModel: ListModel<T>) => void;
 export enum SortDirection {
   Ascending,
   Descending
 }
 
-export interface SortOption<T extends Record<string, unknown>> {
+export interface SortOption<T extends unknown> {
   /**
    * Name of the property on which to sort
    * @type {keyof T}

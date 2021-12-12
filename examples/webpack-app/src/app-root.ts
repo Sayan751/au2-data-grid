@@ -1,21 +1,13 @@
 import { customElement, ICustomElementViewModel } from '@aurelia/runtime-html';
-import { ListModel, SelectionMode } from 'au2-data-grid';
 import template from './app-root.html';
+import { StaticList } from './views/static-list/static-list';
 
 @customElement({ name: 'app-root', template })
-export class AppRootCustomElement implements ICustomElementViewModel {
-  public people: ListModel<Person> = new ListModel<Person>(
-    [
-      new Person('john', 'doe'),
-      new Person('foo', 'bar'),
-    ],
-    { mode: SelectionMode.Single },
-  );
-}
-
-class Person {
-  public constructor(
-    public fname: string,
-    public lname: string,
-  ) { }
+export class AppRoot implements ICustomElementViewModel {
+  public static routes = [
+    {
+      path: ['', 'static-list'],
+      component: StaticList,
+    }
+  ]
 }

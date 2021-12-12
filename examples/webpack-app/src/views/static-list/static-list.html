@@ -1,0 +1,26 @@
+<h1>Static list</h1>
+
+<button click.delegate="useDataset1()">Use dataset1</button>
+<button click.delegate="useDataset2()">Use dataset2</button>
+
+<button click.delegate="sortByFname()">Sort by first name</button>
+<button click.delegate="sortByFnameDsc()">Sort by first name desc</button>
+<button click.delegate="sortByLname()">Sort by last name</button>
+<button click.delegate="sortByLnameDsc()">Sort by last name desc</button>
+<br>
+<br>
+
+<data-grid model.bind="people">
+  <grid-column sort-property="prop1">
+    <header>
+      <value-text value="First name"></value-text>
+    </header>
+    <normal-text value.bind="item.fname"></normal-text>
+  </grid-column>
+  <grid-column sort-properties="prop2,prop3">
+    <header>
+      <value-text value="Last name"></value-text>
+    </header>
+    <normal-text value.bind="item.lname"></normal-text>
+  </grid-column>
+</data-grid>

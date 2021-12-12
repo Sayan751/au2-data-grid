@@ -10,7 +10,8 @@
   "license": "MIT",
   "workspaces": [
     "package",
-    "examples/webpack-app"
+    "examples/webpack-app",
+    "examples/fake-service"
   ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.2.0",

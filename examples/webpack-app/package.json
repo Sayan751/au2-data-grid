@@ -2,7 +2,7 @@
   "name": "example-webpack-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "webpack-dev-server"
   },
@@ -13,7 +13,9 @@
     "@aurelia/kernel": "latest",
     "@aurelia/runtime": "latest",
     "@aurelia/runtime-html": "latest",
+    "@aurelia/router": "latest",
     "au2-data-grid": "1.0.0",
+    "fake-service": "1.0.0",
     "ts-loader": "^9.2.6",
     "html-loader": "^3.0.0",
     "html-webpack-plugin": "^5.5.0",

@@ -1,0 +1,20 @@
+{
+  "name": "fake-service",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node ./dist/index.js",
+    "gen-data": "node data-generator.js 10000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/faker": "^5.5.9",
+    "@types/node": "^16.11.11",
+    "faker": "^5.5.3"
+  }
+}

@@ -23,7 +23,6 @@ import {
   IPlatform,
   IRenderLocation,
   ISyntheticView,
-  IViewFactory,
   LifecycleFlags,
   Scope,
   templateController,
@@ -40,7 +39,7 @@ const definitionLookup: Map<number, [headers: CustomElementDefinition[], cells: 
 @customElement({ name: 'data-grid', template })
 export class DataGrid implements ICustomElementViewModel {
   private static id: number = 0;
-  @bindable public model!: ListModel<unknown>;
+  @bindable public model!: ListModel<Record<string, unknown>>;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
 
   public constructor(

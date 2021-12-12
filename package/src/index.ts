@@ -1,11 +1,13 @@
 export {
-  DataGrid
+  DataGrid,
 } from './data-grid.js';
 export {
-  DataGridConfiguration
+  DataGridConfiguration,
 } from './configuration.js';
 export {
   ListModel,
   SelectionMode,
   SelectionOptions,
+  SortDirection,
+  SortOption,
 } from './list-model.js';
