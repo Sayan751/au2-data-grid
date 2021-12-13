@@ -3,8 +3,6 @@ import {
 } from '@aurelia/kernel';
 import {
   DataGrid,
-  DataGridHeaders,
-  DataGridContent,
 } from './data-grid.js';
 
 export const DataGridConfiguration = {
@@ -12,8 +10,6 @@ export const DataGridConfiguration = {
     container
       .register(
         DataGrid,
-        DataGridHeaders,
-        DataGridContent,
       );
   }
 };

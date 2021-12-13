@@ -20,9 +20,9 @@
 
 <div class="container">
   <div class="row">
-    <template grid-headers></template>
+    <template grid-headers="state.bind: stateModel"></template>
   </div>
   <div class="row" repeat.for="item of model.currentPage" click.delegate="model.selectItem(item)">
-    <template grid-content.bind="item"></template>
+    <template grid-content="item.bind: item; state.bind: stateModel"></template>
   </div>
 </div>

@@ -2,11 +2,16 @@ import {
   ILogger,
   noop,
 } from '@aurelia/kernel';
-import { observable } from '@aurelia/runtime';
+import {
+  observable,
+} from '@aurelia/runtime';
+import {
+  SortOption,
+} from './sorting-options.js';
 
 const defaultPageSize = 50;
 
-export class ListModel<T extends unknown> {
+export class GridModel<T extends unknown> {
   public isAnySelected: boolean = false;
   public isOneSelected: boolean = false;
   @observable public allItems: T[] | null;
@@ -31,7 +36,7 @@ export class ListModel<T extends unknown> {
     public readonly onSortingOptionChange: ApplySorting<T> | null,
     logger: ILogger,
   ) {
-    this.logger = logger.scopeTo('ListModel');
+    this.logger = logger.scopeTo('GridModel');
     this.allItems = allItems;
     const fetchPage = this.fetchPage = pagingOptions?.fetchPage ?? null;
     this.fetchCount = pagingOptions?.fetchCount ?? null;
@@ -197,32 +202,11 @@ export interface SelectionOptions<T extends unknown> {
   onSelectionChange: SelectionChangeHandler<T>
 }
 
-type FetchCount<T extends unknown> = (listModel: ListModel<T>) => number | Promise<number>;
-type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, listModel: ListModel<T>) => T[] | Promise<T[]>;
+export type FetchCount<T extends unknown> = (model: GridModel<T>) => number | Promise<number>;
+export type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, model: GridModel<T>) => T[] | Promise<T[]>;
 export interface PagingOptions<T extends unknown> {
   pageSize: number | null;
   fetchPage: FetchPage<T>;
   fetchCount: FetchCount<T>;
 }
-
-type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, listModel: ListModel<T>) => void;
-export enum SortDirection {
-  Ascending,
-  Descending
-}
-
-export interface SortOption<T extends unknown> {
-  /**
-   * Name of the property on which to sort
-   * @type {keyof T}
-   * @memberof SortInfo
-   */
-  property: keyof T;
-
-  /**
-   * Direction of sorting
-   * @type {SortDirection}
-   * @memberof SortInfo
-   */
-  direction: SortDirection;
-}
+export type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, model: GridModel<T>) => void;

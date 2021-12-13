@@ -5,9 +5,11 @@ export {
   DataGridConfiguration,
 } from './configuration.js';
 export {
-  ListModel,
+  GridModel,
   SelectionMode,
   SelectionOptions,
+} from './list-model.js';
+export {
   SortDirection,
   SortOption,
-} from './list-model.js';
+} from './sorting-options.js';

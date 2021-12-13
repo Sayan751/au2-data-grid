@@ -1,45 +1,68 @@
 import {
-  DI,
-  IContainer,
-  onResolve,
-  Registration,
-  resolveAll,
+  IContainer
 } from '@aurelia/kernel';
 import {
   bindable,
-  BindingContext,
+  BindingMode,
   CustomElement,
   customElement,
   CustomElementDefinition,
-  ICustomAttributeController,
-  ICustomAttributeViewModel,
   ICustomElementController,
   ICustomElementViewModel,
   IDryCustomElementController,
-  IHydratedController,
-  IHydratedParentController,
   IHydrationContext,
   INode,
-  IPlatform,
-  IRenderLocation,
-  ISyntheticView,
-  LifecycleFlags,
-  Scope,
-  templateController,
-  ViewFactory,
+  IPlatform
 } from '@aurelia/runtime-html';
 import template from './data-grid.html';
 import {
-  ListModel,
+  GridContent,
+} from './grid-content.js';
+import {
+  GridHeader,
+} from './grid-header.js';
+import {
+  GridHeaders,
+} from './grid-headers.js';
+import {
+  Column,
+  ExportableGridState,
+  GridStateModel,
+  IGridStateModel,
+} from './grid-state.js';
+import {
+  GridModel,
 } from './list-model.js';
+import {
+  SortDirection,
+} from './sorting-options.js';
 
+const ascPattern = /^asc$|^ascending$/i;
+const descPattern = /^desc$|^descending$/i;
 // TODO: support adding bindables directly from processContent
-const definitionLookup: Map<number, [headers: CustomElementDefinition[], cells: CustomElementDefinition[]]> = new Map<number, [CustomElementDefinition[], CustomElementDefinition[]]>();
+const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>();
 
-@customElement({ name: 'data-grid', template })
+@customElement({
+  name: 'data-grid',
+  template,
+  dependencies: [
+    // TCs
+    GridHeaders,
+    GridContent,
+    //CEs
+    GridHeader,
+  ]
+})
 export class DataGrid implements ICustomElementViewModel {
   private static id: number = 0;
-  @bindable public model!: ListModel<Record<string, unknown>>;
+
+  @bindable
+  public model!: GridModel<Record<string, unknown>>;
+
+  @bindable({ mode: BindingMode.oneTime })
+  public state?: ExportableGridState = void 0;
+
+  private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
 
   public constructor(
@@ -52,26 +75,46 @@ export class DataGrid implements ICustomElementViewModel {
     const instanceId = Number(instanceIdStr);
     if (!Number.isInteger(instanceId)) throw new Error(`Invalid data grid instanceId: ${instanceIdStr}; expected integer.`);
 
-    const definitions = definitionLookup.get(Number(instanceId));
-    if (definitions === undefined) throw new Error(`Cannot find definition for the instance #${instanceIdStr}`);
+    const state = stateLookup.get(Number(instanceId));
+    if (state === undefined) throw new Error(`Cannot find the model for the instance #${instanceIdStr}`);
 
-    const container = this.container;
-    const headers = definitions[0];
-    this.node.style.setProperty('--num-columns', headers.length.toString());
-    container.register(Registration.instance(IHeaderViewFactories, headers.map((item) => new ViewFactory(container, item))));
-    container.register(Registration.instance(IContentViewFactories, definitions[1].map((item) => new ViewFactory(container, item))));
+    this.stateModel = state;
+    state.createViewFactories(this.container);
+    this.node.style.setProperty('--num-columns', state.columns.length.toString());
   }
 
+  public binding() {
+    const state = this.state;
+    if (state == null) return;
+    this.stateModel.applyState(state);
+  }
+
+  public exportState(): ExportableGridState {
+    return this.stateModel.export();
+  }
+
+  // TODO: supply a logger to the processContent
   public static processContent(content: HTMLElement, platform: IPlatform) {
     const columns = content.querySelectorAll('grid-column');
     const numColumns = columns.length;
 
-    const headers: CustomElementDefinition[] = new Array(numColumns);
-    const cells: CustomElementDefinition[] = new Array(numColumns);
-
+    const state = new GridStateModel([]);
     const doc = platform.document;
     for (let i = 0; i < numColumns; i++) {
       const col = columns[i];
+      let exportable = true;
+      const property = col.getAttribute('property');
+      const id = col.getAttribute('id') ?? property ?? (exportable = false, Column.generateId());
+      const directionRaw = col.getAttribute('sort-direction');
+      let direction: SortDirection | null = null;
+      if (directionRaw !== null) {
+        if (ascPattern.test(directionRaw)) {
+          direction = SortDirection.Ascending;
+        } else if (descPattern.test(directionRaw)) {
+          direction = SortDirection.Descending;
+        }
+      }
+
       let container = doc.createElement('div');
 
       // extract header
@@ -81,145 +124,30 @@ export class DataGrid implements ICustomElementViewModel {
         ? Array.from(headerContent!)
         : [doc.createTextNode(`Column ${i + 1}`)]
       ));
-      headers[i] = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
+      const headerDfn = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
       header?.remove();
 
       // extract content
       container = doc.createElement('div');
       container.append(...Array.from(col.childNodes));
-      cells[i] = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
+      const contentDfn = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
+
+      void new Column(
+        state,
+        id ?? property,
+        property,
+        exportable,
+        direction,
+        null, // TODO,
+        headerDfn,
+        contentDfn,
+      );
 
       col.remove();
     }
 
     const id = ++this.id;
-    definitionLookup.set(id, [headers, cells]);
+    stateLookup.set(id, state);
     content.setAttribute('data-instance-id', id.toString());
-    content.setAttribute('headers.bind', '');
-    content.setAttribute('cells.bind', '');
-  }
-}
-
-const IHeaderViewFactories = DI.createInterface<ViewFactory[]>('IHeaderViewFactories');
-/**
- * @internal
- */
-@templateController('grid-headers')
-export class DataGridHeaders implements ICustomAttributeViewModel {
-  public readonly $controller!: ICustomAttributeController<this>; // This is set by the controller after this instance is constructed
-  private headers!: ISyntheticView[];
-  private promise: Promise<void> | void = void 0;
-
-  public constructor(
-    @IRenderLocation private readonly location: IRenderLocation,
-    @IHeaderViewFactories private readonly factories: ViewFactory[],
-  ) { }
-
-  public attaching(
-    initiator: IHydratedController,
-    parent: IHydratedParentController,
-    flags: LifecycleFlags,
-  ) {
-    const location = this.location;
-    const factories = this.factories;
-    const len = factories.length;
-    const headers = this.headers = new Array(len);
-    const activationPromises = new Array(len);
-    for (let i = 0; i < len; i++) {
-      const header = headers[i] = factories[i].create(initiator).setLocation(location);
-      activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create()));
-    }
-    this.queue(() => resolveAll(...activationPromises));
-    return this.promise;
-  }
-
-  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
-    this.queue(() => resolveAll(...this.headers.map((header)=> header.deactivate(initiator, parent, flags))));
-    return this.promise;
-  }
-
-  public dispose(): void {
-    let headers = this.headers;
-    let len = headers.length;
-    for (let i = 0; i < len; i++) {
-      headers[i].dispose();
-    }
-    this.headers.length = 0;
-  }
-
-  private queue(action: () => void | Promise<void>): void {
-    const previousPromise = this.promise;
-    let promise: void | Promise<void> = void 0;
-    promise = this.promise = onResolve(
-      onResolve(previousPromise, action),
-      () => {
-        if (this.promise === promise) {
-          this.promise = void 0;
-        }
-      }
-    );
-  }
-}
-
-const IContentViewFactories = DI.createInterface<ViewFactory[]>('IContentViewFactories');
-/**
- * @internal
- */
-@templateController('grid-content')
-export class DataGridContent implements ICustomAttributeViewModel {
-  @bindable({ primary: true }) public item: unknown;
-  public readonly $controller!: ICustomAttributeController<this>; // This is set by the controller after this instance is constructed
-  private cells!: ISyntheticView[];
-  private promise: Promise<void> | void = void 0;
-
-  public constructor(
-    @IRenderLocation private readonly location: IRenderLocation,
-    @IContentViewFactories private readonly factories: ViewFactory[],
-  ) { }
-
-  public attaching(
-    initiator: IHydratedController,
-    parent: IHydratedParentController,
-    flags: LifecycleFlags,
-  ) {
-    const item = this.item;
-    const location = this.location;
-    const factories = this.factories;
-    const len = factories.length;
-    const cells = this.cells = new Array(len);
-    const activationPromises = new Array(len);
-    for (let i = 0; i < len; i++) {
-      const cell = cells[i] = factories[i].create(initiator).setLocation(location);
-      activationPromises[i] = cell.activate(initiator, parent, flags, Scope.create(BindingContext.create({ item })));
-    }
-    this.queue(() => resolveAll(...activationPromises));
-    return this.promise;
-  }
-
-  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
-    this.queue(() => resolveAll(...this.cells.map((cell) => cell.deactivate(initiator, parent, flags))));
-    return this.promise;
-  }
-
-  public dispose(): void {
-    let cells = this.cells;
-    let len = cells.length;
-    for (let i = 0; i < len; i++) {
-      cells[i].dispose();
-    }
-    this.cells.length = 0;
-  }
-
-  private queue(action: () => void | Promise<void>): void {
-    const previousPromise = this.promise;
-    let promise: void | Promise<void> = void 0;
-    promise = this.promise = onResolve(
-      onResolve(previousPromise, action),
-      () => {
-        if (this.promise === promise) {
-          this.promise = void 0;
-        }
-      }
-    );
   }
 }
