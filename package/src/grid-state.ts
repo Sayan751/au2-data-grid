@@ -9,9 +9,9 @@ import {
   SortOption,
 } from './sorting-options.js';
 
-type GridStateChangeSubscriber = {
-  handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>> | null, oldValue: SortOption<Record<string, unknown>> | null): void;
-  handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>> | null, oldValue: SortOption<Record<string, unknown>> | null): void;
+export type GridStateChangeSubscriber = {
+  handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
+  handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
 }
 export interface ExportableGridState {
   columns: ExportableColumnState[];
@@ -23,7 +23,7 @@ export interface IGridStateModel extends GridStateModel { }
 export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateModel');
 export class GridStateModel implements IGridState {
   // TODO: support multiple sort options later;.
-  private activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
+  private _activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
   // TODO: remove the elaborate subscriber infra later if not needed.
   /**
    * First change subscriber slot.
@@ -50,6 +50,10 @@ export class GridStateModel implements IGridState {
     if (columns.length === 0) return;
     this.initializeActiveSortOptions();
   }
+
+  public get activeSortOptions(): SortOption<Record<string, unknown>> | null {
+    return this._activeSortOptions
+  };
 
   public export(): ExportableGridState {
     return {
@@ -87,10 +91,10 @@ export class GridStateModel implements IGridState {
     }
   }
 
-  private initializeActiveSortOptions(): void {
+  public initializeActiveSortOptions(): SortOption<Record<string, unknown>> | null {
     const column = this.columns.find(c => c.direction !== null);
-    if (column == null) return;
-    this.activeSortOptions = {
+    if (column == null) return null;
+    return this._activeSortOptions = {
       property: column.property!,
       direction: column.direction!,
     };
@@ -127,12 +131,12 @@ export class GridStateModel implements IGridState {
 
   private notifySubscribers(
     type: ChangeType.Sort,
-    newValue: SortOption<Record<string, unknown>> | null,
+    newValue: SortOption<Record<string, unknown>>,
     oldValue: SortOption<Record<string, unknown>> | null,
   ): void;
   private notifySubscribers(
     type: ChangeType,
-    newValue: SortOption<Record<string, unknown>> | null,
+    newValue: SortOption<Record<string, unknown>>,
     oldValue: SortOption<Record<string, unknown>> | null,
   ): void {
     let subscriber = this.subscriber1;
@@ -159,7 +163,7 @@ export class GridStateModel implements IGridState {
   public handleChange(type: ChangeType, column: Column): void {
     switch (type) {
       case ChangeType.Sort: {
-        const oldSortOptions = this.activeSortOptions;
+        const oldSortOptions = this._activeSortOptions;
         const oldProperty = oldSortOptions?.property;
         const newProperty = column.property!;
         if (oldProperty !== newProperty) {
@@ -168,7 +172,7 @@ export class GridStateModel implements IGridState {
             .find(c => c.property === oldProperty)
             ?.setDirection(null, false);
         }
-        const newSortOptions = this.activeSortOptions = { property: newProperty, direction: column.direction! };
+        const newSortOptions = this._activeSortOptions = { property: newProperty, direction: column.direction! };
         this.notifySubscribers(type, newSortOptions, oldSortOptions);
         return;
       }

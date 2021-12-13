@@ -14,7 +14,10 @@ const defaultPageSize = 50;
 export class GridModel<T extends unknown> {
   public isAnySelected: boolean = false;
   public isOneSelected: boolean = false;
-  @observable public allItems: T[] | null;
+
+  @observable
+  public allItems: T[] | null;
+
   private selectedItems: T[] = [];
   private readonly selectionMode: SelectionMode;
   private readonly onSelectionChange: SelectionChangeHandler<T>;
@@ -33,7 +36,7 @@ export class GridModel<T extends unknown> {
     allItems: T[] | null,
     pagingOptions: Partial<PagingOptions<T>> | null,
     selectionOptions: Partial<SelectionOptions<T>> | null,
-    public readonly onSortingOptionChange: ApplySorting<T> | null,
+    public readonly onSorting: ApplySorting<T> | null,
     logger: ILogger,
   ) {
     this.logger = logger.scopeTo('GridModel');
@@ -100,7 +103,7 @@ export class GridModel<T extends unknown> {
   public applySorting(...sortOptions: SortOption<T>[]) {
     const oldValue = this._sortOptions;
     const newValue = this._sortOptions = sortOptions;
-    this.onSortingOptionChange?.(newValue, oldValue, this.allItems, this);
+    this.onSorting?.(newValue, oldValue, this.allItems, this);
     this.setCurrentPageNumber(1, true);
   }
 

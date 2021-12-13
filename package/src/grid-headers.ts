@@ -46,8 +46,9 @@ export class GridHeaders implements ICustomAttributeViewModel {
     const headers = this.headers = new Array(len);
     const activationPromises = new Array(len);
     for (let i = 0; i < len; i++) {
-      const header = headers[i] = columns[i].headerViewFactory!.create(initiator).setLocation(location);
-      activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create()));
+      const column = columns[i];
+      const header = headers[i] = column.headerViewFactory!.create(initiator).setLocation(location);
+      activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create({ state: column })));
     }
     this.queue(() => resolveAll(...activationPromises));
     return this.promise;

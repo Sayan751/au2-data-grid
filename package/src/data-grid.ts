@@ -25,8 +25,10 @@ import {
   GridHeaders,
 } from './grid-headers.js';
 import {
+  ChangeType,
   Column,
   ExportableGridState,
+  GridStateChangeSubscriber,
   GridStateModel,
   IGridStateModel,
 } from './grid-state.js';
@@ -35,6 +37,7 @@ import {
 } from './list-model.js';
 import {
   SortDirection,
+  SortOption,
 } from './sorting-options.js';
 
 const ascPattern = /^asc$|^ascending$/i;
@@ -53,7 +56,7 @@ const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>
     GridHeader,
   ]
 })
-export class DataGrid implements ICustomElementViewModel {
+export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscriber {
   private static id: number = 0;
 
   @bindable
@@ -84,13 +87,30 @@ export class DataGrid implements ICustomElementViewModel {
   }
 
   public binding() {
+    const stateModel = this.stateModel;
     const state = this.state;
-    if (state == null) return;
-    this.stateModel.applyState(state);
+    if (state != null) {
+      stateModel.applyState(state);
+    }
+    const sortingOptions = stateModel.initializeActiveSortOptions();
+    if (sortingOptions !== null) {
+      this.model.applySorting(sortingOptions);
+    }
+    stateModel.addSubscriber(this);
   }
 
   public exportState(): ExportableGridState {
     return this.stateModel.export();
+  }
+
+
+  public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
+  public handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>>, _oldValue: SortOption<Record<string, unknown>> | null): void {
+    switch (type) {
+      case ChangeType.Sort:
+        this.model.applySorting(newValue);
+        break;
+    }
   }
 
   // TODO: supply a logger to the processContent
@@ -102,6 +122,8 @@ export class DataGrid implements ICustomElementViewModel {
     const doc = platform.document;
     for (let i = 0; i < numColumns; i++) {
       const col = columns[i];
+
+      // extract metadata
       let exportable = true;
       const property = col.getAttribute('property');
       const id = col.getAttribute('id') ?? property ?? (exportable = false, Column.generateId());
@@ -115,9 +137,9 @@ export class DataGrid implements ICustomElementViewModel {
         }
       }
 
-      let container = doc.createElement('div');
-
       // extract header
+      let container = doc.createElement('grid-header');
+      container.setAttribute('state.bind', '');
       const header = col.querySelector('header');
       const headerContent = header?.childNodes;
       container.append(...(headerContent !== undefined
@@ -129,6 +151,7 @@ export class DataGrid implements ICustomElementViewModel {
 
       // extract content
       container = doc.createElement('div');
+      container.setAttribute('role', 'cell');
       container.append(...Array.from(col.childNodes));
       const contentDfn = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
 

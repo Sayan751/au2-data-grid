@@ -16,13 +16,17 @@
     background: #bbb;
     color: #333;
   } */
+  grid-header {
+    display: flex;
+    align-content: baseline;
+  }
 </style>
 
 <div class="container">
-  <div class="row">
+  <div class="row" role="row">
     <template grid-headers="state.bind: stateModel"></template>
   </div>
-  <div class="row" repeat.for="item of model.currentPage" click.delegate="model.selectItem(item)">
+  <div class="row" role="row" repeat.for="item of model.currentPage" click.delegate="model.selectItem(item)">
     <template grid-content="item.bind: item; state.bind: stateModel"></template>
   </div>
 </div>

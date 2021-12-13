@@ -9,15 +9,15 @@ export class StaticList implements ICustomElementViewModel {
   private logger: ILogger;
   private people: GridModel<Person>;
   private static readonly ds1 = [
-    new Person('Bruce', 'Wayne'),
-    new Person('Clark', 'Kent'),
-    new Person('Diana', 'Prince'),
-    new Person('Billy', 'Batson'),
+    new Person('Bruce', 'Wayne', 42),
+    new Person('Clark', 'Kent',  43),
+    new Person('Diana', 'Prince', 44),
+    new Person('Billy', 'Batson', 24),
   ];
   private static readonly ds2 = [
-    new Person('Tony', 'Stark'),
-    new Person('Peter', 'Parker'),
-    new Person('Bruce', 'Banner'),
+    new Person('Tony', 'Stark', 42),
+    new Person('Peter', 'Parker', 14),
+    new Person('Bruce', 'Banner', 43),
   ];
 
   public constructor(
@@ -55,22 +55,6 @@ export class StaticList implements ICustomElementViewModel {
 
   public useDataset2() {
     this.people.allItems = StaticList.ds2;
-  }
-
-  public sortByFname() {
-    this.people.applySorting({ property: 'fname', direction: SortDirection.Ascending });
-  }
-
-  public sortByFnameDsc() {
-    this.people.applySorting({ property: 'fname', direction: SortDirection.Descending });
-  }
-
-  public sortByLname() {
-    this.people.applySorting({ property: 'lname', direction: SortDirection.Ascending });
-  }
-
-  public sortByLnameDsc() {
-    this.people.applySorting({ property: 'lname', direction: SortDirection.Descending });
   }
 }
 

@@ -1,0 +1,10 @@
+<template click.delegate="handleClick()" role="columnheader button">
+  <au-slot></au-slot>
+  <template if.bind="isSortable">
+    <!-- BLACK UP-POINTING SMALL TRIANGLE -->
+    <span if.bind="direction === 'Ascending'">&#x25B4;</span>
+
+    <!-- BLACK DOWN-POINTING SMALL TRIANGLE -->
+    <span if.bind="direction === 'Descending'">&#x25BE;</span>
+  </template>
+</template>
