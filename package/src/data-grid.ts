@@ -31,6 +31,7 @@ import {
   GridStateChangeSubscriber,
   GridStateModel,
   IGridStateModel,
+  OrderChangeData,
 } from './grid-state.js';
 import {
   GridModel,
@@ -99,16 +100,21 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     stateModel.addSubscriber(this);
   }
 
+  public unbinding() {
+    this.stateModel.removeSubscriber(this);
+  }
+
   public exportState(): ExportableGridState {
     return this.stateModel.export();
   }
 
 
+  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  public handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>>, _oldValue: SortOption<Record<string, unknown>> | null): void {
+  public handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     switch (type) {
       case ChangeType.Sort:
-        this.model.applySorting(newValue);
+        this.model.applySorting(newValue as SortOption<Record<string, unknown>>);
         break;
     }
   }
@@ -142,10 +148,13 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
       container.setAttribute('state.bind', '');
       const header = col.querySelector('header');
       const headerContent = header?.childNodes;
-      container.append(...(headerContent !== undefined
+      const projection = doc.createElement('template');
+      projection.setAttribute('au-slot', 'default');
+      projection.content.append(...(headerContent !== undefined
         ? Array.from(headerContent!)
         : [doc.createTextNode(`Column ${i + 1}`)]
       ));
+      container.append(projection);
       const headerDfn = CustomElementDefinition.create({ name: CustomElement.generateName(), template: container });
       header?.remove();
 

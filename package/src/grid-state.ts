@@ -1,18 +1,16 @@
 import {
-  DI, IContainer,
+  DI,
+  IContainer,
 } from '@aurelia/kernel';
 import {
-  CustomElementDefinition, ViewFactory,
+  CustomElementDefinition,
+  ViewFactory,
 } from '@aurelia/runtime-html';
 import {
   SortDirection,
   SortOption,
 } from './sorting-options.js';
 
-export type GridStateChangeSubscriber = {
-  handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-}
 export interface ExportableGridState {
   columns: ExportableColumnState[];
 }
@@ -24,7 +22,6 @@ export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateMo
 export class GridStateModel implements IGridState {
   // TODO: support multiple sort options later;.
   private _activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
-  // TODO: remove the elaborate subscriber infra later if not needed.
   /**
    * First change subscriber slot.
    * @internal
@@ -135,20 +132,23 @@ export class GridStateModel implements IGridState {
     oldValue: SortOption<Record<string, unknown>> | null,
   ): void;
   private notifySubscribers(
+    type: ChangeType.Order,
+    newValue: OrderChangeData,
+    oldValue: null,
+  ): void;
+  private notifySubscribers(
     type: ChangeType,
-    newValue: SortOption<Record<string, unknown>>,
+    newValue: SortOption<Record<string, unknown>> | OrderChangeData,
     oldValue: SortOption<Record<string, unknown>> | null,
   ): void {
     let subscriber = this.subscriber1;
-    if (subscriber !== null) {
-      subscriber.handleGridStateChange(type, newValue, oldValue);
-      return;
-    }
+    if (subscriber === null) return;
+    subscriber.handleGridStateChange(type, newValue, oldValue);
+
     subscriber = this.subscriber2;
-    if (subscriber !== null) {
-      subscriber.handleGridStateChange(type, newValue, oldValue);
-      return;
-    }
+    if (subscriber === null) return;
+    subscriber.handleGridStateChange(type, newValue, oldValue);
+
     const subscribers = this.subscribers;
     const len = subscribers.length;
     for (let i = 0; i < len; i++) {
@@ -158,22 +158,35 @@ export class GridStateModel implements IGridState {
   }
 
   /** @internal */
-  public handleChange(type: ChangeType.Width, column: Column): void;
   public handleChange(type: ChangeType.Sort, column: Column): void;
-  public handleChange(type: ChangeType, column: Column): void {
+  public handleChange(type: ChangeType.Width, column: Column): void;
+  public handleChange(type: ChangeType.Order, sourceId: string, destination: Column, location: OrderChangeDropLocation): void;
+  public handleChange(type: ChangeType, columnOrId: string | Column, destination?: Column, location?: OrderChangeDropLocation): void {
     switch (type) {
       case ChangeType.Sort: {
         const oldSortOptions = this._activeSortOptions;
         const oldProperty = oldSortOptions?.property;
-        const newProperty = column.property!;
+        const newProperty = (columnOrId as Column).property!;
         if (oldProperty !== newProperty) {
           // this is needed so that change to the old sort column can be propagated to the view.
           this.columns
             .find(c => c.property === oldProperty)
             ?.setDirection(null, false);
         }
-        const newSortOptions = this._activeSortOptions = { property: newProperty, direction: column.direction! };
+        const newSortOptions = this._activeSortOptions = { property: newProperty, direction: (columnOrId as Column).direction! };
         this.notifySubscribers(type, newSortOptions, oldSortOptions);
+        return;
+      }
+      case ChangeType.Order: {
+        const columns = this.columns;
+        const sourceIndex = columns.findIndex(c => c.id === columnOrId);
+        const destinationIndex = columns.findIndex(c => c === destination);
+        const diff = destinationIndex - sourceIndex;
+        if (diff === 1 && location === OrderChangeDropLocation.Before
+          || diff === -1 && location === OrderChangeDropLocation.After
+        ) return;
+        columns.splice(destinationIndex, 0, columns.splice(sourceIndex, 1)[0]);
+        this.notifySubscribers(type, { fromIndex: sourceIndex, toIndex: destinationIndex, location } as OrderChangeData, null)
         return;
       }
       case ChangeType.Width:
@@ -275,8 +288,28 @@ export class Column implements ColumnState {
   }
 }
 
-export enum ChangeType {
-  Sort,
-  Width,
-  Order,
+export const enum ChangeType {
+  /** Content sorting is changed. */
+  Sort = 1,
+  /** Column is reordered. */
+  Order = 2,
+  /** Width of a column is changed. */
+  Width = 3,
+}
+
+export const enum OrderChangeDropLocation {
+  Before = 1,
+  After = 2,
+}
+
+export interface OrderChangeData {
+  fromIndex: number;
+  toIndex: number;
+  location: OrderChangeDropLocation;
+}
+
+export type GridStateChangeSubscriber = {
+  handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
+  handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
+  handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>> | OrderChangeData, oldValue: SortOption<Record<string, unknown>> | null): void;
 }

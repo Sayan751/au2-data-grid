@@ -1,5 +1,8 @@
-<template click.delegate="handleClick()" role="columnheader button">
-  <au-slot></au-slot>
+<template role="columnheader button" click.delegate="handleClick()" draggable="true"
+  dragstart.delegate="handleDragStart($event)" dragover.delegate="handleDragover($event)" drop.delegate="handleDrop($event)" >
+  <span ref="content">
+    <au-slot></au-slot>
+  </span>
   <template if.bind="isSortable">
     <!-- BLACK UP-POINTING SMALL TRIANGLE -->
     <span if.bind="direction === 'Ascending'">&#x25B4;</span>
