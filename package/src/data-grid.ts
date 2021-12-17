@@ -1,5 +1,5 @@
 import {
-  IContainer
+  IContainer,
 } from '@aurelia/kernel';
 import {
   bindable,
@@ -12,18 +12,16 @@ import {
   IDryCustomElementController,
   IHydrationContext,
   INode,
-  IPlatform
+  IPlatform,
 } from '@aurelia/runtime-html';
 import template from './data-grid.html';
-import {
-  GridContent,
-} from './grid-content.js';
 import {
   GridHeader,
 } from './grid-header.js';
 import {
   GridHeaders,
-} from './grid-headers.js';
+  GridContent,
+} from './template-controllers.js';
 import {
   ChangeType,
   Column,

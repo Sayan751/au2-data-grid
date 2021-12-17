@@ -3,11 +3,15 @@
 
 ```html
 <data-grid model.bind="model">
-    <grid-column sort-property="prop1">
+    <grid-column>
+        <header> Un-sortable column </header>
+        Whatever goes here is the content
+    </grid-column>
+    <grid-column property="prop1">
         <header> Header1 </header>
         Whatever goes here is the content
     </grid-column>
-    <grid-column sort-properties="prop2,prop3">
+    <grid-column property="prop2" sort-direction="desc">
         <header>
             <custom-element-header-content></custom-element-header-content>
         </header>
@@ -15,9 +19,9 @@
     </grid-column>
 </data-grid>
 ```
-- The items must be page-able
-
-- Supports sorting
 - Supports item selection
+- The items must be page-able
+- Supports sorting
 - Supports column reordering
+
 - Supports column resizing
