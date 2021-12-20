@@ -3,6 +3,7 @@ import {
   BindingMode,
   customElement,
   ICustomElementViewModel,
+  INode,
 } from '@aurelia/runtime-html';
 import template from './grid-header.html';
 import {
@@ -14,6 +15,7 @@ import {
   SortDirection,
 } from './sorting-options.js';
 
+const listMinColumnWidth = 30;
 /*
 TODO: customization of template
   To this end, export a default definition with a default template.
@@ -29,6 +31,10 @@ export class GridHeader implements ICustomElementViewModel {
   public readonly state!: Column;
   private readonly content!: HTMLElement;
 
+  public constructor(
+    @INode private readonly node: HTMLElement,
+  ) { }
+
   public get isSortable() {
     return this.state.sortable;
   }
@@ -37,7 +43,16 @@ export class GridHeader implements ICustomElementViewModel {
     return this.state.direction;
   }
 
+  public get isResizable() {
+    return true; // TODO: get it from Column (state)  <- processContent <- list markup
+  }
+
+  public binding() {
+    this.state.headerElement = this.node;
+  }
+
   private handleClick() {
+    console.log('click event');
     // non-sortable column; nothing to do.
     if (!this.isSortable) { return; }
     const state = this.state;
@@ -73,6 +88,36 @@ export class GridHeader implements ICustomElementViewModel {
       this.state,
       GridHeader.computeDropLocation(this.content.getBoundingClientRect(), event.x)
     );
+  }
+
+  private handleMouseDown(event: MouseEvent) {
+    event.preventDefault();
+
+    // Handle column resizing if the user starts dragging a resize handle:
+    const resize = ($event: MouseEvent): void => {
+      $event.stopImmediatePropagation();
+      $event.preventDefault();
+
+      const state = this.state;
+      state.widthPx = Math.max(listMinColumnWidth, $event.clientX - this.node.getBoundingClientRect().x);
+      const columns = state.parent.columns;
+      const len = columns.length;
+      for (let i = 0; i < len; i++) {
+        const column = columns[i];
+        if (column.widthPx !== null) continue;
+        column.widthPx = column.headerElement!.getBoundingClientRect().width;
+      }
+
+      state.parent.handleChange(ChangeType.Width);
+    };
+    const stop = ($event: MouseEvent): void => {
+      $event.stopImmediatePropagation();
+      $event.preventDefault();
+      window.removeEventListener('mousemove', resize, { capture: true });
+      window.removeEventListener('mouseup', stop, { capture: true });
+    };
+    window.addEventListener('mousemove', resize, { capture: true });
+    window.addEventListener('mouseup', stop, { capture: true });
   }
 
   /** @internal */

@@ -66,6 +66,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
 
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
+  private readonly containerEl!: HTMLElement;
 
   public constructor(
     @INode private readonly node: HTMLElement,
@@ -107,12 +108,16 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   }
 
 
-  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
+  public handleGridStateChange(type: ChangeType.Width): void;
+  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  public handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
+  public handleGridStateChange(type: ChangeType, newValue?: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     switch (type) {
       case ChangeType.Sort:
         this.model.applySorting(newValue as SortOption<Record<string, unknown>>);
+        break;
+      case ChangeType.Width:
+        this.containerEl.style.gridTemplateColumns = this.stateModel.columns.map(c => `${c.widthPx}px`).join(' ');
         break;
     }
   }

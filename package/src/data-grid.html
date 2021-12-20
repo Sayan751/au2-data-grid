@@ -1,8 +1,18 @@
 <style>
+  :root {
+    --handle-color: white;
+    --resize-handle-width: 7px;
+    --resize-handle-height: 15px;
+    --col-gap: 1rem;
+    --row-gap: calc(var(--col-gap)/2);
+  }
+
   /* TODO to externalize this and apply css module transformations */
   .container {
     display: grid;
     grid-template-columns: repeat(var(--num-columns), 1fr);
+    gap: var(--row-gap) var(--col-gap);
+    white-space: nowrap;
   }
 
   .row {
@@ -18,11 +28,24 @@
   } */
   grid-header {
     display: flex;
+  }
+
+  grid-header>div:first-child {
+    display: flex;
     align-content: baseline;
+    flex: 1;
+  }
+
+  .resize-handle {
+    width: var(--resize-handle-width);
+    height: var(--resize-handle-height);
+    align-self: center;
+    margin-left: auto;
+    cursor: col-resize;
   }
 </style>
 
-<div class="container">
+<div class="container" ref="containerEl">
   <div class="row" role="row">
     <template grid-headers="state.bind: stateModel"></template>
   </div>

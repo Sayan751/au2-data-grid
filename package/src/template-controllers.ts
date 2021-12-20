@@ -83,9 +83,10 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     this.headers.length = 0;
   }
 
-  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
+  public handleGridStateChange(type: ChangeType.Width): void;
+  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  public handleGridStateChange(type: ChangeType, value: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue: SortOption<Record<string, unknown>> | null): void {
+  public handleGridStateChange(type: ChangeType, value?: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     if (type !== ChangeType.Order) return;
     handleReordering(this.headers, value as OrderChangeData, this.location);
   }
@@ -174,9 +175,10 @@ export class GridContent implements ICustomAttributeViewModel {
     );
   }
 
-  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
+  public handleGridStateChange(type: ChangeType.Width): void;
+  public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  public handleGridStateChange(type: ChangeType, value: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue: SortOption<Record<string, unknown>> | null): void {
+  public handleGridStateChange(type: ChangeType, value?: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     if (type !== ChangeType.Order) return;
     handleReordering(this.cells, value as OrderChangeData, this.location);
   }

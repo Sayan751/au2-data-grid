@@ -1,13 +1,18 @@
-<template role="columnheader button" click.delegate="handleClick()" draggable="true"
-  dragstart.delegate="handleDragStart($event)" dragover.delegate="handleDragover($event)" drop.delegate="handleDrop($event)" >
-  <span ref="content">
-    <au-slot></au-slot>
-  </span>
-  <template if.bind="isSortable">
-    <!-- BLACK UP-POINTING SMALL TRIANGLE -->
-    <span if.bind="direction === 'Ascending'">&#x25B4;</span>
+<template role="columnheader button">
+  <div click.delegate="handleClick()">
+    <span ref="content" draggable="true" dragstart.delegate="handleDragStart($event)"
+      dragover.delegate="handleDragover($event)" drop.delegate="handleDrop($event)">
+      <au-slot></au-slot>
+    </span>
+    <template if.bind="isSortable">
+      <!-- BLACK UP-POINTING SMALL TRIANGLE -->
+      <span if.bind="direction === 'Ascending'">&#x25B4;</span>
 
-    <!-- BLACK DOWN-POINTING SMALL TRIANGLE -->
-    <span if.bind="direction === 'Descending'">&#x25BE;</span>
-  </template>
+      <!-- BLACK DOWN-POINTING SMALL TRIANGLE -->
+      <span if.bind="direction === 'Descending'">&#x25BE;</span>
+    </template>
+  </div>
+  <svg if.bind="isResizable" class="resize-handle" viewBox="0 0 7 15" mousedown.capture="handleMouseDown($event)">
+    <line x1="6" y1="0" x2="6" y2="17" stroke="var(--handle-color)" stroke-width="15%"></line>
+  </svg>
 </template>

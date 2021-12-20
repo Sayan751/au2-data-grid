@@ -127,6 +127,9 @@ export class GridStateModel implements IGridState {
   }
 
   private notifySubscribers(
+    type: ChangeType.Width,
+  ): void;
+  private notifySubscribers(
     type: ChangeType.Sort,
     newValue: SortOption<Record<string, unknown>>,
     oldValue: SortOption<Record<string, unknown>> | null,
@@ -138,8 +141,8 @@ export class GridStateModel implements IGridState {
   ): void;
   private notifySubscribers(
     type: ChangeType,
-    newValue: SortOption<Record<string, unknown>> | OrderChangeData,
-    oldValue: SortOption<Record<string, unknown>> | null,
+    newValue?: SortOption<Record<string, unknown>> | OrderChangeData,
+    oldValue?: SortOption<Record<string, unknown>> | null,
   ): void {
     let subscriber = this.subscriber1;
     if (subscriber === null) return;
@@ -158,10 +161,10 @@ export class GridStateModel implements IGridState {
   }
 
   /** @internal */
+  public handleChange(type: ChangeType.Width): void;
   public handleChange(type: ChangeType.Sort, column: Column): void;
-  public handleChange(type: ChangeType.Width, column: Column): void;
   public handleChange(type: ChangeType.Order, sourceId: string, destination: Column, location: OrderChangeDropLocation): void;
-  public handleChange(type: ChangeType, columnOrId: string | Column, destination?: Column, location?: OrderChangeDropLocation): void {
+  public handleChange(type: ChangeType, columnOrId?: string | Column, destination?: Column, location?: OrderChangeDropLocation): void {
     switch (type) {
       case ChangeType.Sort: {
         const oldSortOptions = this._activeSortOptions;
@@ -190,7 +193,7 @@ export class GridStateModel implements IGridState {
         return;
       }
       case ChangeType.Width:
-        // TODO
+        this.notifySubscribers(type);
         return;
       default:
         throw new Error(`Unsupported change type: ${type}.`);
@@ -223,6 +226,11 @@ export class Column implements ColumnState {
   private _headerViewFactory: ViewFactory | null = null;
   /** @internal */
   private _contentViewFactory: ViewFactory | null = null;
+  /**
+   * This is registered from inside the grid-header CE during `binding`.
+   * @internal
+   */
+  public headerElement?: HTMLElement;
 
   public constructor(
     public readonly parent: GridStateModel,
@@ -309,7 +317,8 @@ export interface OrderChangeData {
 }
 
 export type GridStateChangeSubscriber = {
-  handleGridStateChange(type: ChangeType.Order, value: OrderChangeData, oldValue: null): void;
+  handleGridStateChange(type: ChangeType.Width): void;
+  handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
-  handleGridStateChange(type: ChangeType, newValue: SortOption<Record<string, unknown>> | OrderChangeData, oldValue: SortOption<Record<string, unknown>> | null): void;
+  handleGridStateChange(type: ChangeType, newValue?: SortOption<Record<string, unknown>> | OrderChangeData, oldValue?: SortOption<Record<string, unknown>> | null): void;
 }
