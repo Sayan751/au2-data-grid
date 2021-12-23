@@ -1,0 +1,11 @@
+@import 'au2-data-grid/dist/styles.css';
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --handle-color: white;
+  }
+  body {
+    background-color: #333;
+    color: #eee;
+  }
+}

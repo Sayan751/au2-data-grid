@@ -7,6 +7,8 @@ import { NormalText } from './custom-elements/normal-text/normal-text';
 import { ValueText } from './custom-elements/value-text/value-text';
 import { StaticList } from './views/static-list/static-list';
 
+import './styles.css';
+
 (async function () {
   const host = document.querySelector<HTMLElement>('app')!;
 

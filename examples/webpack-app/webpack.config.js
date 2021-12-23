@@ -25,7 +25,8 @@ module.exports = function (env, { mode }) {
     module: {
       rules: [
         { test: /\.ts$/i, loader: 'ts-loader' },
-        { test: /\.html$/i, loader: 'html-loader' }
+        { test: /\.html$/i, loader: 'html-loader' },
+        { test: /\.css$/i, use: ['style-loader', 'css-loader'] },
       ]
     },
     plugins: [

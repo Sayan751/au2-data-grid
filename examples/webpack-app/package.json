@@ -15,10 +15,12 @@
     "@aurelia/runtime-html": "latest",
     "@aurelia/router": "latest",
     "au2-data-grid": "1.0.0",
+    "css-loader": "^6.5.1",
     "fake-service": "1.0.0",
     "ts-loader": "^9.2.6",
     "html-loader": "^3.0.0",
     "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
     "webpack": "^5.61.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.4.0"
