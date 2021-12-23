@@ -1,9 +1,9 @@
 import {
   IContainer,
+  ILogger,
 } from '@aurelia/kernel';
 import {
   bindable,
-  BindingMode,
   CustomElement,
   customElement,
   CustomElementDefinition,
@@ -32,8 +32,8 @@ import {
   OrderChangeData,
 } from './grid-state.js';
 import {
-  GridModel,
-} from './list-model.js';
+  ContentModel,
+} from './content-model.js';
 import {
   SortDirection,
   SortOption,
@@ -59,19 +59,28 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   private static id: number = 0;
 
   @bindable
-  public model!: GridModel<Record<string, unknown>>;
+  public model!: ContentModel<Record<string, unknown>>;
 
-  @bindable({ mode: BindingMode.oneTime })
+  /**
+   * Any bound state is read only once in the binding stage.
+   * Any 'incoming' changes from the consumer side thereafter is disregarded.
+   * Post-binding phase this property is treated as a write-only property to provide the consumer side with any changes in the exportable grid state.
+   */
+  @bindable
   public state?: ExportableGridState = void 0;
 
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
   private readonly containerEl!: HTMLElement;
+  private readonly logger: ILogger;
 
   public constructor(
     @INode private readonly node: HTMLElement,
     @IContainer private readonly container: IContainer,
-  ) { }
+    @ILogger logger: ILogger,
+  ) {
+    this.logger = logger.scopeTo('DataGrid');
+  }
 
   public define(_controller: IDryCustomElementController, hydrationContext: IHydrationContext | null, _definition: CustomElementDefinition) {
     const instanceIdStr = this.node.dataset.instanceId;
@@ -99,6 +108,10 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     stateModel.addSubscriber(this);
   }
 
+  public attaching() {
+    this.adjustColumnWidth();
+  }
+
   public unbinding() {
     this.stateModel.removeSubscriber(this);
   }
@@ -117,9 +130,18 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         this.model.applySorting(newValue as SortOption<Record<string, unknown>>);
         break;
       case ChangeType.Width:
-        this.containerEl.style.gridTemplateColumns = this.stateModel.columns.map(c => `${c.widthPx}px`).join(' ');
+        this.adjustColumnWidth();
         break;
     }
+    try {
+      this.state = this.stateModel.export();
+    } catch (e) {
+      this.logger.warn((e as Error).message);
+    }
+  }
+
+  private adjustColumnWidth() {
+    this.containerEl.style.gridTemplateColumns = this.stateModel.columns.map(c => `minmax(min-content, ${c.widthPx ?? 'auto'})`).join(' ');
   }
 
   // TODO: supply a logger to the processContent
@@ -145,6 +167,9 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
           direction = SortDirection.Descending;
         }
       }
+      const isResizable = !col.hasAttribute('non-resizable');
+      let width: string | null = col.getAttribute('width');
+      width = width === null || Number.isNaN(width) ? 'auto' : `${width}px`;
 
       // extract header
       let container = doc.createElement('grid-header');
@@ -173,7 +198,8 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         property,
         exportable,
         direction,
-        null, // TODO,
+        isResizable,
+        width,
         headerDfn,
         contentDfn,
       );

@@ -11,7 +11,11 @@ import {
 
 const defaultPageSize = 50;
 
-export class GridModel<T extends unknown> {
+/**
+ * Handles the data part of the grid.
+ * This has very little to do with the presentation of the data.
+ */
+export class ContentModel<T extends unknown> {
   public isAnySelected: boolean = false;
   public isOneSelected: boolean = false;
 
@@ -205,11 +209,11 @@ export interface SelectionOptions<T extends unknown> {
   onSelectionChange: SelectionChangeHandler<T>
 }
 
-export type FetchCount<T extends unknown> = (model: GridModel<T>) => number | Promise<number>;
-export type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, model: GridModel<T>) => T[] | Promise<T[]>;
+export type FetchCount<T extends unknown> = (model: ContentModel<T>) => number | Promise<number>;
+export type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, model: ContentModel<T>) => T[] | Promise<T[]>;
 export interface PagingOptions<T extends unknown> {
   pageSize: number | null;
   fetchPage: FetchPage<T>;
   fetchCount: FetchCount<T>;
 }
-export type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, model: GridModel<T>) => void;
+export type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, model: ContentModel<T>) => void;

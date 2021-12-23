@@ -10,19 +10,19 @@
 <br>
 
 <data-grid model.bind="people">
-  <grid-column property="fname">
+  <grid-column property="fname" width="100">
     <header>
       <value-text value="First name"></value-text>
     </header>
     <normal-text value.bind="item.fname"></normal-text>
   </grid-column>
-  <grid-column>
+  <grid-column width="50">
     <header>
       <value-text value="Last name"></value-text>
     </header>
     <normal-text value.bind="item.lname"></normal-text>
   </grid-column>
-  <grid-column property="age">
+  <grid-column property="age" non-resizable>
     <header>
       <value-text value="Age"></value-text>
     </header>

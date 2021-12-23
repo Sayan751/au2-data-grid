@@ -3,11 +3,11 @@
 
 ```html
 <data-grid model.bind="model">
-    <grid-column>
+    <grid-column width="100">
         <header> Un-sortable column </header>
         Whatever goes here is the content
     </grid-column>
-    <grid-column property="prop1">
+    <grid-column property="prop1" non-resizable>
         <header> Header1 </header>
         Whatever goes here is the content
     </grid-column>

@@ -1,13 +1,13 @@
 import { ILogger } from '@aurelia/kernel';
 import { customElement, ICustomElementViewModel } from '@aurelia/runtime-html';
-import { GridModel, SelectionMode, SortDirection, SortOption } from 'au2-data-grid';
+import { ContentModel, SelectionMode, SortDirection, SortOption } from 'au2-data-grid';
 import template from './static-list.html';
 import { Person } from '../../common/Person';
 
 @customElement({ name: 'static-list', template })
 export class StaticList implements ICustomElementViewModel {
   private logger: ILogger;
-  private people: GridModel<Person>;
+  private people: ContentModel<Person>;
   private static readonly ds1 = [
     new Person('Bruce', 'Wayne', 42),
     new Person('Clark', 'Kent',  43),
@@ -25,11 +25,11 @@ export class StaticList implements ICustomElementViewModel {
   ) {
     logger = this.logger = logger.scopeTo('static-list');
 
-    this.people = new GridModel<Person>(
+    this.people = new ContentModel<Person>(
       StaticList.ds1,
       null,
       { mode: SelectionMode.Single },
-      (options: SortOption<Person>[], _: SortOption<Person>[], allItems: Person[] | null, _model: GridModel<Person>) => {
+      (options: SortOption<Person>[], _: SortOption<Person>[], allItems: Person[] | null, _model: ContentModel<Person>) => {
         if ((allItems?.length ?? 0) === 0) return;
         for (const option of options) {
           const prop = option.property;

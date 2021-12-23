@@ -19,8 +19,13 @@ export interface IGridState {
 }
 export interface IGridStateModel extends GridStateModel { }
 export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateModel');
+
+/**
+ * This aggregates the structural metadata for the grid.
+ * This is meant for internal use.
+ * @internal
+ */
 export class GridStateModel implements IGridState {
-  // TODO: support multiple sort options later;.
   private _activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
   /**
    * First change subscriber slot.
@@ -204,13 +209,19 @@ export class GridStateModel implements IGridState {
 export interface ExportableColumnState {
   readonly id: string;
   readonly property: string | null;
-  widthPx: number | null;
+  readonly isResizable: boolean;
+  widthPx: string | null;
   direction: SortDirection | null;
 }
 export interface ColumnState extends ExportableColumnState {
   setDirection(direction: SortDirection | null, notifyParent: boolean): void;
   export(): ExportableColumnState;
 }
+/**
+ * This describes the structural metadata of a column.
+ * This is meant for internal use.
+ * @internal
+ */
 export class Column implements ColumnState {
 
   private static id = 0;
@@ -238,7 +249,8 @@ export class Column implements ColumnState {
     public readonly property: string | null,
     private readonly exportable: boolean,
     direction: SortDirection | null,
-    public widthPx: number | null,
+    public readonly isResizable: boolean,
+    public widthPx: string | null,
     private readonly header: CustomElementDefinition,
     private readonly content: CustomElementDefinition,
   ) {
@@ -273,6 +285,7 @@ export class Column implements ColumnState {
       id: this.id,
       property: this.property,
       direction: this._direction,
+      isResizable: this.isResizable,
       widthPx: this.widthPx,
     }
   }
