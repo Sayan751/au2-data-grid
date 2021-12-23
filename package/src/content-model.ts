@@ -8,6 +8,9 @@ import {
 import {
   SortOption,
 } from './sorting-options.js';
+import {
+  Writable
+} from './util.js';
 
 const defaultPageSize = 50;
 
@@ -16,8 +19,8 @@ const defaultPageSize = 50;
  * This has very little to do with the presentation of the data.
  */
 export class ContentModel<T extends unknown> {
-  public isAnySelected: boolean = false;
-  public isOneSelected: boolean = false;
+  public readonly isAnySelected: boolean = false;
+  public readonly isOneSelected: boolean = false;
 
   @observable
   public allItems: T[] | null;
@@ -71,21 +74,6 @@ export class ContentModel<T extends unknown> {
     return this._totalCount;
   }
 
-  // TODO: need @computed deco or extend the @watch deco to support normal class as well.
-  // public get isAnySelected(): boolean {
-  //   return this.selectedItems.length > 0;
-  // }
-  // public get isOneSelected(): boolean {
-  //   return this.selectedItems.length === 1;
-  // }
-
-  private selectionChanged() {
-    const len = this.selectedItems.length;
-    const isAnySelected = this.isAnySelected = len > 0;
-    const isOneSelected = this.isOneSelected = len === 1;
-    this.onSelectionChange(this.selectedItems, isOneSelected, isAnySelected);
-  }
-
   public selectItem(item: T): void {
     switch (this.selectionMode) {
       case SelectionMode.None:
@@ -97,7 +85,10 @@ export class ContentModel<T extends unknown> {
         this.selectedItems.push(item);
         break;
     }
-    this.selectionChanged();
+    const len = this.selectedItems.length;
+    const isAnySelected = (this as Writable<ContentModel<T>>).isAnySelected = len > 0;
+    const isOneSelected = (this as Writable<ContentModel<T>>).isOneSelected = len === 1;
+    this.onSelectionChange(this.selectedItems, isOneSelected, isAnySelected);
   }
 
   public clearSelections() {
