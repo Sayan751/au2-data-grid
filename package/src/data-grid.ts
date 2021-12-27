@@ -1,12 +1,13 @@
 import {
+  Constructable,
   IContainer,
   ILogger,
 } from '@aurelia/kernel';
 import {
   bindable,
   CustomElement,
-  customElement,
   CustomElementDefinition,
+  CustomElementType,
   ICustomElementController,
   ICustomElementViewModel,
   IDryCustomElementController,
@@ -16,6 +17,7 @@ import {
 } from '@aurelia/runtime-html';
 import template from './data-grid.html';
 import {
+  DefaultGridHeader,
   GridHeader,
 } from './grid-header.js';
 import {
@@ -44,17 +46,6 @@ const descPattern = /^desc$|^descending$/i;
 // TODO: support adding bindables directly from processContent
 const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>();
 
-@customElement({
-  name: 'data-grid',
-  template,
-  dependencies: [
-    // TCs
-    GridHeaders,
-    GridContent,
-    //CEs
-    GridHeader,
-  ]
-})
 export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscriber {
   private static id: number = 0;
 
@@ -211,4 +202,26 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     stateLookup.set(id, state);
     content.setAttribute('data-instance-id', id.toString());
   }
+}
+
+export const DefaultDataGrid = defineDataGridCustomElement(DefaultGridHeader);
+export function defineDataGridCustomElement<
+  THeader extends Constructable<GridHeader>,
+  >(
+    header: CustomElementType<THeader>,
+) {
+  return CustomElement.define(
+    {
+      name: 'data-grid',
+      template,
+      dependencies: [
+        // TCs
+        GridHeaders,
+        GridContent,
+        //CEs
+        header,
+      ]
+    },
+    DataGrid,
+  );
 }

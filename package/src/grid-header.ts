@@ -1,7 +1,7 @@
 import {
   bindable,
   BindingMode,
-  customElement,
+  CustomElement,
   ICustomElementViewModel,
   INode,
   IPlatform,
@@ -17,16 +17,10 @@ import {
 } from './sorting-options.js';
 
 const columnPaddingPx = 30;
-/*
-TODO: customization of template
-  To this end, export a default definition with a default template.
-  However, to support that we need to extend the TS transform function.
-*/
 
 /**
  * Custom element that wraps the header content.
  */
-@customElement({ name: 'grid-header', template })
 export class GridHeader implements ICustomElementViewModel {
   @bindable({ mode: BindingMode.oneTime })
   public readonly state!: Column;
@@ -154,3 +148,5 @@ export class GridHeader implements ICustomElementViewModel {
     return location;
   }
 }
+
+export const DefaultGridHeader = CustomElement.define({ name: 'grid-header', template }, GridHeader);
