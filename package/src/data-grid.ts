@@ -14,16 +14,17 @@ import {
   IHydrationContext,
   INode,
   IPlatform,
+  ISignaler,
 } from '@aurelia/runtime-html';
+import {
+  ContentModel,
+  SelectionMode,
+} from './content-model.js';
 import template from './data-grid.html';
 import {
   DefaultGridHeader,
   GridHeader,
 } from './grid-header.js';
-import {
-  GridHeaders,
-  GridContent,
-} from './template-controllers.js';
 import {
   ChangeType,
   Column,
@@ -34,12 +35,13 @@ import {
   OrderChangeData,
 } from './grid-state.js';
 import {
-  ContentModel,
-} from './content-model.js';
-import {
   SortDirection,
   SortOption,
 } from './sorting-options.js';
+import {
+  GridContent,
+  GridHeaders,
+} from './template-controllers.js';
 
 const ascPattern = /^asc$|^ascending$/i;
 const descPattern = /^desc$|^descending$/i;
@@ -60,14 +62,20 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   @bindable
   public state?: ExportableGridState = void 0;
 
+  @bindable
+  public itemClicked?: (item: unknown, index: number) => void;
+
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
   private readonly containerEl!: HTMLElement;
   private readonly logger: ILogger;
+  private lastClickedRow: number | null = null;
+  private selectionUpdateSignal: string = '';
 
   public constructor(
     @INode private readonly node: HTMLElement,
     @IContainer private readonly container: IContainer,
+    @ISignaler private readonly signaler: ISignaler,
     @ILogger logger: ILogger,
   ) {
     this.logger = logger.scopeTo('DataGrid');
@@ -77,6 +85,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     const instanceIdStr = this.node.dataset.instanceId;
     const instanceId = Number(instanceIdStr);
     if (!Number.isInteger(instanceId)) throw new Error(`Invalid data grid instanceId: ${instanceIdStr}; expected integer.`);
+    this.selectionUpdateSignal = `update-selection-${instanceIdStr}`;
 
     const state = stateLookup.get(Number(instanceId));
     if (state === undefined) throw new Error(`Cannot find the model for the instance #${instanceIdStr}`);
@@ -111,7 +120,6 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     return this.stateModel.export();
   }
 
-
   public handleGridStateChange(type: ChangeType.Width): void;
   public handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
@@ -131,8 +139,44 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     }
   }
 
-  private adjustColumnWidth() {
+  protected adjustColumnWidth() {
     this.containerEl.style.gridTemplateColumns = this.stateModel.columns.map(c => `minmax(min-content, ${c.widthPx ?? 'auto'})`).join(' ');
+  }
+
+  protected handleDblClick(item: Record<string, unknown>, index: number) {
+    getSelection()?.empty();
+    this.itemClicked?.(item, index);
+    this.lastClickedRow = index;
+  }
+
+  protected handleClick(event: MouseEvent, item: Record<string, unknown>, index: number) {
+    getSelection()?.empty();
+    const model = this.model;
+    switch (model.selectionMode) {
+      case SelectionMode.None:
+        this.itemClicked?.(item, index);
+        break;
+      case SelectionMode.Single:
+        model.selectItem(item);
+        break;
+      case SelectionMode.Multiple:
+        if (event.shiftKey) {
+          const lastClickedRow = this.lastClickedRow;
+          if (lastClickedRow !== null) {
+            model.selectRange(lastClickedRow, index);
+          } else {
+            model.selectItem(item);
+          }
+        } else if (event.ctrlKey) {
+          model.toggleSelection(item);
+        } else {
+          model.clearSelections();
+          model.selectItem(item);
+        }
+        break;
+    }
+    this.lastClickedRow = index;
+    this.signaler.dispatchSignal(this.selectionUpdateSignal);
   }
 
   // TODO: supply a logger to the processContent

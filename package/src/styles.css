@@ -4,6 +4,7 @@
   --resize-handle-height: 15px;
   --col-gap: 1rem;
   --row-gap: calc(var(--col-gap)/2);
+  --selected-row-bg: #999;
 }
 
 .container {
@@ -37,4 +38,8 @@ grid-header>div:first-child {
   align-self: center;
   margin-left: auto;
   cursor: col-resize;
+}
+
+.selected-row {
+  background: var(--selected-row-bg);
 }

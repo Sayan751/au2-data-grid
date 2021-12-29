@@ -1,5 +1,5 @@
 import { ILogger } from '@aurelia/kernel';
-import { customElement, ICustomElementViewModel } from '@aurelia/runtime-html';
+import { customElement, ICustomElementViewModel, observable } from '@aurelia/runtime-html';
 import { ContentModel, SelectionMode, SortDirection, SortOption } from 'au2-data-grid';
 import template from './static-list.html';
 import { Person } from '../../common/Person';
@@ -7,10 +7,13 @@ import { Person } from '../../common/Person';
 @customElement({ name: 'static-list', template })
 export class StaticList implements ICustomElementViewModel {
   private logger: ILogger;
-  private people: ContentModel<Person>;
+  private people!: ContentModel<Person>;
+  @observable({ callback: 'createContentModel' })
+  private selectionMode: SelectionMode;
+
   private static readonly ds1 = [
     new Person('Bruce', 'Wayne', 42),
-    new Person('Clark', 'Kent',  43),
+    new Person('Clark', 'Kent', 43),
     new Person('Diana', 'Prince', 44),
     new Person('Billy', 'Batson', 24),
   ];
@@ -23,12 +26,24 @@ export class StaticList implements ICustomElementViewModel {
   public constructor(
     @ILogger logger: ILogger,
   ) {
-    logger = this.logger = logger.scopeTo('static-list');
+    this.logger = logger.scopeTo('static-list');
+    this.selectionMode = SelectionMode.Single;
+    this.createContentModel();
+  }
 
+  public useDataset1() {
+    this.people.allItems = StaticList.ds1;
+  }
+
+  public useDataset2() {
+    this.people.allItems = StaticList.ds2;
+  }
+
+  private createContentModel() {
     this.people = new ContentModel<Person>(
-      StaticList.ds1,
+      this.people?.allItems ?? StaticList.ds1,
       null,
-      { mode: SelectionMode.Single },
+      { mode: this.selectionMode },
       (options: SortOption<Person>[], _: SortOption<Person>[], allItems: Person[] | null, _model: ContentModel<Person>) => {
         if ((allItems?.length ?? 0) === 0) return;
         for (const option of options) {
@@ -45,16 +60,8 @@ export class StaticList implements ICustomElementViewModel {
           });
         }
       },
-      logger,
+      this.logger,
     );
-  }
-
-  public useDataset1() {
-    this.people.allItems = StaticList.ds1;
-  }
-
-  public useDataset2() {
-    this.people.allItems = StaticList.ds2;
   }
 }
 

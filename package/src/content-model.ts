@@ -21,12 +21,13 @@ const defaultPageSize = 50;
 export class ContentModel<T extends unknown> {
   public readonly isAnySelected: boolean = false;
   public readonly isOneSelected: boolean = false;
+  public readonly selectionCount: number = 0;
 
   @observable
   public allItems: T[] | null;
 
-  private selectedItems: T[] = [];
-  private readonly selectionMode: SelectionMode;
+  public readonly selectedItems: T[] = [];
+  public readonly selectionMode: SelectionMode;
   private readonly onSelectionChange: SelectionChangeHandler<T>;
   private readonly pageSize: number | null;
   private readonly fetchPage: FetchPage<T> | null;
@@ -82,17 +83,58 @@ export class ContentModel<T extends unknown> {
         this.selectedItems[0] = item;
         break;
       case SelectionMode.Multiple:
-        this.selectedItems.push(item);
+        const selectedItems = this.selectedItems;
+        if (!selectedItems.includes(item)) {
+          selectedItems.push(item);
+        }
         break;
     }
-    const len = this.selectedItems.length;
+    this.handleSelectionChange();
+  }
+
+  public selectRange(startIndex: number, endIndex: number) {
+    if (this.selectionMode !== SelectionMode.Multiple) return;
+    const start = Math.min(startIndex, endIndex);
+    const end = Math.max(startIndex, endIndex);
+    const items = this._currentPage;
+    const selectedItems = this.selectedItems;
+    for (let i = start; i <= end; i++) {
+      const item = items[i];
+      if (!selectedItems.includes(item)) {
+        selectedItems.push(item);
+      }
+    }
+    this.handleSelectionChange();
+  }
+
+  public toggleSelection(item: T) {
+    if (this.selectionMode !== SelectionMode.Multiple) return;
+    const selectedItems = this.selectedItems;
+    const idx = selectedItems.findIndex(x => item === x);
+    if (idx === -1) {
+      selectedItems.push(item);
+    } else {
+      selectedItems.splice(idx, 1);
+    }
+    this.handleSelectionChange();
+  }
+
+  private handleSelectionChange() {
+    const selectedItems = this.selectedItems;
+    const len = (this as Writable<ContentModel<T>>).selectionCount = selectedItems.length;
     const isAnySelected = (this as Writable<ContentModel<T>>).isAnySelected = len > 0;
     const isOneSelected = (this as Writable<ContentModel<T>>).isOneSelected = len === 1;
-    this.onSelectionChange(this.selectedItems, isOneSelected, isAnySelected);
+    this.onSelectionChange(selectedItems, isOneSelected, isAnySelected);
   }
 
   public clearSelections() {
+    (this as Writable<ContentModel<T>>).isAnySelected = (this as Writable<ContentModel<T>>).isOneSelected = false;
+    (this as Writable<ContentModel<T>>).selectionCount = 0;
     this.selectedItems.length = 0;
+  }
+
+  public isSelected(item: T) {
+    return this.selectedItems.includes(item);
   }
 
   public applySorting(...sortOptions: SortOption<T>[]) {
@@ -148,7 +190,7 @@ export class ContentModel<T extends unknown> {
     const allItems = this.allItems;
     const pageSize = this.pageSize;
     const pageNumber = this._currentPageNumber;
-    this.selectedItems = [];
+    this.clearSelections();
 
     if (allItems !== null) {
       this._currentPage = pageSize !== null
@@ -190,9 +232,9 @@ export class ContentModel<T extends unknown> {
 }
 
 export enum SelectionMode {
-  None,
-  Single,
-  Multiple,
+  None = 0,
+  Single = 1,
+  Multiple = 2,
 }
 type SelectionChangeHandler<T extends unknown> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
 export interface SelectionOptions<T extends unknown> {
