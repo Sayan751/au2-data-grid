@@ -46,6 +46,9 @@ export class GridStateModel implements IGridState {
   /** @internal */
   private stateApplied: boolean = false;
 
+  /** @internal */
+  private viewFactoriesCreated: boolean = false;
+
   public constructor(
     public readonly columns: Column[],
   ) {
@@ -86,11 +89,13 @@ export class GridStateModel implements IGridState {
   }
 
   public createViewFactories(container: IContainer) {
+    if(this.viewFactoriesCreated) return;
     const columns = this.columns;
     const len = columns.length;
     for (let i = 0; i < len; i++) {
       columns[i].createViewFactories(container);
     }
+    this.viewFactoriesCreated = true;
   }
 
   public initializeActiveSortOptions(): SortOption<Record<string, unknown>> | null {
@@ -303,7 +308,7 @@ export class Column implements ColumnState {
 
   public createViewFactories(container: IContainer) {
     // invocation is expected once during pre-binding stage
-    if (this._headerViewFactory !== null && this._contentViewFactory !== null) throw new Error('Invalid operation; the view factories are already created.');
+    if (this._headerViewFactory !== null && this._contentViewFactory !== null) return;
     this._headerViewFactory = new ViewFactory(container, this.header);
     this._contentViewFactory = new ViewFactory(container, this.content);
   }

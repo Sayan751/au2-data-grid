@@ -140,7 +140,9 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   }
 
   protected adjustColumnWidth() {
-    this.containerEl.style.gridTemplateColumns = this.stateModel.columns.map(c => `minmax(min-content, ${c.widthPx ?? 'auto'})`).join(' ');
+    const columns = this.stateModel.columns;
+    const fallback = columns.some(c => c.widthPx != null) ? 'auto' : '1fr';
+    this.containerEl.style.gridTemplateColumns = columns.map(c => `minmax(min-content, ${c.widthPx ?? fallback})`).join(' ');
   }
 
   protected handleDblClick(item: Record<string, unknown>, index: number) {
@@ -204,7 +206,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
       }
       const isResizable = !col.hasAttribute('non-resizable');
       let width: string | null = col.getAttribute('width');
-      width = width === null || Number.isNaN(width) ? 'auto' : `${width}px`;
+      width = width === null || Number.isNaN(width) ? null : `${width}px`;
 
       // extract header
       let container = doc.createElement('grid-header');

@@ -12,7 +12,7 @@
   /* for initial rendering */
   grid-template-columns: repeat(var(--num-columns), 1fr);
   gap: var(--row-gap) var(--col-gap);
-  white-space: nowrap;
+  word-break: break-all;
 }
 
 .row {

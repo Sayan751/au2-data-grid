@@ -39,6 +39,8 @@ export class ContentModel<T extends unknown> {
   private countPromise: Promise<void> | null = null;
   private _totalCount: number = undefined!;
   private _sortOptions: SortOption<T>[] = [];
+  private _pageCount: number = undefined!;
+  private initialized: boolean = false;
 
   public constructor(
     allItems: T[] | null,
@@ -65,15 +67,16 @@ export class ContentModel<T extends unknown> {
 
     this.selectionMode = selectionOptions?.mode ?? SelectionMode.None;
     this.onSelectionChange = selectionOptions?.onSelectionChange ?? noop as SelectionChangeHandler<T>;
+    this.initialized = true;
   }
 
-  public get currentPage() {
-    return this._currentPage;
-  }
+  public get currentPage() { return this._currentPage; }
 
-  public get totalCount() {
-    return this._totalCount;
-  }
+  public get totalCount() { return this._totalCount; }
+
+  public get pageCount() { return this._pageCount; }
+
+  public get currentPageNumber() { return this._currentPageNumber; }
 
   public selectItem(item: T): void {
     switch (this.selectionMode) {
@@ -145,6 +148,7 @@ export class ContentModel<T extends unknown> {
   }
 
   public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
+    if (!this.initialized) return;
     const oldNumber = this._currentPageNumber;
     if (oldNumber === pageNumber
       && this.pagePromise !== null
@@ -163,11 +167,33 @@ export class ContentModel<T extends unknown> {
     }
   }
 
+  public goToPreviousPage() {
+    const pageNumber = this._currentPageNumber;
+    if (pageNumber === 1) {
+      this.logger.debug('Cannot go to previous page; already on the first page.');
+      return;
+    }
+    this.setCurrentPageNumber(pageNumber - 1);
+  }
+
+  public goToNextPage() {
+    const pageNumber = this._currentPageNumber;
+    if (pageNumber === this._pageCount) {
+      this.logger.debug('Cannot go to next page; already on the last page.');
+      return;
+    }
+    this.setCurrentPageNumber(pageNumber + 1);
+  }
+
   /** @internal */
   public async setTotalCount(): Promise<void> {
+    const pageSize = this.pageSize;
     const allItems = this.allItems;
     if (allItems !== null) {
-      this._totalCount = allItems.length;
+      const totalCount = this._totalCount = allItems.length;
+      if (pageSize !== null) {
+        this._pageCount = Math.ceil(totalCount / pageSize)
+      }
       this.countPromise = null;
       return;
     }
@@ -178,10 +204,18 @@ export class ContentModel<T extends unknown> {
     }
     const countPromise = fetchCount(this);
     if (countPromise instanceof Promise) {
-      this.countPromise = countPromise.then((count) => { this._totalCount = count; });
+      this.countPromise = countPromise.then((count) => {
+        this._totalCount = count;
+        if (pageSize !== null) {
+          this._pageCount = Math.ceil(count / pageSize)
+        }
+      });
       return;
     }
     this._totalCount = countPromise;
+    if (pageSize !== null) {
+      this._pageCount = Math.ceil(countPromise / pageSize)
+    }
     this.countPromise = null;
   }
 

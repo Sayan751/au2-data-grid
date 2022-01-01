@@ -1,0 +1,42 @@
+<div if.bind="fetchFailed">
+  It seems that the service is not running. To this end navigate to the ~/examples/fake-service and run the service
+  using <code>npm start</code>.
+</div>
+<div style="padding: 1rem 0rem;">
+  <button click.delegate="people.goToPreviousPage()" disabled.bind="people.currentPageNumber === 1">Previous
+    page</button>
+  <button click.delegate="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
+    page</button>
+</div>
+<data-grid model.bind="people">
+  <grid-column property="firstName">
+    <header>
+      <value-text value="First name"></value-text>
+    </header>
+    <normal-text value.bind="item.firstName"></normal-text>
+  </grid-column>
+  <grid-column property="lastName">
+    <header>
+      <value-text value="Last name"></value-text>
+    </header>
+    <normal-text value.bind="item.lastName"></normal-text>
+  </grid-column>
+  <grid-column property="age">
+    <header>
+      <value-text value="Age"></value-text>
+    </header>
+    <normal-text value.bind="item.age"></normal-text>
+  </grid-column>
+  <grid-column property="gender">
+    <header>
+      <value-text value="Gender"></value-text>
+    </header>
+    <normal-text value.bind="item.gender"></normal-text>
+  </grid-column>
+  <grid-column>
+    <header>
+      <value-text value="Pets"></value-text>
+    </header>
+    <normal-text value.bind="item.pets | formatList"></normal-text>
+  </grid-column>
+</data-grid>

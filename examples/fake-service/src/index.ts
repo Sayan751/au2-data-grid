@@ -148,17 +148,23 @@ function requestHandler(req: IncomingMessage, res: ServerResponse) {
 const filterRe = /(?<field>[^\s,]+)\s+(?<operator>eq|contains)\s+(?<value>[^\s,]+)/g;
 const orderByRe = /(?<field>[^\s,]+)\s*(?<direction>asc|desc)?/g
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': '*',
+  'Access-Control-Allow-Headers': '*',
+}
+
 function respondBadRequest(res: ServerResponse, data: string) {
-  res.writeHead(400);
+  res.writeHead(400, corsHeaders);
   res.end(data);
 }
 function respondJson(res: ServerResponse, data: unknown) {
-  res.writeHead(200, { 'content-type': 'application/json' });
+  res.writeHead(200, { ...corsHeaders, 'content-type': 'application/json' });
   res.end(JSON.stringify(data));
 }
 
 function respondWithContract(res: ServerResponse) {
-  res.writeHead(200, { 'content-type': 'text/html' });
+  res.writeHead(200, { ...corsHeaders, 'content-type': 'text/html' });
   res.end(serviceDocument);
 }
 
