@@ -2,13 +2,40 @@
   It seems that the service is not running. To this end navigate to the ~/examples/fake-service and run the service
   using <code>npm start</code>.
 </div>
-<div style="padding: 1rem 0rem;">
+<div>
+  <strong>Selection mode:</strong>
+  <label><input type="radio" model.bind="0" checked.bind="selectionMode"> None</label>
+  <label><input type="radio" model.bind="1" checked.bind="selectionMode"> Single</label>
+  <label><input type="radio" model.bind="2" checked.bind="selectionMode"> Multiple</label>
+  <template switch.bind="selectionMode">
+    <div case.bind="0">
+      The items in the grid is not selectable.
+    </div>
+    <div case.bind="1">
+      Only single items in the grid are selectable. Click row to select.
+    </div>
+    <div case.bind="2">
+      Multiple items in the grid are selectable.
+      Use <kbd>Shift</kbd> + <kbd>Click</kbd> to select a range of rows or use <kbd>Ctrl</kbd> + <kbd>Click</kbd> to
+      select individual rows.
+    </div>
+  </template>
+</div>
+<div>
+  <button disabled.bind="!people.isOneSelected"
+    click.delegate="viewDetails(people.selectedItems[0])">
+    Details
+  </button>
+  <button disabled.bind="people.selectionCount < 2 || people.selectionCount > 3"
+    click.delegate="compare()">
+    Compare
+  </button>
   <button click.delegate="people.goToPreviousPage()" disabled.bind="people.currentPageNumber === 1">Previous
     page</button>
   <button click.delegate="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
     page</button>
 </div>
-<data-grid model.bind="people">
+<data-grid model.bind="people" item-clicked.call="viewDetails($event.item)">
   <grid-column property="firstName">
     <header>
       <value-text value="First name"></value-text>

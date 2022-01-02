@@ -62,7 +62,8 @@ export class ContentModel<T extends unknown> {
     this.pageSize = isPagingDisabled ? null : (pageSize ?? defaultPageSize);
 
     if (isPagingDisabled && hasAllItems) {
-      this._currentPage = this.allItems!;
+      this._currentPage = allItems!;
+      this._totalCount = allItems.length;
     }
 
     this.selectionMode = selectionOptions?.mode ?? SelectionMode.None;
@@ -170,7 +171,7 @@ export class ContentModel<T extends unknown> {
   public goToPreviousPage() {
     const pageNumber = this._currentPageNumber;
     if (pageNumber === 1) {
-      this.logger.debug('Cannot go to previous page; already on the first page.');
+      this.logger.warn('Cannot go to previous page; already on the first page.');
       return;
     }
     this.setCurrentPageNumber(pageNumber - 1);
@@ -179,7 +180,7 @@ export class ContentModel<T extends unknown> {
   public goToNextPage() {
     const pageNumber = this._currentPageNumber;
     if (pageNumber === this._pageCount) {
-      this.logger.debug('Cannot go to next page; already on the last page.');
+      this.logger.warn('Cannot go to next page; already on the last page.');
       return;
     }
     this.setCurrentPageNumber(pageNumber + 1);

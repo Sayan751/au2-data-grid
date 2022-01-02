@@ -63,7 +63,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   public state?: ExportableGridState = void 0;
 
   @bindable
-  public itemClicked?: (item: unknown, index: number) => void;
+  public itemClicked?: (data: { item: unknown, index: number }) => void;
 
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
@@ -147,7 +147,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
 
   protected handleDblClick(item: Record<string, unknown>, index: number) {
     getSelection()?.empty();
-    this.itemClicked?.(item, index);
+    this.itemClicked?.({ item, index });
     this.lastClickedRow = index;
   }
 
@@ -156,7 +156,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     const model = this.model;
     switch (model.selectionMode) {
       case SelectionMode.None:
-        this.itemClicked?.(item, index);
+        this.itemClicked?.({ item, index });
         break;
       case SelectionMode.Single:
         model.selectItem(item);

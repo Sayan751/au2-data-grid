@@ -1,13 +1,13 @@
 import { ConsoleSink, LoggerConfiguration, LogLevel } from '@aurelia/kernel';
-import { Aurelia, StandardConfiguration } from '@aurelia/runtime-html';
 import { RouterConfiguration } from '@aurelia/router';
+import { Aurelia, DialogDefaultConfiguration, StandardConfiguration } from '@aurelia/runtime-html';
 import { DataGridConfiguration } from 'au2-data-grid';
 import { AppRoot as component } from './app-root';
 import { NormalText } from './custom-elements/normal-text/normal-text';
 import { ValueText } from './custom-elements/value-text/value-text';
-import { StaticList } from './views/static-list/static-list';
-
 import './styles.css';
+import { PersonCard } from './views/list-with-backend-service/person-card';
+
 
 (async function () {
   const host = document.querySelector<HTMLElement>('app')!;
@@ -21,13 +21,13 @@ import './styles.css';
       }),
       StandardConfiguration,
       RouterConfiguration.customize({ useUrlFragmentHash: false }),
+      DialogDefaultConfiguration,
 
       DataGridConfiguration,
 
-      StaticList,
-
       NormalText,
       ValueText,
+      PersonCard,
     );
   au.app({ host, component });
 
