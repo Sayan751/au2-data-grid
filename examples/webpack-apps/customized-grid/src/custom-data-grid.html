@@ -1,0 +1,14 @@
+<div class="container" ref="containerEl">
+  <div class="row" role="row">
+    <template grid-headers="state.bind: stateModel"></template>
+  </div>
+  <hr class="separator" style="--separator-height: 2px">
+  <template repeat.for="item of model.currentPage">
+    <div class="row" role="row" click.delegate="handleClick($event,item,$index)"
+      dblclick.delegate="handleDblClick(item,$index)"
+      selected-row.class="model.isSelected(item) & signal:selectionUpdateSignal">
+      <template grid-content="item.bind: item; state.bind: stateModel"></template>
+    </div>
+    <hr class="separator">
+  </template>
+</div>

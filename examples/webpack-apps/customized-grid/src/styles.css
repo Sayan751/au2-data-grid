@@ -1,0 +1,81 @@
+@import 'au2-data-grid/dist/styles.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+:root {
+  --gap: 1rem;
+  --border-radius: 0.15rem;
+}
+
+app,
+list-with-backend-service {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--gap);
+}
+
+person-card {
+  border: 1px solid var(--person-card-border-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--gap) * 1.5);
+  display: block;
+}
+
+person-card>h2+small {
+  margin-top: calc(var(--gap) * -0.9);
+  display: block;
+}
+
+.dialog-overlay {
+  background-color: rgba(10, 10, 10, 0.8);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--gap) * 2);
+  padding: var(--gap);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--dialog-border-color);
+  background-color: var(--dialog-bg);
+}
+
+.dialog>.footer {
+  display: flex;
+  align-items: flex-end;
+}
+
+.dialog>.cards {
+  display: flex;
+  height: 22rem;
+}
+
+grid-header i.fas {
+  margin-left: 0.25rem;
+}
+
+data-grid hr.separator {
+  grid-column: 1/calc(var(--num-columns) + 1);
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-bottom: var(--separator-height, 1px) solid var(--separator-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --handle-color: white;
+    --person-card-border-color: #aaa;
+    --dialog-border-color: #ccc;
+    --dialog-bg: rgb(10, 10, 10);
+    --separator-color: #aaa;
+  }
+
+  body {
+    background-color: #333;
+    color: #eee;
+  }
+
+  a {
+    color: #eee;
+  }
+}
