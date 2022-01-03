@@ -24,7 +24,10 @@ import { PersonCard } from './views/list-with-backend-service/person-card';
       DialogDefaultConfiguration,
 
       DataGridConfiguration.customize(opt => {
-        opt.header = CustomElement.define({ name: 'grid-header', template }, GridHeader);
+        opt.header = CustomElement.define(
+          { name: 'grid-header', template },
+          GridHeader // <- this is the place to plug your custom implementation
+        );
       }),
 
       NormalText,
