@@ -8,7 +8,6 @@ import { ValueText } from './custom-elements/value-text/value-text';
 import './styles.css';
 import { PersonCard } from './views/list-with-backend-service/person-card';
 
-
 (async function () {
   const host = document.querySelector<HTMLElement>('app')!;
 
