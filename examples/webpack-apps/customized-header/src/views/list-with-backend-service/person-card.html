@@ -1,0 +1,16 @@
+<h2>
+  ${person | formatName}
+</h2>
+<small>
+  ${person.age}, ${person.gender}
+</small>
+<h3>Pets</h3>
+<data-grid if.bind="pets.totalCount > 0" model.bind="pets">
+  <grid-column non-resizable>
+    <header>
+      <value-text value="Name"></value-text>
+    </header>
+    <normal-text value.bind="item"></normal-text>
+  </grid-column>
+</data-grid>
+<normal-text else value="No pets"></normal-text>

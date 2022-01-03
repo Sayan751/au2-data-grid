@@ -1,0 +1,60 @@
+<div>
+  All the columns are sortable except the lname. Click the column-headers to apply sorting.
+</div>
+<div>
+  <strong>Selection mode:</strong>
+  <label><input type="radio" model.bind="0" checked.bind="selectionMode"> None</label>
+  <label><input type="radio" model.bind="1" checked.bind="selectionMode"> Single</label>
+  <label><input type="radio" model.bind="2" checked.bind="selectionMode"> Multiple</label>
+  <template switch.bind="selectionMode">
+    <div case.bind="0">
+      The items in the grid is not selectable.
+    </div>
+    <div case.bind="1">
+      Only single items in the grid are selectable. Click row to select.
+      <selection-info people.bind></selection-info>
+    </div>
+    <div case.bind="2">
+      Multiple items in the grid are selectable.
+      Use <kbd>Shift</kbd> + <kbd>Click</kbd> to select a range of rows or use <kbd>Ctrl</kbd> + <kbd>Click</kbd> to select individual rows.
+      <selection-info people.bind></selection-info>
+    </div>
+  </template>
+</div>
+<br>
+
+
+<button click.delegate="useDataset1()">Use dataset1</button>
+<button click.delegate="useDataset2()">Use dataset2</button>
+<br>
+<br>
+
+<data-grid model.bind="people">
+  <grid-column property="fname" width="100">
+    <header>
+      <value-text value="First name"></value-text>
+    </header>
+    <normal-text value.bind="item.fname"></normal-text>
+  </grid-column>
+  <grid-column width="70">
+    <header>
+      <value-text value="Last name"></value-text>
+    </header>
+    <normal-text value.bind="item.lname"></normal-text>
+  </grid-column>
+  <grid-column property="age" non-resizable>
+    <header>
+      <value-text value="Age"></value-text>
+    </header>
+    <normal-text value.bind="item.age"></normal-text>
+  </grid-column>
+</data-grid>
+
+<template as-custom-element="selection-info">
+  <bindable property="people"></bindable>
+  <div style="margin-left: 2rem;">
+    Is any item selected ${people.isAnySelected}<br>
+    Is one item selected ${people.isOneSelected}<br>
+    selection count ${people.selectionCount}<br>
+  </div>
+</template>
