@@ -22,11 +22,11 @@
   </template>
 </div>
 <div>
-  <button disabled.bind="!people.isOneSelected"
+  <button if.bind="selectionMode !== 0" disabled.bind="!people.isOneSelected"
     click.delegate="viewDetails(people.selectedItems[0])">
     Details
   </button>
-  <button disabled.bind="people.selectionCount < 2 || people.selectionCount > 3"
+  <button if.bind="selectionMode === 2" disabled.bind="people.selectionCount < 2 || people.selectionCount > 3"
     click.delegate="compare()">
     Compare
   </button>

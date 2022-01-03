@@ -159,12 +159,8 @@ export class ContentModel<T extends unknown> {
     }
     this._currentPageNumber = pageNumber;
     if (oldNumber !== pageNumber || force) {
-      const pagePromise = this.setPage();
-      const countPromise = this.setTotalCount();
-      if (!this.allItems) {
-        this.pagePromise = pagePromise;
-        this.countPromise = countPromise;
-      }
+      this.setPage();
+      this.setTotalCount();
     }
   }
 
@@ -205,10 +201,13 @@ export class ContentModel<T extends unknown> {
     }
     const countPromise = fetchCount(this);
     if (countPromise instanceof Promise) {
-      this.countPromise = countPromise.then((count) => {
+      const promise = this.countPromise = countPromise.then((count) => {
         this._totalCount = count;
         if (pageSize !== null) {
           this._pageCount = Math.ceil(count / pageSize)
+        }
+        if (this.countPromise === promise) {
+          this.countPromise = null;
         }
       });
       return;
@@ -239,7 +238,13 @@ export class ContentModel<T extends unknown> {
     const fetchPage = this.fetchPage!;
     let pagePromise = fetchPage(pageNumber, pageSize!, this);
     if (pagePromise instanceof Promise) {
-      this.pagePromise = pagePromise.then((data) => { this._currentPage = data; });
+      const promise = this.pagePromise = pagePromise
+        .then((data) => {
+          this._currentPage = data;
+          if (this.pagePromise === promise) {
+            this.pagePromise = null;
+          }
+        });
       return;
     }
     this._currentPage = pagePromise;

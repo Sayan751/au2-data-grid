@@ -30,7 +30,7 @@ function requestHandler(req: IncomingMessage, res: ServerResponse) {
   let data: unknown[] = undefined!;
   switch (pathParts[0]) {
     case 'people':
-      data = people;
+      data = people.slice(); // clone to avoid unintentional changes to the array
       break;
     default:
       res.writeHead(404);
@@ -58,6 +58,7 @@ function requestHandler(req: IncomingMessage, res: ServerResponse) {
   if (filterExpr) {
     const predicates: ((value: any) => boolean)[] = [];
     let matches: RegExpExecArray | null;
+    const filterRe = /(?<field>[^\s,]+)\s+(?<operator>eq|contains)\s+(?<value>[^\s,]+)/g;
     while ((matches = filterRe.exec(filterExpr)) !== null) {
       // console.log(matches);
       // This is necessary to avoid infinite loops with zero-width matches
@@ -98,6 +99,7 @@ function requestHandler(req: IncomingMessage, res: ServerResponse) {
   if (sortExpr) {
     const comparers: ((a: any, b: any) => 1 | -1 | 0)[] = [];
     let matches: RegExpExecArray | null;
+    const orderByRe = /(?<field>[^\s,]+)\s*(?<direction>asc|desc)?/g;
     while ((matches = orderByRe.exec(sortExpr)) !== null) {
       // console.log(matches)
       // This is necessary to avoid infinite loops with zero-width matches
@@ -144,9 +146,6 @@ function requestHandler(req: IncomingMessage, res: ServerResponse) {
   console.log('data.length post-paging', data.length);
   respondJson(res, data);
 }
-
-const filterRe = /(?<field>[^\s,]+)\s+(?<operator>eq|contains)\s+(?<value>[^\s,]+)/g;
-const orderByRe = /(?<field>[^\s,]+)\s*(?<direction>asc|desc)?/g
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
