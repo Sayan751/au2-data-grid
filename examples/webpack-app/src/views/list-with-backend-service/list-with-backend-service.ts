@@ -50,7 +50,6 @@ export class ListWithBackendService {
   ) {
     this.logger = logger.scopeTo('list-with-backend-service');
     this.selectionMode = SelectionMode.Single;
-    this.createContentModel();
   }
   private createContentModel() {
     const httpClient = this.httpClient;
@@ -66,7 +65,6 @@ export class ListWithBackendService {
             .then(data => data.count);
         },
         async fetchPage(currentPage, pageSize) {
-          console.log('fetchPage called')
           const url = new URL(endpoint);
           const query = url.searchParams;
           if ($orderby) {
