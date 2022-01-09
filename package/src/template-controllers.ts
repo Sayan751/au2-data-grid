@@ -40,6 +40,13 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
   private headers!: ISyntheticView[];
   private promise: Promise<void> | void = void 0;
 
+  /**
+   * Key: original column-index; Value: view-index
+   */
+  private _indexMap: Map<number, number> = new Map<number, number>();
+
+  public get indexMap(): Map<number, number> { return this._indexMap; }
+
   public constructor(
     @IRenderLocation private readonly location: IRenderLocation,
   ) { }
@@ -49,17 +56,21 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     parent: IHydratedParentController,
     flags: LifecycleFlags
   ) {
+    const indexMap = this._indexMap;
+    indexMap.clear();
     const location = this.location;
     const state = this.state;
     const columns = state.columns;
-    const len = columns.length;
-    const headers = this.headers = Array.from(
-      { length: len },
-      (_, i) => columns[i].headerViewFactory!.create(initiator).setLocation(location)
-    );
+    let len = 0;
+    const headers = this.headers = columns.reduce((acc, column, i) => {
+      if (column.hidden) return acc;
+      acc.push(column.headerViewFactory!.create(initiator).setLocation(location));
+      indexMap.set(i, len++);
+      return acc;
+    }, [] as ISyntheticView[]);
     const activationPromises = new Array(len);
     for (let i = 0; i < len; i++) {
-      const header = headers[i]
+      const header = headers[i];
       header.nodes.link(headers[i + 1]?.nodes ?? location)
       activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create({ state: columns[i] })));
     }
@@ -88,7 +99,7 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
   public handleGridStateChange(type: ChangeType, value?: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     if (type !== ChangeType.Order) return;
-    handleReordering(this.headers, value as OrderChangeData, this.location);
+    handleReordering(this.headers, value as OrderChangeData, this.location, this._indexMap);
   }
 
   private queue(action: () => void | Promise<void>): void {
@@ -122,6 +133,11 @@ export class GridContent implements ICustomAttributeViewModel {
   private cells!: ISyntheticView[];
   private promise: Promise<void> | void = void 0;
 
+  /**
+   * Key: original column-index; Value: view-index
+   */
+  private _indexMap: Map<number, number> = new Map<number, number>();
+
   public constructor(
     @IRenderLocation private readonly location: IRenderLocation,
   ) { }
@@ -131,15 +147,26 @@ export class GridContent implements ICustomAttributeViewModel {
     parent: IHydratedParentController,
     flags: LifecycleFlags
   ) {
+    const headersTc: GridHeaders = this.$controller
+      .parent   // synthetic
+      ?.parent  // repeater
+      ?.parent  // grid
+      ?.children
+      ?.find(c => c.viewModel instanceof GridHeaders)
+      ?.viewModel as GridHeaders;
+    if (headersTc == null) throw new Error('The grid-headers is not found.');
+    const indexMap =  this._indexMap = headersTc.indexMap;
+
     const item = this.item;
     const location = this.location;
     const state = this.state;
     const columns = state.columns;
-    const len = columns.length;
+    const len = indexMap.size;
     const cells = this.cells = new Array(len);
     const activationPromises = new Array(len);
-    for (let i = 0; i < len; i++) {
-      const cell = cells[i] = columns[i].contentViewFactory!.create(initiator).setLocation(location);
+    let  i = 0;
+    for (const [key,] of indexMap) {
+      const cell = cells[i++] = columns[key].contentViewFactory!.create(initiator).setLocation(location);
       activationPromises[i] = cell.activate(initiator, parent, flags, Scope.create(BindingContext.create({ item })));
     }
     this.queue(() => resolveAll(...activationPromises));
@@ -180,7 +207,7 @@ export class GridContent implements ICustomAttributeViewModel {
   public handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
   public handleGridStateChange(type: ChangeType, value?: SortOption<Record<string, unknown>> | OrderChangeData, _oldValue?: SortOption<Record<string, unknown>> | null): void {
     if (type !== ChangeType.Order) return;
-    handleReordering(this.cells, value as OrderChangeData, this.location);
+    handleReordering(this.cells, value as OrderChangeData, this.location, this._indexMap);
   }
 }
 
@@ -188,11 +215,12 @@ function handleReordering(
   views: ISyntheticView[],
   changeData: OrderChangeData,
   location: IRenderLocation,
+  indexMap: Map<number, number>,
 ) {
   const fromIdx = changeData.fromIndex;
   const toIdx = changeData.toIndex;
-  const fromNodes = views[fromIdx].nodes;
-  const toNodes = views[toIdx].nodes;
+  const fromNodes = views[indexMap.get(fromIdx)!].nodes;
+  const toNodes = views[indexMap.get(toIdx)!].nodes;
 
   // link the next node with the previous node
   views[fromIdx - 1]?.nodes.link(views[fromIdx + 1]?.nodes ?? location);

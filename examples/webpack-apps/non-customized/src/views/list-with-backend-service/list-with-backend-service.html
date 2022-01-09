@@ -39,7 +39,7 @@
   <button click.delegate="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
     page</button>
 </div>
-<data-grid model.bind="people" state.two-way item-clicked.call="viewDetails($event.item)">
+<data-grid model.bind="people" state.two-way item-clicked.call="viewDetails($event.item)" hidden-columns.bind="['hidden']">
   <grid-column property="firstName">
     <header>
       <value-text value="First name"></value-text>
@@ -63,6 +63,12 @@
       <value-text value="Gender"></value-text>
     </header>
     <normal-text value.bind="item.gender"></normal-text>
+  </grid-column>
+  <grid-column id="hidden">
+    <header>
+      <value-text value="Hidden"></value-text>
+    </header>
+    <normal-text value="This should be hidden"></normal-text>
   </grid-column>
   <grid-column id="pets">
     <header>

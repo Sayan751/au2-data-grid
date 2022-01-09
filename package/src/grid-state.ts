@@ -70,8 +70,20 @@ export class GridStateModel implements IGridState {
     }
   }
 
+  public hideColumns(columnIds: string[]) {
+    const len = columnIds?.length ?? 0;
+    if (len === 0) return;
+    const columns = this.columns;
+    for (let i = 0; i < len; i++) {
+      const id = columnIds[i];
+      const col = columns.find(c => c.id === id);
+      if(col === undefined) continue;
+      col.hidden = true;
+    }
+  }
+
   public createViewFactories(container: IContainer) {
-    if(this.viewFactoriesCreated) return;
+    if (this.viewFactoriesCreated) return;
     const columns = this.columns;
     const len = columns.length;
     for (let i = 0; i < len; i++) {
@@ -200,6 +212,7 @@ export class Column implements ColumnState {
    * @internal
    */
   public headerElement?: HTMLElement;
+  public hidden: boolean = false;
 
   public constructor(
     public readonly parent: GridStateModel,

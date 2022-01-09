@@ -15,6 +15,7 @@ import {
   INode,
   IPlatform,
   ISignaler,
+  BindingMode,
 } from '@aurelia/runtime-html';
 import {
   ContentModel,
@@ -51,6 +52,9 @@ const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>
 export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscriber {
   private static id: number = 0;
 
+  /**
+   * The content model (data).
+   */
   @bindable
   public model!: ContentModel<Record<string, unknown>>;
 
@@ -62,8 +66,19 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   @bindable
   public state?: ExportableGridState = void 0;
 
+  /**
+   * Callback when a item is
+   * - clicked with the 'None' selection mode, or
+   * - double-clicked with 'Single' or 'Multiple' selection mode.
+   */
   @bindable
   public itemClicked?: (data: { item: unknown, index: number }) => void;
+
+  /**
+   * This is a one-time bindable array of string columnIds that needs to be hidden from the current instance of the grid.
+   */
+  @bindable({ mode: BindingMode.oneTime })
+  public hiddenColumns: string[] = [];
 
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
@@ -101,6 +116,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     if (state != null) {
       stateModel.applyState(state);
     }
+    stateModel.hideColumns(this.hiddenColumns);
     const sortingOptions = stateModel.initializeActiveSortOptions();
     if (sortingOptions !== null) {
       this.model.applySorting(sortingOptions);
@@ -129,6 +145,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         this.model.applySorting(newValue as SortOption<Record<string, unknown>>);
         break;
       case ChangeType.Width:
+      case ChangeType.Order:
         this.adjustColumnWidth();
         break;
     }
