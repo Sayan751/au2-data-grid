@@ -3,6 +3,10 @@
   using <code>npm start</code>.
 </div>
 <div>
+  <strong>List state</strong>
+  <label><input type="checkbox" checked.bind="persistState"> Save list state to localStorage</label>
+</div>
+<div>
   <strong>Selection mode:</strong>
   <label><input type="radio" model.bind="0" checked.bind="selectionMode"> None</label>
   <label><input type="radio" model.bind="1" checked.bind="selectionMode"> Single</label>
@@ -35,7 +39,7 @@
   <button click.delegate="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
     page</button>
 </div>
-<data-grid model.bind="people" item-clicked.call="viewDetails($event.item)">
+<data-grid model.bind="people" state.two-way item-clicked.call="viewDetails($event.item)">
   <grid-column property="firstName">
     <header>
       <value-text value="First name"></value-text>
@@ -60,7 +64,7 @@
     </header>
     <normal-text value.bind="item.gender"></normal-text>
   </grid-column>
-  <grid-column>
+  <grid-column id="pets">
     <header>
       <value-text value="Pets"></value-text>
     </header>

@@ -142,7 +142,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   protected adjustColumnWidth() {
     const columns = this.stateModel.columns;
     const fallback = columns.some(c => c.widthPx != null) ? 'auto' : '1fr';
-    this.containerEl.style.gridTemplateColumns = columns.map(c => `minmax(min-content, ${c.widthPx ?? fallback})`).join(' ');
+    this.containerEl.style.gridTemplateColumns = columns.map(c => `minmax(max-content, ${c.widthPx ?? fallback})`).join(' ');
   }
 
   protected handleDblClick(item: Record<string, unknown>, index: number) {

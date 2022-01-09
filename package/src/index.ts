@@ -21,3 +21,6 @@ export {
 export {
   GridHeader,
 } from './grid-header.js';
+export {
+  ExportableGridState,
+} from './grid-state.js';

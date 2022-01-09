@@ -28,23 +28,9 @@ export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateMo
 export class GridStateModel implements IGridState {
   private _activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
   /**
-   * First change subscriber slot.
-   * @internal
-   */
-  private subscriber1: GridStateChangeSubscriber | null = null;
-  /**
-   * Second change subscriber slot.
-   * @internal
-   */
-  private subscriber2: GridStateChangeSubscriber | null = null;
-  /**
-   * Rest of the subscribers.
    * @internal
    */
   private subscribers: GridStateChangeSubscriber[] = [];
-
-  /** @internal */
-  private stateApplied: boolean = false;
 
   /** @internal */
   private viewFactoriesCreated: boolean = false;
@@ -68,9 +54,6 @@ export class GridStateModel implements IGridState {
 
   /** @internal */
   public applyState(state: ExportableGridState): void {
-    // invocation is expected once during binding phase
-    if (this.stateApplied) throw new Error('State has already been applied.');
-
     const columns = this.columns;
     const stateColumns = state.columns;
     const len = stateColumns.length;
@@ -85,7 +68,6 @@ export class GridStateModel implements IGridState {
       columns.splice(colIndex, 1);
       columns.splice(i, 0, column);
     }
-    this.stateApplied = true;
   }
 
   public createViewFactories(container: IContainer) {
@@ -108,28 +90,10 @@ export class GridStateModel implements IGridState {
   }
 
   public addSubscriber(subscriber: GridStateChangeSubscriber) {
-    if (this.subscriber1 === null) {
-      this.subscriber1 = subscriber;
-      return;
-    }
-    if (this.subscriber2 === null) {
-      this.subscriber2 = subscriber;
-      return;
-    }
     this.subscribers.push(subscriber);
   }
 
   public removeSubscriber(subscriber: GridStateChangeSubscriber) {
-    if (this.subscriber1 === null) {
-      this.subscriber1 = null;
-      return;
-    }
-
-    if (this.subscriber2 === null) {
-      this.subscriber2 = null;
-      return;
-    }
-
     const subscribers = this.subscribers;
     const idx = subscribers.findIndex(s => s === subscriber);
     if (idx === -1) return;
@@ -154,19 +118,10 @@ export class GridStateModel implements IGridState {
     newValue?: SortOption<Record<string, unknown>> | OrderChangeData,
     oldValue?: SortOption<Record<string, unknown>> | null,
   ): void {
-    let subscriber = this.subscriber1;
-    if (subscriber === null) return;
-    subscriber.handleGridStateChange(type, newValue, oldValue);
-
-    subscriber = this.subscriber2;
-    if (subscriber === null) return;
-    subscriber.handleGridStateChange(type, newValue, oldValue);
-
     const subscribers = this.subscribers;
     const len = subscribers.length;
     for (let i = 0; i < len; i++) {
-      subscriber = subscribers[i];
-      subscriber.handleGridStateChange(type, newValue, oldValue);
+      subscribers[i].handleGridStateChange(type, newValue, oldValue);
     }
   }
 
@@ -233,8 +188,6 @@ export class Column implements ColumnState {
   public static generateId() { return `unnamed-column-${++this.id}`; }
 
   /** @internal */
-  private stateApplied: boolean = false;
-  /** @internal */
   private readonly _sortable: boolean = false;
   /** @internal */
   private _direction: SortDirection | null = null;
@@ -297,12 +250,9 @@ export class Column implements ColumnState {
 
   /** @internal */
   public tryApplyState(state: ExportableColumnState): boolean {
-    // invocation is expected once during binding stage
-    if (this.stateApplied) throw new Error('State has already been applied.');
     if (this.id !== state.id || this.property !== state.property) return false;
     this._direction = state.direction;
     this.widthPx = state.widthPx;
-    this.stateApplied = true;
     return true;
   }
 
