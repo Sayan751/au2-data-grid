@@ -19,7 +19,7 @@ import {
 } from '@aurelia/runtime-html';
 import {
   ContentModel,
-  SelectionMode,
+  ItemSelectionMode,
 } from './content-model.js';
 import template from './data-grid.html';
 import {
@@ -49,6 +49,9 @@ const descPattern = /^desc$|^descending$/i;
 // TODO: support adding bindables directly from processContent
 const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>();
 
+/**
+ * Default implementation of the data-grid.
+ */
 export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscriber {
   private static id: number = 0;
 
@@ -72,7 +75,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
    * - double-clicked with 'Single' or 'Multiple' selection mode.
    */
   @bindable
-  public itemClicked?: (data: { item: unknown, index: number }) => void;
+  public itemClicked?: (data: { item: unknown; index: number }) => void;
 
   /**
    * This is a one-time bindable array of string columnIds that needs to be hidden from the current instance of the grid.
@@ -96,8 +99,9 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     this.logger = logger.scopeTo('DataGrid');
   }
 
-  public define(_controller: IDryCustomElementController, hydrationContext: IHydrationContext | null, _definition: CustomElementDefinition) {
-    const instanceIdStr = this.node.dataset.instanceId;
+  public define(_controller: IDryCustomElementController, _hydrationContext: IHydrationContext | null, _definition: CustomElementDefinition): void {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const instanceIdStr = this.node.dataset.instanceId!;
     const instanceId = Number(instanceIdStr);
     if (!Number.isInteger(instanceId)) throw new Error(`Invalid data grid instanceId: ${instanceIdStr}; expected integer.`);
     this.selectionUpdateSignal = `update-selection-${instanceIdStr}`;
@@ -110,7 +114,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     this.node.style.setProperty('--num-columns', state.columns.length.toString());
   }
 
-  public binding() {
+  public binding(): void {
     const stateModel = this.stateModel;
     const state = this.state;
     if (state != null) {
@@ -124,11 +128,11 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     stateModel.addSubscriber(this);
   }
 
-  public attaching() {
+  public attaching(): void {
     this.adjustColumnWidth();
   }
 
-  public unbinding() {
+  public unbinding(): void {
     this.stateModel.removeSubscriber(this);
   }
 
@@ -156,29 +160,29 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     }
   }
 
-  protected adjustColumnWidth() {
+  protected adjustColumnWidth(): void {
     const columns = this.stateModel.columns;
     const fallback = columns.some(c => c.widthPx != null) ? 'auto' : '1fr';
     this.containerEl.style.gridTemplateColumns = columns.map(c => `minmax(max-content, ${c.widthPx ?? fallback})`).join(' ');
   }
 
-  protected handleDblClick(item: Record<string, unknown>, index: number) {
+  protected handleDblClick(item: Record<string, unknown>, index: number): void {
     getSelection()?.empty();
     this.itemClicked?.({ item, index });
     this.lastClickedRow = index;
   }
 
-  protected handleClick(event: MouseEvent, item: Record<string, unknown>, index: number) {
+  protected handleClick(event: MouseEvent, item: Record<string, unknown>, index: number): void {
     getSelection()?.empty();
     const model = this.model;
     switch (model.selectionMode) {
-      case SelectionMode.None:
+      case ItemSelectionMode.None:
         this.itemClicked?.({ item, index });
         break;
-      case SelectionMode.Single:
+      case ItemSelectionMode.Single:
         model.selectItem(item);
         break;
-      case SelectionMode.Multiple:
+      case ItemSelectionMode.Multiple:
         if (event.shiftKey) {
           const lastClickedRow = this.lastClickedRow;
           if (lastClickedRow !== null) {
@@ -199,7 +203,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   }
 
   // TODO: supply a logger to the processContent
-  public static processContent(content: HTMLElement, platform: IPlatform) {
+  public static processContent(content: HTMLElement, platform: IPlatform): void {
     const columns = content.querySelectorAll('grid-column');
     const numColumns = columns.length;
 
@@ -209,9 +213,9 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
       const col = columns[i];
 
       // extract metadata
-      let exportable = true;
+      let isExportable = true;
       const property = col.getAttribute('property');
-      const id = col.getAttribute('id') ?? property ?? (exportable = false, Column.generateId());
+      const id = col.getAttribute('id') ?? property ?? (isExportable = false, Column.generateId());
       const directionRaw = col.getAttribute('sort-direction');
       let direction: SortDirection | null = null;
       if (directionRaw !== null) {
@@ -233,7 +237,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
       const projection = doc.createElement('template');
       projection.setAttribute('au-slot', 'default');
       projection.content.append(...(headerContent !== undefined
-        ? Array.from(headerContent!)
+        ? Array.from(headerContent)
         : [doc.createTextNode(`Column ${i + 1}`)]
       ));
       container.append(projection);
@@ -250,7 +254,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         state,
         id ?? property,
         property,
-        exportable,
+        isExportable,
         direction,
         isResizable,
         width,
@@ -267,12 +271,20 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const DefaultDataGrid = defineDataGridCustomElement(DefaultGridHeader);
+/**
+ * Creates data-grid custom element registration.
+ *
+ * @param {CustomElementType<THeader>} header The grid-header custom element registration.
+ * @returns {CustomElementType<Constructable<DataGrid>>} Data grid custom element registration.
+ * @template THeader
+ */
 export function defineDataGridCustomElement<
   THeader extends Constructable<GridHeader>,
   >(
     header: CustomElementType<THeader>,
-) {
+): CustomElementType<Constructable<DataGrid>> {
   return CustomElement.define(
     {
       name: 'data-grid',

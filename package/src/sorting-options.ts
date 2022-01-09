@@ -3,18 +3,14 @@ export enum SortDirection {
   Descending = 'Descending',
 }
 
-export interface SortOption<T extends unknown> {
+export interface SortOption<T> {
   /**
    * Name of the property on which to sort
-   * @type {keyof T}
-   * @memberof SortInfo
    */
   property: keyof T;
 
   /**
    * Direction of sorting
-   * @type {SortDirection}
-   * @memberof SortInfo
    */
   direction: SortDirection;
 }

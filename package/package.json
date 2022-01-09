@@ -14,7 +14,10 @@
     "build": "run-p build:ts build:other",
     "watch:ts": "tsc --watch --preserveWatchOutput",
     "watch:other": "cpx ./src/**/*.{html,css} ./dist --watch",
-    "watch": "run-p watch:ts watch:other"
+    "watch": "run-p watch:ts watch:other",
+    "lint:src": "eslint -c ./.eslintrc.cjs --cache --ext .ts src",
+    "lint:tests": "eslint -c ./tests/unit/.eslintrc.js --cache --ext .ts tests/unit",
+    "lint": "npm run lint:src"
   },
   "keywords": [],
   "author": "",

@@ -17,16 +17,19 @@ export interface ExportableGridState {
 export interface IGridState {
   export(): ExportableGridState;
 }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IGridStateModel extends GridStateModel { }
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateModel');
 
 /**
  * This aggregates the structural metadata for the grid.
  * This is meant for internal use.
+ *
  * @internal
  */
 export class GridStateModel implements IGridState {
-  private _activeSortOptions: SortOption<Record<string, unknown>> | null = null!;
+  private _activeSortOptions: SortOption<Record<string, unknown>> | null = null;
   /**
    * @internal
    */
@@ -43,16 +46,23 @@ export class GridStateModel implements IGridState {
   }
 
   public get activeSortOptions(): SortOption<Record<string, unknown>> | null {
-    return this._activeSortOptions
-  };
+    return this._activeSortOptions;
+  }
 
+  /**
+   * Exports the grid state.
+   */
   public export(): ExportableGridState {
     return {
       columns: this.columns.map((c) => c.export())
-    }
+    };
   }
 
-  /** @internal */
+  /**
+   * Applies a previously exported state.
+   *
+   * @param {ExportableGridState} state The state to apply.
+   */
   public applyState(state: ExportableGridState): void {
     const columns = this.columns;
     const stateColumns = state.columns;
@@ -70,7 +80,13 @@ export class GridStateModel implements IGridState {
     }
   }
 
-  public hideColumns(columnIds: string[]) {
+  /**
+   * Marks the hidden columns as per the given column ids.
+   * Note that in absence of a `id` attribute in `grid-column`, the `property` is used as the `id`.
+   *
+   * @param {string[]} columnIds The collection of ids of the columns to hide.
+   */
+  public hideColumns(columnIds: string[]): void {
     const len = columnIds?.length ?? 0;
     if (len === 0) return;
     const columns = this.columns;
@@ -82,7 +98,10 @@ export class GridStateModel implements IGridState {
     }
   }
 
-  public createViewFactories(container: IContainer) {
+  /**
+   * Creates the view factories for every column using the given `container`.
+   */
+  public createViewFactories(container: IContainer): void {
     if (this.viewFactoriesCreated) return;
     const columns = this.columns;
     const len = columns.length;
@@ -92,20 +111,34 @@ export class GridStateModel implements IGridState {
     this.viewFactoriesCreated = true;
   }
 
+  /**
+   * Initializes the sort options.
+   * To this end the first column with non-null direction is used .
+   */
   public initializeActiveSortOptions(): SortOption<Record<string, unknown>> | null {
     const column = this.columns.find(c => c.direction !== null);
     if (column == null) return null;
     return this._activeSortOptions = {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       property: column.property!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       direction: column.direction!,
     };
   }
 
-  public addSubscriber(subscriber: GridStateChangeSubscriber) {
+  /**
+   * Adds the given `subscriber` to the collection of subscribers.
+   * The subscribers will be notified for state changes.
+   */
+  public addSubscriber(subscriber: GridStateChangeSubscriber): void {
     this.subscribers.push(subscriber);
   }
 
-  public removeSubscriber(subscriber: GridStateChangeSubscriber) {
+  /**
+   * Removes the given `subscriber` from the collection of subscribers.
+   * The subscriber won't be notified for any further state changes.
+   */
+  public removeSubscriber(subscriber: GridStateChangeSubscriber): void {
     const subscribers = this.subscribers;
     const idx = subscribers.findIndex(s => s === subscriber);
     if (idx === -1) return;
@@ -146,6 +179,7 @@ export class GridStateModel implements IGridState {
       case ChangeType.Sort: {
         const oldSortOptions = this._activeSortOptions;
         const oldProperty = oldSortOptions?.property;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const newProperty = (columnOrId as Column).property!;
         if (oldProperty !== newProperty) {
           // this is needed so that change to the old sort column can be propagated to the view.
@@ -153,6 +187,7 @@ export class GridStateModel implements IGridState {
             .find(c => c.property === oldProperty)
             ?.setDirection(null, false);
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const newSortOptions = this._activeSortOptions = { property: newProperty, direction: (columnOrId as Column).direction! };
         this.notifySubscribers(type, newSortOptions, oldSortOptions);
         return;
@@ -166,14 +201,14 @@ export class GridStateModel implements IGridState {
           || diff === -1 && location === OrderChangeDropLocation.After
         ) return;
         columns.splice(destinationIndex, 0, columns.splice(sourceIndex, 1)[0]);
-        this.notifySubscribers(type, { fromIndex: sourceIndex, toIndex: destinationIndex, location } as OrderChangeData, null)
+        this.notifySubscribers(type, { fromIndex: sourceIndex, toIndex: destinationIndex, location } as OrderChangeData, null);
         return;
       }
       case ChangeType.Width:
         this.notifySubscribers(type);
         return;
       default:
-        throw new Error(`Unsupported change type: ${type}.`);
+        throw new Error(`Unsupported change type: ${String(type)}.`);
     }
   }
 }
@@ -192,12 +227,13 @@ export interface ColumnState extends ExportableColumnState {
 /**
  * This describes the structural metadata of a column.
  * This is meant for internal use.
+ *
  * @internal
  */
 export class Column implements ColumnState {
 
   private static id = 0;
-  public static generateId() { return `unnamed-column-${++this.id}`; }
+  public static generateId(): string { return `unnamed-column-${++this.id}`; }
 
   /** @internal */
   private readonly _sortable: boolean = false;
@@ -209,6 +245,7 @@ export class Column implements ColumnState {
   private _contentViewFactory: ViewFactory | null = null;
   /**
    * This is registered from inside the grid-header CE during `binding`.
+   *
    * @internal
    */
   public headerElement?: HTMLElement;
@@ -236,13 +273,13 @@ export class Column implements ColumnState {
     parent.columns.push(this);
   }
 
-  public get direction() { return this._direction; }
-  public get sortable() { return this._sortable; }
-  public get headerViewFactory() { return this._headerViewFactory; }
-  public get contentViewFactory() { return this._contentViewFactory; }
+  public get direction(): SortDirection | null { return this._direction; }
+  public get sortable(): boolean { return this._sortable; }
+  public get headerViewFactory(): ViewFactory | null { return this._headerViewFactory; }
+  public get contentViewFactory(): ViewFactory | null { return this._contentViewFactory; }
 
   /** @internal */
-  public setDirection(direction: SortDirection | null, notifyParent: boolean) {
+  public setDirection(direction: SortDirection | null, notifyParent: boolean): void {
     if (!this._sortable) throw new Error(`The column '${this.id}' is not sortable.`);
     this._direction = direction;
     if (notifyParent) {
@@ -258,7 +295,7 @@ export class Column implements ColumnState {
       direction: this._direction,
       isResizable: this.isResizable,
       widthPx: this.widthPx,
-    }
+    };
   }
 
   /** @internal */
@@ -269,7 +306,7 @@ export class Column implements ColumnState {
     return true;
   }
 
-  public createViewFactories(container: IContainer) {
+  public createViewFactories(container: IContainer): void {
     // invocation is expected once during pre-binding stage
     if (this._headerViewFactory !== null && this._contentViewFactory !== null) return;
     this._headerViewFactory = new ViewFactory(container, this.header);
@@ -302,4 +339,4 @@ export type GridStateChangeSubscriber = {
   handleGridStateChange(type: ChangeType.Order, value: OrderChangeData): void;
   handleGridStateChange(type: ChangeType.Sort, newValue: SortOption<Record<string, unknown>>, oldValue: SortOption<Record<string, unknown>> | null): void;
   handleGridStateChange(type: ChangeType, newValue?: SortOption<Record<string, unknown>> | OrderChangeData, oldValue?: SortOption<Record<string, unknown>> | null): void;
-}
+};

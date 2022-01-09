@@ -2,12 +2,12 @@ export {
   DataGrid,
 } from './data-grid.js';
 export {
-  DataGridConfiguration,
+  DataGridRegistration as DataGridConfiguration,
   CustomizationOptions,
 } from './configuration.js';
 export {
   ContentModel,
-  SelectionMode,
+  ItemSelectionMode as SelectionMode,
   SelectionOptions,
 } from './content-model.js';
 export {

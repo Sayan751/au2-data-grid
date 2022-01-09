@@ -28,6 +28,7 @@ import {
 
 /**
  * Template controller to render the headers.
+ *
  * @internal
  */
 @templateController('grid-headers')
@@ -55,7 +56,7 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     initiator: IHydratedController,
     parent: IHydratedParentController,
     flags: LifecycleFlags
-  ) {
+  ): void | Promise<void> {
     const indexMap = this._indexMap;
     indexMap.clear();
     const location = this.location;
@@ -64,14 +65,15 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     let len = 0;
     const headers = this.headers = columns.reduce((acc, column, i) => {
       if (column.hidden) return acc;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       acc.push(column.headerViewFactory!.create(initiator).setLocation(location));
       indexMap.set(i, len++);
       return acc;
     }, [] as ISyntheticView[]);
-    const activationPromises = new Array(len);
+    const activationPromises = new Array<void | Promise<void>>(len);
     for (let i = 0; i < len; i++) {
       const header = headers[i];
-      header.nodes.link(headers[i + 1]?.nodes ?? location)
+      header.nodes.link(headers[i + 1]?.nodes ?? location);
       activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create({ state: columns[i] })));
     }
     this.queue(() => resolveAll(...activationPromises));
@@ -86,8 +88,8 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
   }
 
   public dispose(): void {
-    let headers = this.headers;
-    let len = headers.length;
+    const headers = this.headers;
+    const len = headers.length;
     for (let i = 0; i < len; i++) {
       headers[i].dispose();
     }
@@ -118,6 +120,7 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
 
 /**
  * Template controller to render the content cells.
+ *
  * @internal
  */
 @templateController('grid-content')
@@ -146,7 +149,7 @@ export class GridContent implements ICustomAttributeViewModel {
     initiator: IHydratedController,
     parent: IHydratedParentController,
     flags: LifecycleFlags
-  ) {
+  ): void | Promise<void> {
     const headersTc: GridHeaders = this.$controller
       .parent   // synthetic
       ?.parent  // repeater
@@ -162,10 +165,11 @@ export class GridContent implements ICustomAttributeViewModel {
     const state = this.state;
     const columns = state.columns;
     const len = indexMap.size;
-    const cells = this.cells = new Array(len);
-    const activationPromises = new Array(len);
+    const cells = this.cells = new Array<ISyntheticView>(len);
+    const activationPromises = new Array<void | Promise<void>>(len);
     let  i = 0;
     for (const [key,] of indexMap) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const cell = cells[i++] = columns[key].contentViewFactory!.create(initiator).setLocation(location);
       activationPromises[i] = cell.activate(initiator, parent, flags, Scope.create(BindingContext.create({ item })));
     }
@@ -181,8 +185,8 @@ export class GridContent implements ICustomAttributeViewModel {
   }
 
   public dispose(): void {
-    let cells = this.cells;
-    let len = cells.length;
+    const cells = this.cells;
+    const len = cells.length;
     for (let i = 0; i < len; i++) {
       cells[i].dispose();
     }
@@ -216,10 +220,12 @@ function handleReordering(
   changeData: OrderChangeData,
   location: IRenderLocation,
   indexMap: Map<number, number>,
-) {
+): void {
   const fromIdx = changeData.fromIndex;
   const toIdx = changeData.toIndex;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const fromNodes = views[indexMap.get(fromIdx)!].nodes;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const toNodes = views[indexMap.get(toIdx)!].nodes;
 
   // link the next node with the previous node

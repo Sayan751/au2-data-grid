@@ -18,7 +18,7 @@ const defaultPageSize = 50;
  * Handles the data part of the grid.
  * This has very little to do with the presentation of the data.
  */
-export class ContentModel<T extends unknown> {
+export class ContentModel<T> {
   public readonly isAnySelected: boolean = false;
   public readonly isOneSelected: boolean = false;
   public readonly selectionCount: number = 0;
@@ -27,7 +27,7 @@ export class ContentModel<T extends unknown> {
   public allItems: T[] | null;
 
   public readonly selectedItems: T[] = [];
-  public readonly selectionMode: SelectionMode;
+  public readonly selectionMode: ItemSelectionMode;
   private readonly onSelectionChange: SelectionChangeHandler<T>;
   private readonly pageSize: number | null;
   private readonly fetchPage: FetchPage<T> | null;
@@ -37,8 +37,10 @@ export class ContentModel<T extends unknown> {
   private _currentPageNumber: number = 0;
   private pagePromise: Promise<void> | null = null;
   private countPromise: Promise<void> | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   private _totalCount: number = undefined!;
   private _sortOptions: SortOption<T>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   private _pageCount: number = undefined!;
   private initialized: boolean = false;
 
@@ -62,42 +64,44 @@ export class ContentModel<T extends unknown> {
     this.pageSize = isPagingDisabled ? null : (pageSize ?? defaultPageSize);
 
     if (isPagingDisabled && hasAllItems) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this._currentPage = allItems!;
       this._totalCount = allItems.length;
     }
 
-    this.selectionMode = selectionOptions?.mode ?? SelectionMode.None;
+    this.selectionMode = selectionOptions?.mode ?? ItemSelectionMode.None;
     this.onSelectionChange = selectionOptions?.onSelectionChange ?? noop as SelectionChangeHandler<T>;
     this.initialized = true;
   }
 
-  public get currentPage() { return this._currentPage; }
+  public get currentPage(): T[] { return this._currentPage; }
 
-  public get totalCount() { return this._totalCount; }
+  public get totalCount(): number { return this._totalCount; }
 
-  public get pageCount() { return this._pageCount; }
+  public get pageCount(): number { return this._pageCount; }
 
-  public get currentPageNumber() { return this._currentPageNumber; }
+  public get currentPageNumber(): number { return this._currentPageNumber; }
 
   public selectItem(item: T): void {
     switch (this.selectionMode) {
-      case SelectionMode.None:
+      case ItemSelectionMode.None:
         return;
-      case SelectionMode.Single:
+      case ItemSelectionMode.Single:
         this.selectedItems[0] = item;
         break;
-      case SelectionMode.Multiple:
+      case ItemSelectionMode.Multiple: {
         const selectedItems = this.selectedItems;
         if (!selectedItems.includes(item)) {
           selectedItems.push(item);
         }
         break;
+      }
     }
     this.handleSelectionChange();
   }
 
-  public selectRange(startIndex: number, endIndex: number) {
-    if (this.selectionMode !== SelectionMode.Multiple) return;
+  public selectRange(startIndex: number, endIndex: number): void {
+    if (this.selectionMode !== ItemSelectionMode.Multiple) return;
     const start = Math.min(startIndex, endIndex);
     const end = Math.max(startIndex, endIndex);
     const items = this._currentPage;
@@ -111,8 +115,8 @@ export class ContentModel<T extends unknown> {
     this.handleSelectionChange();
   }
 
-  public toggleSelection(item: T) {
-    if (this.selectionMode !== SelectionMode.Multiple) return;
+  public toggleSelection(item: T): void {
+    if (this.selectionMode !== ItemSelectionMode.Multiple) return;
     const selectedItems = this.selectedItems;
     const idx = selectedItems.findIndex(x => item === x);
     if (idx === -1) {
@@ -123,7 +127,7 @@ export class ContentModel<T extends unknown> {
     this.handleSelectionChange();
   }
 
-  private handleSelectionChange() {
+  private handleSelectionChange(): void {
     const selectedItems = this.selectedItems;
     const len = (this as Writable<ContentModel<T>>).selectionCount = selectedItems.length;
     const isAnySelected = (this as Writable<ContentModel<T>>).isAnySelected = len > 0;
@@ -131,17 +135,17 @@ export class ContentModel<T extends unknown> {
     this.onSelectionChange(selectedItems, isOneSelected, isAnySelected);
   }
 
-  public clearSelections() {
+  public clearSelections(): void {
     (this as Writable<ContentModel<T>>).isAnySelected = (this as Writable<ContentModel<T>>).isOneSelected = false;
     (this as Writable<ContentModel<T>>).selectionCount = 0;
     this.selectedItems.length = 0;
   }
 
-  public isSelected(item: T) {
+  public isSelected(item: T): boolean {
     return this.selectedItems.includes(item);
   }
 
-  public applySorting(...sortOptions: SortOption<T>[]) {
+  public applySorting(...sortOptions: SortOption<T>[]): void {
     const oldValue = this._sortOptions;
     const newValue = this._sortOptions = sortOptions;
     this.onSorting?.(newValue, oldValue, this.allItems, this);
@@ -164,7 +168,7 @@ export class ContentModel<T extends unknown> {
     }
   }
 
-  public goToPreviousPage() {
+  public goToPreviousPage(): void {
     const pageNumber = this._currentPageNumber;
     if (pageNumber === 1) {
       this.logger.warn('Cannot go to previous page; already on the first page.');
@@ -173,7 +177,7 @@ export class ContentModel<T extends unknown> {
     this.setCurrentPageNumber(pageNumber - 1);
   }
 
-  public goToNextPage() {
+  public goToNextPage(): void {
     const pageNumber = this._currentPageNumber;
     if (pageNumber === this._pageCount) {
       this.logger.warn('Cannot go to next page; already on the last page.');
@@ -183,13 +187,13 @@ export class ContentModel<T extends unknown> {
   }
 
   /** @internal */
-  public async setTotalCount(): Promise<void> {
+  public setTotalCount(): void {
     const pageSize = this.pageSize;
     const allItems = this.allItems;
     if (allItems !== null) {
       const totalCount = this._totalCount = allItems.length;
       if (pageSize !== null) {
-        this._pageCount = Math.ceil(totalCount / pageSize)
+        this._pageCount = Math.ceil(totalCount / pageSize);
       }
       this.countPromise = null;
       return;
@@ -204,7 +208,7 @@ export class ContentModel<T extends unknown> {
       const promise = this.countPromise = countPromise.then((count) => {
         this._totalCount = count;
         if (pageSize !== null) {
-          this._pageCount = Math.ceil(count / pageSize)
+          this._pageCount = Math.ceil(count / pageSize);
         }
         if (this.countPromise === promise) {
           this.countPromise = null;
@@ -214,13 +218,13 @@ export class ContentModel<T extends unknown> {
     }
     this._totalCount = countPromise;
     if (pageSize !== null) {
-      this._pageCount = Math.ceil(countPromise / pageSize)
+      this._pageCount = Math.ceil(countPromise / pageSize);
     }
     this.countPromise = null;
   }
 
   /** @internal */
-  public async setPage(): Promise<void> {
+  public setPage(): void {
     const allItems = this.allItems;
     const pageSize = this.pageSize;
     const pageNumber = this._currentPageNumber;
@@ -235,8 +239,10 @@ export class ContentModel<T extends unknown> {
     }
 
     // one of fetchPage or allItems should always be there.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const fetchPage = this.fetchPage!;
-    let pagePromise = fetchPage(pageNumber, pageSize!, this);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const pagePromise = fetchPage(pageNumber, pageSize!, this);
     if (pagePromise instanceof Promise) {
       const promise = this.pagePromise = pagePromise
         .then((data) => {
@@ -266,27 +272,27 @@ export class ContentModel<T extends unknown> {
     return this.wait(rethrowError);
   }
 
-  private allItemsChanged() {
+  private allItemsChanged(): void {
     this.setCurrentPageNumber(1, true);
   }
 }
 
-export enum SelectionMode {
+export enum ItemSelectionMode {
   None = 0,
   Single = 1,
   Multiple = 2,
 }
-type SelectionChangeHandler<T extends unknown> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
-export interface SelectionOptions<T extends unknown> {
-  mode: SelectionMode;
-  onSelectionChange: SelectionChangeHandler<T>
+type SelectionChangeHandler<T> = (selectedItems: T[], isOneSelected: boolean, isAnySelected: boolean) => void;
+export interface SelectionOptions<T> {
+  mode: ItemSelectionMode;
+  onSelectionChange: SelectionChangeHandler<T>;
 }
 
-export type FetchCount<T extends unknown> = (model: ContentModel<T>) => number | Promise<number>;
-export type FetchPage<T extends unknown> = (currentPage: number, pageSize: number, model: ContentModel<T>) => T[] | Promise<T[]>;
-export interface PagingOptions<T extends unknown> {
+export type FetchCount<T> = (model: ContentModel<T>) => number | Promise<number>;
+export type FetchPage<T> = (currentPage: number, pageSize: number, model: ContentModel<T>) => T[] | Promise<T[]>;
+export interface PagingOptions<T> {
   pageSize: number | null;
   fetchPage: FetchPage<T>;
   fetchCount: FetchCount<T>;
 }
-export type ApplySorting<T extends unknown> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, model: ContentModel<T>) => void;
+export type ApplySorting<T> = (newValue: SortOption<T>[], oldValue: SortOption<T>[], allItems: T[] | null, model: ContentModel<T>) => void;

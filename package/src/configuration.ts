@@ -20,13 +20,22 @@ export type ConfigurationProvider<
   THeader extends Constructable<GridHeader>,
   > = (options: CustomizationOptions<TGrid, THeader>) => void;
 
+interface DataGridRegistration<TGrid extends Constructable<DataGrid>, THeader extends Constructable<GridHeader>> {
+  optionsProvider: ConfigurationProvider<TGrid, THeader>;
+  register(container: IContainer): void;
+  customize(cb?: ConfigurationProvider<TGrid, THeader>): DataGridRegistration<TGrid, THeader>;
+}
+
 function createConfiguration<
   TGrid extends Constructable<DataGrid>,
   THeader extends Constructable<GridHeader>,
-  >(optionsProvider: ConfigurationProvider<TGrid, THeader>) {
+  >(
+    optionsProvider: ConfigurationProvider<TGrid, THeader>
+  ): DataGridRegistration<TGrid, THeader> {
   return {
     optionsProvider,
-    register(container: IContainer) {
+    register(container: IContainer): void {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const options: CustomizationOptions<TGrid, THeader> = Object.create(null);
       optionsProvider(options);
       const grid = options.grid;
@@ -41,12 +50,13 @@ function createConfiguration<
       }
       container.register(DefaultDataGrid);
     },
-    customize(cb?: ConfigurationProvider<TGrid, THeader>) {
+    customize(cb?: ConfigurationProvider<TGrid, THeader>): DataGridRegistration<TGrid, THeader> {
       return createConfiguration(cb ?? optionsProvider);
     }
-  }
+  };
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const DataGridConfiguration = createConfiguration(noop);
 export interface CustomizationOptions<
   TGrid extends Constructable<DataGrid>,

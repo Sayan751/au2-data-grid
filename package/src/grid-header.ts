@@ -32,23 +32,23 @@ export class GridHeader implements ICustomElementViewModel {
     @IPlatform private readonly platform: IPlatform,
   ) { }
 
-  public get isSortable() {
+  public get isSortable(): boolean {
     return this.state.sortable;
   }
 
-  public get direction() {
+  public get direction(): SortDirection | null {
     return this.state.direction;
   }
 
-  public get isResizable() {
+  public get isResizable(): boolean {
     return this.state.isResizable;
   }
 
-  public binding() {
+  public binding(): void {
     this.state.headerElement = this.node;
   }
 
-  public attached() {
+  public attached(): void {
     // it is essential to queue to queue so that all child get rendered first.
     this.platform.taskQueue.queueTask(() => {
       const state = this.state;
@@ -67,7 +67,7 @@ export class GridHeader implements ICustomElementViewModel {
     });
   }
 
-  private handleClick() {
+  private handleClick(): void {
     // non-sortable column; nothing to do.
     if (!this.isSortable) { return; }
     const state = this.state;
@@ -78,21 +78,22 @@ export class GridHeader implements ICustomElementViewModel {
     state.setDirection(newDirection, true);
   }
 
-  private handleDragStart(event: DragEvent) {
+  private handleDragStart(event: DragEvent): void {
     const id = this.state.id;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const dt = event.dataTransfer!;
     dt.setData('text/plain', id);
     dt.setDragImage(this.content, 10, 10);
     dt.dropEffect = 'move';
   }
 
-  private handleDragover(event: DragEvent) {
+  private handleDragover(event: DragEvent) : boolean | undefined{
     // TODO: account for visual drop marker
     event.preventDefault();
     return event.dataTransfer?.types.includes('text/plain');
   }
 
-  private handleDrop(event: DragEvent) {
+  private handleDrop(event: DragEvent): void {
     event.preventDefault();
     const id = this.state.id;
     const sourceId = event.dataTransfer?.getData('text/plain');
@@ -105,7 +106,7 @@ export class GridHeader implements ICustomElementViewModel {
     );
   }
 
-  private handleMouseDown(event: MouseEvent) {
+  private handleMouseDown(event: MouseEvent): void {
     event.preventDefault();
 
     // Handle column resizing if the user starts dragging a resize handle:
@@ -119,6 +120,7 @@ export class GridHeader implements ICustomElementViewModel {
       for (let i = 0; i < len; i++) {
         const column = columns[i];
         if (column.widthPx !== null) continue;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         column.widthPx = `${column.headerElement!.getBoundingClientRect().width}px`;
       }
       this.state.parent.handleChange(ChangeType.Width);
@@ -133,13 +135,12 @@ export class GridHeader implements ICustomElementViewModel {
     window.addEventListener('mouseup', stop, { capture: true });
   }
 
-  private get minColumnWidth() {
+  private get minColumnWidth(): number {
     return this.content.getBoundingClientRect().width
       + (this.sortingMarker?.getBoundingClientRect().width ?? 0)
       + columnPaddingPx;
   }
 
-  /** @internal */
   private static computeDropLocation(rect: DOMRect, x: number): OrderChangeDropLocation {
     const mid = rect.left + (rect.right - rect.left) / 2;
     const location = x <= mid
@@ -149,4 +150,5 @@ export class GridHeader implements ICustomElementViewModel {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const DefaultGridHeader = CustomElement.define({ name: 'grid-header', template }, GridHeader);
