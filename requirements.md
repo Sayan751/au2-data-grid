@@ -19,9 +19,9 @@
     </grid-column>
 </data-grid>
 ```
-- [ ] Supports item selection
+- [x] Supports item selection
   - [x] single selection
-  - [ ] multiple selection
+  - [x] multiple selection
 - [x] The items must be page-able
 - [x] Supports sorting
 - [x] Supports column reordering
