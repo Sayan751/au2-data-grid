@@ -2,3 +2,5 @@ node_modules
 dist
 package/tasks
 .eslintcache
+.artifacts
+.karma-webpack

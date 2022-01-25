@@ -2,7 +2,7 @@ export {
   DataGrid,
 } from './data-grid.js';
 export {
-  DataGridRegistration as DataGridConfiguration,
+  DataGridConfiguration,
   CustomizationOptions,
 } from './configuration.js';
 export {

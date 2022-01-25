@@ -46,7 +46,6 @@ import {
 
 const ascPattern = /^asc$|^ascending$/i;
 const descPattern = /^desc$|^descending$/i;
-// TODO: support adding bindables directly from processContent
 const stateLookup: Map<number, GridStateModel> = new Map<number, GridStateModel>();
 
 /**
@@ -202,7 +201,6 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     this.signaler.dispatchSignal(this.selectionUpdateSignal);
   }
 
-  // TODO: supply a logger to the processContent
   public static processContent(content: HTMLElement, platform: IPlatform): void {
     const columns = content.querySelectorAll('grid-column');
     const numColumns = columns.length;
