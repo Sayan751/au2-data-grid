@@ -1,4 +1,4 @@
-import { all, DI, ILogger, LoggerConfiguration } from '@aurelia/kernel';
+import { DI, ILogger, LoggerConfiguration } from '@aurelia/kernel';
 import { AssertionFactory, createSpy, Spy } from '@netatwork/spy';
 import { assert } from 'chai';
 import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model';
