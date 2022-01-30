@@ -37,13 +37,7 @@ export class GridStateModel implements IGridState {
 
   /** @internal */
   private viewFactoriesCreated: boolean = false;
-
-  public constructor(
-    public readonly columns: Column[],
-  ) {
-    if (columns.length === 0) return;
-    this.initializeActiveSortOptions();
-  }
+  public readonly columns: Column[] = [];
 
   public get activeSortOptions(): SortOption<Record<string, unknown>> | null {
     return this._activeSortOptions;
@@ -93,7 +87,7 @@ export class GridStateModel implements IGridState {
     for (let i = 0; i < len; i++) {
       const id = columnIds[i];
       const col = columns.find(c => c.id === id);
-      if(col === undefined) continue;
+      if (col === undefined) continue;
       col.hidden = true;
     }
   }

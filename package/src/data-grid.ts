@@ -205,7 +205,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     const columns = content.querySelectorAll('grid-column');
     const numColumns = columns.length;
 
-    const state = new GridStateModel([]);
+    const state = new GridStateModel();
     const doc = platform.document;
     for (let i = 0; i < numColumns; i++) {
       const col = columns[i];
