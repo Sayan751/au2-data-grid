@@ -293,7 +293,7 @@ describe('content-model', function () {
     const item1 = { p: 1 };
     const item2 = { p: 2 };
     const allItems = [item1, item2];
-    const spy = createSpy<SelectionOptions<unknown>>({ mode: ItemSelectionMode.None, onSelectionChange() { /* noop */ } }, true);
+    const spy = createSpy<SelectionOptions<unknown>>({ mode: ItemSelectionMode.None, onSelectionChange: undefined! }, true);
     const sut = new ContentModel(
       allItems,
       null,
@@ -343,6 +343,7 @@ describe('content-model', function () {
       getLogger()[1],
     );
     assert.strictEqual(sut.selectionMode, ItemSelectionMode.None);
+    void sut.refresh();
 
     sut.selectItem(item1);
     assert.isFalse(sut.isOneSelected);
@@ -374,7 +375,7 @@ describe('content-model', function () {
       },
       pageSize: null
     }, true);
-    const selectionOptionSpy = createSpy<SelectionOptions<unknown>>({ mode: ItemSelectionMode.None, onSelectionChange() { /* noop */ } }, true);
+    const selectionOptionSpy = createSpy<SelectionOptions<unknown>>({ mode: ItemSelectionMode.None, onSelectionChange: undefined! }, true);
     const sut = new ContentModel(
       null,
       spy.proxy,
@@ -383,6 +384,7 @@ describe('content-model', function () {
       getLogger()[1],
     );
     assert.strictEqual(sut.selectionMode, ItemSelectionMode.None);
+    void sut.refresh();
 
     sut.selectItem(item1);
     assert.isFalse(sut.isOneSelected);
@@ -602,7 +604,7 @@ describe('content-model', function () {
     spy.isCalled('onSelectionChange', 0); // selection has not changed
   });
 
-  it('multiple selection mode is supported - non-all-items', function () {
+  it('multiple selection mode is supported - non-all-items', async function () {
     const item1 = { p: 1 };
     const item2 = { p: 2 };
     const item3 = { p: 3 };
@@ -615,7 +617,7 @@ describe('content-model', function () {
       onSelectionChange() { /* noop */ }
     }, true);
     const sut = new ContentModel(
-      page,
+      null,
       {
         async fetchPage(_currentPage: number, _pageSize: number, _model: ContentModel<unknown>): Promise<unknown[]> {
           return new Promise((res) => {
@@ -634,6 +636,7 @@ describe('content-model', function () {
       getLogger()[1],
     );
     assert.strictEqual(sut.selectionMode, ItemSelectionMode.Multiple);
+    await sut.refresh();
 
     sut.selectItem(item2);
     assert.isTrue(sut.isOneSelected);
@@ -746,7 +749,7 @@ describe('content-model', function () {
         onSelectionChange() { /* noop */ }
       }, true);
       const sut = new ContentModel(
-        allItems,
+        null,
         {
           fetchPage(currentPage, pageSize, _): unknown[] { return allItems.slice((currentPage - 1) * pageSize, currentPage * pageSize); },
           fetchCount(): number { return length; },
@@ -929,8 +932,8 @@ describe('content-model', function () {
   });
 
   it('ignores subsequent setCurrentPageNumber requests for the same page number when either the page or the count promise is pending', async function () {
-    let resolvePage: (_: unknown[]) => void = () => {/* noop */ };
-    let resolveCount: (_: number) => void = () => {/* noop */ };
+    let resolvePage: (_: unknown[]) => void = undefined!;
+    let resolveCount: (_: number) => void = undefined!;
     let pageNumber: number = 0;
     const spy = createSpy({
       async fetchPage(currentPage: number, _pageSize: number, _model: ContentModel<unknown>): Promise<unknown[]> {
