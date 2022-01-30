@@ -2,7 +2,7 @@ import { DI, ILogger, LoggerConfiguration } from '@aurelia/kernel';
 import { AssertionFactory, createSpy, Spy } from '@netatwork/spy';
 import { assert } from 'chai';
 import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model';
-import { EventLog } from './event-log';
+import { SortDirection, SortOption } from '../src/sorting-options';
 
 describe('content-model', function () {
 
@@ -13,9 +13,7 @@ describe('content-model', function () {
 
   function getLogger(): [Spy<ILogger>, ILogger] {
     const container = DI.createContainer();
-    container.register(
-      LoggerConfiguration.create({ sinks: [EventLog], })
-    );
+    container.register(LoggerConfiguration);
     const spy: Spy<ILogger> = createSpy(container.get(ILogger), true, {
       scopeTo(_: string) { return spy.proxy; }
     });
@@ -103,7 +101,6 @@ describe('content-model', function () {
     });
 
     it(`can be instantiated without all-items and with asynchronous paging options - pageSize: ${String(pageSize)}`, async function () {
-      // const page: unknown[] = [{ a: 1 }];
       const totalCount = 100;
       const spy = createSpy({
         async fetchPage(currentPage: number, _pageSize: number, _model: ContentModel<unknown>): Promise<unknown[]> {
@@ -715,7 +712,7 @@ describe('content-model', function () {
   });
 
   for (const mode of [ItemSelectionMode.Single, ItemSelectionMode.Multiple]) {
-    it(`with paging enabled selection works only for the currentPage - ${mode === ItemSelectionMode.Single ? 'single': 'multiple'}-selection mode - all-items`, function () {
+    it(`with paging enabled selection works only for the currentPage - ${mode === ItemSelectionMode.Single ? 'single' : 'multiple'}-selection mode - all-items`, function () {
       const allItems = Array.from({ length: 10 }, (_, i) => ({ i }));
       const spy = createSpy<SelectionOptions<unknown>>({
         mode,
@@ -741,7 +738,7 @@ describe('content-model', function () {
       spy.isCalledWith('onSelectionChange', [[[item], true, true]]);
     });
 
-    it(`with paging enabled selection works only for the currentPage - ${mode === ItemSelectionMode.Single ? 'single': 'multiple'}-selection mode - non-all-items`, function () {
+    it(`with paging enabled selection works only for the currentPage - ${mode === ItemSelectionMode.Single ? 'single' : 'multiple'}-selection mode - non-all-items`, function () {
       const length = 10;
       const allItems: unknown[] = Array.from({ length }, (_, i) => ({ i }));
       const spy = createSpy<SelectionOptions<unknown>>({
@@ -772,4 +769,329 @@ describe('content-model', function () {
       spy.isCalledWith('onSelectionChange', [[[item], true, true]]);
     });
   }
+
+  it('applySorting invokes the onSorting callback - all-items', function () {
+    interface Foo {
+      foo: number;
+      bar: string;
+    }
+
+    const length = 10;
+    const allItems: Foo[] = Array.from({ length }, (_, i) => ({ foo: i, bar: i.toString() }));
+    const options: SortOption<Foo>[][] = [];
+    const sut = new ContentModel(
+      allItems,
+      { pageSize: 2 },
+      null,
+      (nv) => options.push(nv),
+      getLogger()[1],
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    assert.deepStrictEqual(
+      options,
+      [
+        [{ property: 'foo', direction: SortDirection.Ascending }],
+        [{ property: 'foo', direction: SortDirection.Descending }],
+        [{ property: 'bar', direction: SortDirection.Descending }],
+      ]
+    );
+  });
+
+  it('applySorting invokes the onSorting callback - non-all-items', function () {
+    interface Foo {
+      foo: number;
+      bar: string;
+    }
+
+    const length = 10;
+    const allItems: Foo[] = Array.from({ length }, (_, i) => ({ foo: i, bar: i.toString() }));
+    const options: SortOption<Foo>[][] = [];
+    const sut = new ContentModel<Foo>(
+      null,
+      {
+        fetchPage(currentPage, pageSize, _): Foo[] { return allItems.slice((currentPage - 1) * pageSize, currentPage * pageSize); },
+        fetchCount(): number { return length; },
+        pageSize: 2
+      },
+      null,
+      (nv) => options.push(nv),
+      getLogger()[1],
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    assert.deepStrictEqual(
+      options,
+      [
+        [{ property: 'foo', direction: SortDirection.Ascending }],
+        [{ property: 'foo', direction: SortDirection.Descending }],
+        [{ property: 'bar', direction: SortDirection.Descending }],
+      ]
+    );
+  });
+
+  it('applySorting does not throw error without onSortingCallback - all-items', function () {
+    interface Foo {
+      foo: number;
+      bar: string;
+    }
+
+    const length = 10;
+    const allItems: Foo[] = Array.from({ length }, (_, i) => ({ foo: i, bar: i.toString() }));
+    const sut = new ContentModel(
+      allItems,
+      { pageSize: 2 },
+      null,
+      null,
+      getLogger()[1],
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+  });
+
+  it('applySorting does not throw error without onSortingCallback - non-all-items', function () {
+    interface Foo {
+      foo: number;
+      bar: string;
+    }
+
+    const length = 10;
+    const allItems: Foo[] = Array.from({ length }, (_, i) => ({ foo: i, bar: i.toString() }));
+    const sut = new ContentModel<Foo>(
+      null,
+      {
+        fetchPage(currentPage, pageSize, _): Foo[] { return allItems.slice((currentPage - 1) * pageSize, currentPage * pageSize); },
+        fetchCount(): number { return length; },
+        pageSize: 2
+      },
+      null,
+      null,
+      getLogger()[1],
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+
+    sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
+    assert.strictEqual(sut.currentPageNumber, 1);
+  });
+
+  it('ignores subsequent setCurrentPageNumber requests for the same page number when either the page or the count promise is pending', async function () {
+    let resolvePage: (_: unknown[]) => void = () => {/* noop */ };
+    let resolveCount: (_: number) => void = () => {/* noop */ };
+    let pageNumber: number = 0;
+    const spy = createSpy({
+      async fetchPage(currentPage: number, _pageSize: number, _model: ContentModel<unknown>): Promise<unknown[]> {
+        pageNumber = currentPage;
+        return new Promise<unknown[]>((res) => {
+          resolvePage = res;
+        });
+      },
+      async fetchCount(_: ContentModel<unknown>): Promise<number> {
+        return new Promise((res) => {
+          resolveCount = res;
+        });
+      },
+    }, true);
+    const sut = new ContentModel(
+      null,
+      spy.proxy,
+      null,
+      null,
+      getLogger()[1],
+    );
+    assert.isNull(sut.allItems);
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    assert.isUndefined(sut.currentPage);
+    assert.isUndefined(sut.totalCount);
+    spy.isCalled('fetchCount', 1);
+    spy.isCalled('fetchPage', 1);
+
+    spy.clearCallRecords();
+    sut.setCurrentPageNumber(1);
+    assert.isUndefined(sut.currentPage);
+    assert.isUndefined(sut.totalCount);
+    spy.isCalled('fetchCount', 0);
+    spy.isCalled('fetchPage', 0);
+
+    let page = [{ a: pageNumber }];
+    resolvePage(page);
+    await sut['pagePromise'];
+    assert.strictEqual(sut.currentPage, page);
+    assert.isUndefined(sut.totalCount);
+
+    sut.setCurrentPageNumber(1);
+    assert.isDefined(sut.currentPage);
+    assert.isUndefined(sut.totalCount);
+    spy.isCalled('fetchCount', 0);
+    spy.isCalled('fetchPage', 0);
+
+    let count = 100;
+    resolveCount(count);
+    await sut['countPromise'];
+    assert.strictEqual(sut.totalCount, count);
+
+    sut.setCurrentPageNumber(3);
+    assert.strictEqual(sut.currentPageNumber, 3);
+    assert.strictEqual(sut.currentPage, page);
+    assert.strictEqual(sut.totalCount, count);
+
+    sut.setCurrentPageNumber(4);
+    assert.strictEqual(sut.currentPageNumber, 4);
+    assert.strictEqual(sut.currentPage, page);
+    assert.strictEqual(sut.totalCount, count);
+
+    page = [{ a: pageNumber }];
+    resolvePage(page);
+    count = 200;
+    resolveCount(count);
+    await sut.wait();
+    assert.strictEqual(sut.currentPage, page);
+    assert.strictEqual(sut.totalCount, count);
+  });
+
+  it('goToPreviousPage logs warning when on first page - all-items', function () {
+    const [spy, logger] = getLogger();
+    const allItems = Array.from({ length: 10 }, (_, i) => ({ i }));
+    const sut = new ContentModel(
+      allItems,
+      {
+        pageSize: 2,
+      },
+      null,
+      null,
+      logger
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    spy.isCalled('warn', 0);
+
+    sut.goToPreviousPage();
+    spy.isCalledWith('warn', [['Cannot go to previous page; already on the first page.']]);
+  });
+
+  it('goToPreviousPage logs warning when on first page - non-all-items', function () {
+    const [spy, logger] = getLogger();
+    const length = 10;
+    const items = Array.from({ length }, (_, i) => ({ i }));
+    const sut = new ContentModel(
+      null,
+      {
+        fetchPage(): unknown[] { return items; },
+        fetchCount(): number { return length; },
+        pageSize: 2,
+      },
+      null,
+      null,
+      logger
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    spy.isCalled('warn', 0);
+
+    sut.goToPreviousPage();
+    spy.isCalledWith('warn', [['Cannot go to previous page; already on the first page.']]);
+  });
+
+  it('goToNextPage logs warning when on last page - all-items', function () {
+    const [spy, logger] = getLogger();
+    const allItems = Array.from({ length: 10 }, (_, i) => ({ i }));
+    const sut = new ContentModel(
+      allItems,
+      {
+        pageSize: 2,
+      },
+      null,
+      null,
+      logger
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    spy.isCalled('warn', 0);
+
+    sut.setCurrentPageNumber(5);
+    assert.strictEqual(sut.currentPageNumber, 5);
+
+    sut.goToNextPage();
+    spy.isCalledWith('warn', [['Cannot go to next page; already on the last page.']]);
+  });
+
+  it('goToNextPage logs warning when on last page - non-all-items', function () {
+    const [spy, logger] = getLogger();
+    const length = 10;
+    const items = Array.from({ length }, (_, i) => ({ i }));
+    const sut = new ContentModel(
+      null,
+      {
+        fetchPage(): unknown[] { return items; },
+        fetchCount(): number { return length; },
+        pageSize: 2,
+      },
+      null,
+      null,
+      logger
+    );
+    void sut.refresh();
+    assert.strictEqual(sut.currentPageNumber, 1);
+    spy.isCalled('warn', 0);
+
+    sut.setCurrentPageNumber(5);
+    assert.strictEqual(sut.currentPageNumber, 5);
+
+    sut.goToNextPage();
+    spy.isCalledWith('warn', [['Cannot go to next page; already on the last page.']]);
+  });
 });
