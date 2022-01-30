@@ -59,8 +59,8 @@ export class ContentModel<T> {
     const hasAllItems = allItems !== null;
     if (!hasAllItems && fetchPage === null) throw new Error('Either allItems or pagingOptions is required.');
 
-    const pageSize = pagingOptions?.pageSize ?? null;
-    const isPagingDisabled = pageSize === null;
+    const pageSize = pagingOptions?.pageSize;
+    const isPagingDisabled = pagingOptions === null || pageSize === null;
     this.pageSize = isPagingDisabled ? null : (pageSize ?? defaultPageSize);
 
     if (isPagingDisabled && hasAllItems) {
@@ -83,21 +83,24 @@ export class ContentModel<T> {
   public get currentPageNumber(): number { return this._currentPageNumber; }
 
   public selectItem(item: T): void {
+    const selectedItems = this.selectedItems;
     switch (this.selectionMode) {
       case ItemSelectionMode.None:
         return;
       case ItemSelectionMode.Single:
-        this.selectedItems[0] = item;
+        if (selectedItems[0] != item && this._currentPage.includes(item)) {
+          selectedItems[0] = item;
+          this.handleSelectionChange();
+        }
         break;
       case ItemSelectionMode.Multiple: {
-        const selectedItems = this.selectedItems;
-        if (!selectedItems.includes(item)) {
+        if (!selectedItems.includes(item) && this._currentPage.includes(item)) {
           selectedItems.push(item);
+          this.handleSelectionChange();
         }
         break;
       }
     }
-    this.handleSelectionChange();
   }
 
   public selectRange(startIndex: number, endIndex: number): void {
@@ -106,13 +109,17 @@ export class ContentModel<T> {
     const end = Math.max(startIndex, endIndex);
     const items = this._currentPage;
     const selectedItems = this.selectedItems;
+    let hasChange = false;
     for (let i = start; i <= end; i++) {
       const item = items[i];
       if (!selectedItems.includes(item)) {
         selectedItems.push(item);
+        hasChange = true;
       }
     }
-    this.handleSelectionChange();
+    if (hasChange) {
+      this.handleSelectionChange();
+    }
   }
 
   public toggleSelection(item: T): void {
@@ -128,7 +135,8 @@ export class ContentModel<T> {
   }
 
   private handleSelectionChange(): void {
-    const selectedItems = this.selectedItems;
+    // cloned to avoid unintentional mutation
+    const selectedItems = this.selectedItems.slice();
     const len = (this as Writable<ContentModel<T>>).selectionCount = selectedItems.length;
     const isAnySelected = (this as Writable<ContentModel<T>>).isAnySelected = len > 0;
     const isOneSelected = (this as Writable<ContentModel<T>>).isOneSelected = len === 1;
@@ -153,6 +161,7 @@ export class ContentModel<T> {
   }
 
   public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
+    // console.log('setCurrentPageNumber');
     if (!this.initialized) return;
     const oldNumber = this._currentPageNumber;
     if (oldNumber === pageNumber

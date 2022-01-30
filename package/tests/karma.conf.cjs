@@ -21,9 +21,7 @@ const istanbulReporterConfig = {
     }
   }
 };
-if (!isDev) {
-  process.env.CHROME_BIN = require('puppeteer').executablePath();
-}
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 const webpackConfig = {
   devtool: 'inline-source-map',
   output: {
@@ -40,7 +38,7 @@ const webpackConfig = {
   },
   module: {
     rules: [
-      { test: /\.ts$/i, loader: 'ts-loader' },
+      { test: /\.ts$/i, use: ['@jsdevtools/coverage-istanbul-loader', 'ts-loader'] },
       { test: /\.html$/i, loader: 'html-loader' }
     ]
   },
@@ -48,7 +46,7 @@ const webpackConfig = {
 module.exports = function (config) {
   config.set({
     basePath: process.cwd(),
-    frameworks: ['mocha', 'webpack'],
+    frameworks: ['source-map-support', 'mocha', 'webpack'],
     plugins: [
       'karma-*',
       require('@netatwork/mocha-utils/dist/karma-html-reporter/index'),
@@ -81,7 +79,10 @@ module.exports = function (config) {
     // level of logging possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
     autoWatch: isDev,
-    browsers: isDev ? ['Chrome', 'Firefox'] : ['ChromeHeadless'],
+    browsers: isDev
+      ? ['ChromeHeadless', 'FirefoxHeadless']
+      // ? ['Chrome', 'Firefox']
+      : ['ChromeHeadless'],
     singleRun: !isDev,
     concurrency: Infinity,
   });
