@@ -4,12 +4,12 @@ import { assert } from 'chai';
 import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model';
 import { SortDirection, SortOption } from '../src/sorting-options';
 
-describe('content-model', function () {
+// eslint-disable-next-line mocha/no-hooks
+before(async function () {
+  await AssertionFactory.configureDefault();
+});
 
-  // eslint-disable-next-line mocha/no-hooks
-  before(async function () {
-    await AssertionFactory.configureDefault();
-  });
+describe('content-model', function () {
 
   function getLogger(): [Spy<ILogger>, ILogger] {
     const container = DI.createContainer();
