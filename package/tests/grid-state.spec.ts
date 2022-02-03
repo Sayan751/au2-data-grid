@@ -2,7 +2,7 @@ import { DI } from '@aurelia/kernel';
 import { CustomElement, CustomElementDefinition, ViewFactory } from '@aurelia/runtime-html';
 import { createSpy, Spy } from '@netatwork/spy';
 import { assert } from 'chai';
-import { GridStateModel, Column, ChangeType, GridStateChangeSubscriber } from '../src/grid-state';
+import { GridStateModel, Column, ChangeType, GridStateChangeSubscriber, OrderChangeDropLocation } from '../src/grid-state';
 import { SortDirection } from '../src/sorting-options';
 
 describe('grid state', function () {
@@ -1105,5 +1105,206 @@ describe('grid state', function () {
         null,
       ]]
     );
+  });
+
+  it('subscribers are notified correctly for order change', function () {
+    const spy1 = createSubscriberSpy();
+    const spy2 = createSubscriberSpy();
+
+    const sut = new GridStateModel();
+    const col1 = new Column(
+      sut,
+      'id1',
+      'prop1',
+      true,
+      null,
+      true,
+      null,
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo1</span>' }),
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar1</span>' }),
+    );
+    const col2 = new Column(
+      sut,
+      'id2',
+      'prop2',
+      true,
+      null,
+      true,
+      '100px',
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo2</span>' }),
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar2</span>' }),
+    );
+    const col3 = new Column(
+      sut,
+      'id3',
+      'prop3',
+      true,
+      null,
+      true,
+      '100px',
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo3</span>' }),
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar3</span>' }),
+    );
+    const col4 = new Column(
+      sut,
+      'id4',
+      'prop4',
+      true,
+      null,
+      true,
+      '100px',
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo4</span>' }),
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar4</span>' }),
+    );
+    const col5 = new Column(
+      sut,
+      'id5',
+      'prop5',
+      true,
+      null,
+      true,
+      '100px',
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo5</span>' }),
+      CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar5</span>' }),
+    );
+
+    const subscriber1 = spy1.proxy;
+    const subscriber2 = spy2.proxy;
+    sut.addSubscriber(subscriber1);
+    sut.addSubscriber(subscriber2);
+
+    // act - 1
+    sut.handleChange(ChangeType.Order, 'id5', col1, OrderChangeDropLocation.Before);
+    let expectedArgs: Parameters<GridStateChangeSubscriber['handleGridStateChange']>[] = [[
+      ChangeType.Order,
+      { fromIndex: 4, toIndex: 0, location: OrderChangeDropLocation.Before },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id5', 'id1', 'id2', 'id3', 'id4']);
+
+    // act - 2 - no effective change in order
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id1', col5, OrderChangeDropLocation.After);
+
+    spy1.isCalled('handleGridStateChange', 0);
+    spy2.isCalled('handleGridStateChange', 0);
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id5', 'id1', 'id2', 'id3', 'id4']);
+
+    // act - 3 - no effective change in order
+    sut.handleChange(ChangeType.Order, 'id5', col1, OrderChangeDropLocation.Before);
+
+    spy1.isCalled('handleGridStateChange', 0);
+    spy2.isCalled('handleGridStateChange', 0);
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id5', 'id1', 'id2', 'id3', 'id4']);
+
+    // act - 4
+    sut.handleChange(ChangeType.Order, 'id5', col1, OrderChangeDropLocation.After);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 0, toIndex: 1, location: OrderChangeDropLocation.After },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id1', 'id5', 'id2', 'id3', 'id4']);
+
+    // act - 5
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id1', col2, OrderChangeDropLocation.Before);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 0, toIndex: 2, location: OrderChangeDropLocation.Before },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id5', 'id1', 'id2', 'id3', 'id4']);
+
+    // act - 6
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id4', col2, OrderChangeDropLocation.After);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 4, toIndex: 2, location: OrderChangeDropLocation.After },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id5', 'id1', 'id2', 'id4', 'id3']);
+
+    // act - 7
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id2', col5, OrderChangeDropLocation.Before);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 2, toIndex: 0, location: OrderChangeDropLocation.Before },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id2', 'id5', 'id1', 'id4', 'id3']);
+
+    // act - 8
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id1', col3, OrderChangeDropLocation.After);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 2, toIndex: 4, location: OrderChangeDropLocation.After },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id2', 'id5', 'id4', 'id3', 'id1']);
+
+    // act - 9
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.handleChange(ChangeType.Order, 'id1', col2, OrderChangeDropLocation.Before);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 4, toIndex: 0, location: OrderChangeDropLocation.Before },
+      null,
+    ]];
+    spy1.isCalledWith('handleGridStateChange', expectedArgs);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id1', 'id2', 'id5', 'id4', 'id3']);
+
+    // act 10 - one subscriber
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.removeSubscriber(subscriber1);
+    sut.handleChange(ChangeType.Order, 'id3', col5, OrderChangeDropLocation.Before);
+    expectedArgs = [[
+      ChangeType.Order,
+      { fromIndex: 4, toIndex: 2, location: OrderChangeDropLocation.Before },
+      null,
+    ]];
+    spy1.isCalled('handleGridStateChange', 0);
+    spy2.isCalledWith('handleGridStateChange', expectedArgs);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id1', 'id2', 'id3', 'id5', 'id4']);
+
+    // act 11 - no subscriber
+    spy1.clearCallRecords();
+    spy2.clearCallRecords();
+    sut.removeSubscriber(subscriber1);
+    sut.removeSubscriber(subscriber2);
+    sut.handleChange(ChangeType.Order, 'id4', col5, OrderChangeDropLocation.Before);
+    spy1.isCalled('handleGridStateChange', 0);
+    spy2.isCalled('handleGridStateChange', 0);
+
+    assert.deepStrictEqual(sut.columns.map(c => c.id), ['id1', 'id2', 'id3', 'id4', 'id5']);
   });
 });

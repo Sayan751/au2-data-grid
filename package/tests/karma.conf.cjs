@@ -1,6 +1,7 @@
 'use strict';
 /* eslint-disable */
 const { join } = require('path');
+const debug = false;/*  true; */
 const isDev = !!process.env.DEV;
 
 const root = process.cwd();
@@ -21,8 +22,11 @@ const istanbulReporterConfig = {
     }
   }
 };
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+if (!debug) {
+  process.env.CHROME_BIN = require('puppeteer').executablePath();
+}
 const webpackConfig = {
+  mode: 'development',
   devtool: 'inline-source-map',
   output: {
     // filename: '[name].js',
@@ -38,7 +42,7 @@ const webpackConfig = {
   },
   module: {
     rules: [
-      { test: /\.ts$/i, use: ['@jsdevtools/coverage-istanbul-loader', 'ts-loader'] },
+      { test: /\.ts$/i, use: [...(debug ? [] : ['@jsdevtools/coverage-istanbul-loader']), 'ts-loader'] },
       { test: /\.html$/i, loader: 'html-loader' }
     ]
   },
@@ -80,8 +84,9 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: isDev,
     browsers: isDev
-      ? ['ChromeHeadless', 'FirefoxHeadless']
-      // ? ['Chrome', 'Firefox']
+      ? debug
+        ? ['Chrome'/* , 'Firefox' */]
+        : ['ChromeHeadless', 'FirefoxHeadless']
       : ['ChromeHeadless'],
     singleRun: !isDev,
     concurrency: Infinity,

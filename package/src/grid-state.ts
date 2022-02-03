@@ -194,7 +194,13 @@ export class GridStateModel implements IGridState {
         if (diff === 1 && location === OrderChangeDropLocation.Before
           || diff === -1 && location === OrderChangeDropLocation.After
         ) return;
-        columns.splice(destinationIndex, 0, columns.splice(sourceIndex, 1)[0]);
+        let $destinationIndex = destinationIndex;
+        if (sourceIndex < destinationIndex && location === OrderChangeDropLocation.Before) {
+          $destinationIndex--;
+        } else if(sourceIndex > destinationIndex && location === OrderChangeDropLocation.After) {
+          $destinationIndex++;
+        }
+        columns.splice($destinationIndex, 0, columns.splice(sourceIndex, 1)[0]);
         this.notifySubscribers(type, { fromIndex: sourceIndex, toIndex: destinationIndex, location } as OrderChangeData, null);
         return;
       }
