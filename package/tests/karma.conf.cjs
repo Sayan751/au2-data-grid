@@ -1,8 +1,9 @@
 'use strict';
 /* eslint-disable */
 const { join } = require('path');
-const debug = false;/*  true; */
-const isDev = !!process.env.DEV;
+const ResolveTypeScriptPlugin = require("resolve-typescript-plugin");
+const debug = !!process.env.DEBUG;
+const isDev = debug || !!process.env.DEV;
 
 const root = process.cwd();
 const testDir = join(root, 'tests');
@@ -39,6 +40,9 @@ const webpackConfig = {
   },
   resolve: {
     extensions: ['.ts', '.js', '.json', '.html'],
+    plugins: [
+      new ResolveTypeScriptPlugin(),
+    ],
   },
   module: {
     rules: [

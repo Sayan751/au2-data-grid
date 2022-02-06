@@ -24,3 +24,6 @@ export {
 export {
   ExportableGridState,
 } from './grid-state.js';
+
+/** test helpers */
+export * from './test-helpers.js';
