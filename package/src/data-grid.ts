@@ -135,8 +135,12 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     this.stateModel.removeSubscriber(this);
   }
 
-  public exportState(): ExportableGridState {
-    return this.stateModel.export();
+  public exportState(): ExportableGridState | undefined {
+    try {
+      return this.state = this.stateModel.export();
+    } catch (e) {
+      this.logger.warn((e as Error).message);
+    }
   }
 
   public handleGridStateChange(type: ChangeType.Width): void;
@@ -152,11 +156,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         this.adjustColumnWidth();
         break;
     }
-    try {
-      this.state = this.stateModel.export();
-    } catch (e) {
-      this.logger.warn((e as Error).message);
-    }
+    this.exportState();
   }
 
   protected adjustColumnWidth(): void {
@@ -250,7 +250,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
 
       void new Column(
         state,
-        id ?? property,
+        id,
         property,
         isExportable,
         direction,
