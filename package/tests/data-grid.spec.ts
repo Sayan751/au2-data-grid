@@ -702,67 +702,6 @@ describe('data-grid', function () {
   {
     @customElement({
       name: 'my-app',
-      template: `<data-grid model.bind="content">
-          <grid-column id='firstName'>
-            \${item.firstName}
-          </grid-column>
-          <grid-column id='lastName'>
-            \${item.lastName}
-          </grid-column>
-        </data-grid>`
-    })
-    class App {
-      public readonly people: Person[];
-      public readonly content: ContentModel<Person>;
-      public readonly clickLog: [Person, number][] = [];
-      public readonly selectionLog: [items: Person[], isOneSelected: boolean, isAnySelected: boolean][] = [];
-
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
-        this.content = new ContentModel(
-          this.people = [
-            new Person('Byomkesh', 'Bakshi'),
-            new Person('Pradosh C.', 'Mitra'),
-          ],
-          null,
-          {
-            mode: ItemSelectionMode.Single,
-            onSelectionChange: (selectedItems, isOneSelected, isAnySelected): void => {
-              this.selectionLog.push([selectedItems, isOneSelected, isAnySelected]);
-            }
-          },
-          null,
-          logger,
-        );
-      }
-
-      private logItemClick(item: Person, index: number): void {
-        this.clickLog.push([item, index]);
-      }
-    }
-    ($it as $It<App>)('does not throw error on double-clicking item on single-selection mode if the item-clicked is not bound',
-      function ({ app, host }) {
-        const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
-
-        const content = getContentRows(grid);
-        try {
-          content[0].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
-          const selectionLog = app.selectionLog;
-          assert.strictEqual(selectionLog.length, 0, 'selectionLog');
-        } catch (e) {
-          assert.fail((e as Error).message);
-        }
-      },
-      { component: App });
-  }
-
-  {
-    @customElement({
-      name: 'my-app',
       template: `<data-grid model.bind="content" item-clicked.call="logItemClick($event.item, $event.index)" >
         <grid-column id='firstName'>
           \${item.firstName}
@@ -807,7 +746,7 @@ describe('data-grid', function () {
       }
     }
 
-    ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode',
+    ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 1',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const gridVm = CustomElement.for(grid).viewModel as DataGrid;
@@ -842,6 +781,104 @@ describe('data-grid', function () {
           content.map(el => el.classList.contains('selected-row')),
           [true, true, true, true, false],
           'content.selected-row 3');
+      },
+      { component: App });
+
+    ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 2',
+      async function ({ app, host, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+        assert.instanceOf(gridVm, DataGrid);
+
+        const content = getContentRows(grid);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          new Array(5).fill(false),
+          'content.selected-row 1');
+
+        const clickLog = app.clickLog;
+        const selectionLog = app.selectionLog;
+        const people = app.people;
+
+        content[4].click();
+        const queue = platform.domWriteQueue;
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 1);
+        assert.deepStrictEqual(selectionLog[0], [[people[4]], true, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [false, false, false, false, true],
+          'content.selected-row 2');
+
+        content[3].click();
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 2);
+        assert.deepStrictEqual(selectionLog[1], [[people[3]], true, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [false, false, false, true, false],
+          'content.selected-row 3');
+
+        content[0].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 3);
+        assert.deepStrictEqual(selectionLog[2], [[people[3], people[0], people[1], people[2]], false, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [true, true, true, true, false],
+          'content.selected-row 4');
+      },
+      { component: App });
+
+    ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 3',
+      async function ({ app, host, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+        assert.instanceOf(gridVm, DataGrid);
+
+        const content = getContentRows(grid);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          new Array(5).fill(false),
+          'content.selected-row 1');
+
+        const clickLog = app.clickLog;
+        const selectionLog = app.selectionLog;
+        const people = app.people;
+
+        content[2].click();
+        const queue = platform.domWriteQueue;
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 1);
+        assert.deepStrictEqual(selectionLog[0], [[people[2]], true, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [false, false, true, false, false],
+          'content.selected-row 2');
+
+        content[4].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 2);
+        assert.deepStrictEqual(selectionLog[1], [[people[2], people[3], people[4]], false, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [false, false, true, true, true],
+          'content.selected-row 3');
+
+        content[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        await queue.yield();
+        assert.strictEqual(clickLog.length, 0);
+        assert.strictEqual(selectionLog.length, 3);
+        assert.deepStrictEqual(selectionLog[2], [[people[2], people[3], people[4], people[1]], false, true]);
+        assert.deepStrictEqual(
+          content.map(el => el.classList.contains('selected-row')),
+          [false, true, true, true, true],
+          'content.selected-row 4');
       },
       { component: App });
 
@@ -1017,17 +1054,16 @@ describe('data-grid', function () {
       },
       { component: App });
 
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     for (const [ctrlKey, shiftKey] of [[true, false], [false, true], [true, true]]) {
       ($it as $It<App>)(`removes text selection on click with multi-selection mode - ctrlKey: ${ctrlKey} - shiftKey: ${shiftKey}`,
-      /* async */ function ({ host }) {
+        function ({ host }) {
           const grid = host.querySelector<HTMLElement>('data-grid')!;
           const gridVm = CustomElement.for(grid).viewModel as DataGrid;
           assert.instanceOf(gridVm, DataGrid);
 
           const content = getContentRows(grid);
           content[0].click();
-          // const queue = platform.domWriteQueue;
-          // await queue.yield();
 
           const selection = getSelection();
           const range = document.createRange();
@@ -1060,5 +1096,66 @@ describe('data-grid', function () {
         },
         { component: App });
     }
+  }
+
+  for (const mode of [ItemSelectionMode.Single, ItemSelectionMode.Multiple]) {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+          <grid-column id='firstName'>
+            \${item.firstName}
+          </grid-column>
+          <grid-column id='lastName'>
+            \${item.lastName}
+          </grid-column>
+        </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly clickLog: [Person, number][] = [];
+      public readonly selectionLog: [items: Person[], isOneSelected: boolean, isAnySelected: boolean][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi'),
+            new Person('Pradosh C.', 'Mitra'),
+          ],
+          null,
+          {
+            mode,
+            onSelectionChange: (selectedItems, isOneSelected, isAnySelected): void => {
+              this.selectionLog.push([selectedItems, isOneSelected, isAnySelected]);
+            }
+          },
+          null,
+          logger,
+        );
+      }
+
+      private logItemClick(item: Person, index: number): void {
+        this.clickLog.push([item, index]);
+      }
+    }
+    ($it as $It<App>)(`does not throw error on double-clicking item on ${mode === ItemSelectionMode.Single ? 'single' : 'multiple'}-selection mode if the item-clicked is not bound`,
+      function ({ app, host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+        assert.instanceOf(gridVm, DataGrid);
+
+        const content = getContentRows(grid);
+        try {
+          content[0].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
+          const selectionLog = app.selectionLog;
+          assert.strictEqual(selectionLog.length, 0, 'selectionLog');
+        } catch (e) {
+          assert.fail((e as Error).message);
+        }
+      },
+      { component: App });
   }
 });
