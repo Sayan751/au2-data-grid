@@ -26,6 +26,7 @@ import {
 import {
   DataGrid,
 } from '../src/data-grid';
+import { ChangeType, GridStateChangeSubscriber } from '../src/grid-state';
 import {
   SortDirection,
   SortOption,
@@ -34,6 +35,7 @@ import {
   getContentRows,
   getContentTextContent,
   getHeaders,
+  getHeaderTextContent,
   getText,
 } from '../src/test-helpers';
 import {
@@ -1399,6 +1401,193 @@ describe('data-grid', function () {
           app.sortOptions,
           [[[{ property: 'lastName', direction: isDesc ? SortDirection.Descending : SortDirection.Ascending }], []]]
         );
+      },
+      { component: App });
+  }
+
+  function getMidPoint(col: Element): number {
+    const rect = col.getBoundingClientRect();
+    return rect.left + (rect.right - rect.left) / 2;
+  }
+  {
+    class Data {
+      public constructor(
+        public readonly p1: unknown,
+        public readonly p2: unknown,
+        public readonly p3: unknown,
+        public readonly p4: unknown,
+        public readonly p5: unknown,
+      ) { }
+    }
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column><header>P1</header>\${item.p1}</grid-column>
+        <grid-column><header>P2</header>\${item.p2}</grid-column>
+        <grid-column><header>P3</header>\${item.p3}</grid-column>
+        <grid-column><header>P4</header>\${item.p4}</grid-column>
+        <grid-column><header>P5</header>\${item.p5}</grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly content: ContentModel<Data>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel<Data>(
+          [
+            new Data(11, 12, 13, 14, 15),
+            new Data(21, 22, 23, 24, 25),
+            new Data(31, 32, 33, 34, 35),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('supports column reordering',
+      async function ({ app, host, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const [col1, col2, col3, col4, col5] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
+        const queue = platform.domWriteQueue;
+        const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
+          log: [],
+          handleGridStateChange(type) {
+            this.log.push(type);
+          }
+        };
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+        gridVm['stateModel'].addSubscriber(subscriber);
+
+        // act-1 drag p5 before p1
+        let dataTransfer = new DataTransfer();
+        let eventInit: DragEventInit = { bubbles: true, cancelable: true, dataTransfer };
+        // const col5 = headers[4]!;
+        col5.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col5.dispatchEvent(new DragEvent('dragover', eventInit));
+
+        // const col1 = headers[0]!;
+        col1.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col1) - 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['15', '11', '12', '13', '14',],
+            ['25', '21', '22', '23', '24',],
+            ['35', '31', '32', '33', '34',],
+          ]
+        );
+        assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
+
+        // act-2 drag p1 after p5 - no change
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col1.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col1.dispatchEvent(new DragEvent('dragover', eventInit));
+        col5.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col5) + 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['15', '11', '12', '13', '14',],
+            ['25', '21', '22', '23', '24',],
+            ['35', '31', '32', '33', '34',],
+          ]
+        );
+        assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
+
+        // act-3 drag p5 before p1 - no change
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col5.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col5.dispatchEvent(new DragEvent('dragover', eventInit));
+        col1.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col5) - 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['15', '11', '12', '13', '14',],
+            ['25', '21', '22', '23', '24',],
+            ['35', '31', '32', '33', '34',],
+          ]
+        );
+        assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
+
+        // act-4 drag p5 after p1
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col5.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col5.dispatchEvent(new DragEvent('dragover', eventInit));
+        col1.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col5) + 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P5', 'P2', 'P3', 'P4',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['11', '15', '12', '13', '14',],
+            ['21', '25', '22', '23', '24',],
+            ['31', '35', '32', '33', '34',],
+          ]);
+        assert.deepStrictEqual(subscriber.log, new Array(2).fill(ChangeType.Order));
+
+        // act-5 drag p1 before p2
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col1.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col1.dispatchEvent(new DragEvent('dragover', eventInit));
+        col2.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col2) - 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['15', '11', '12', '13', '14',],
+            ['25', '21', '22', '23', '24',],
+            ['35', '31', '32', '33', '34',],
+          ]);
+        assert.deepStrictEqual(subscriber.log, new Array(3).fill(ChangeType.Order));
+
+        // act-6 drag p4 after p2
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col4.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col4.dispatchEvent(new DragEvent('dragover', eventInit));
+        col2.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col2) + 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P4', 'P3',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['15', '11', '12', '14', '13',],
+            ['25', '21', '22', '24', '23',],
+            ['35', '31', '32', '34', '33',],
+          ]);
+        assert.deepStrictEqual(subscriber.log, new Array(4).fill(ChangeType.Order));
+
+        // act-7 drag p2 before p5
+        dataTransfer = new DataTransfer();
+        eventInit = { bubbles: true, cancelable: true, dataTransfer };
+        col2.dispatchEvent(new DragEvent('dragstart', eventInit));
+        col2.dispatchEvent(new DragEvent('dragover', eventInit));
+        col5.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(col5) - 1 }));
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P2', 'P5', 'P1', 'P4', 'P3',]);
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['12', '15', '11', '14', '13',],
+            ['22', '25', '21', '24', '23',],
+            ['32', '35', '31', '34', '33',],
+          ]);
+        assert.deepStrictEqual(subscriber.log, new Array(5).fill(ChangeType.Order));
       },
       { component: App });
   }

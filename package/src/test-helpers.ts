@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /**
  * @returns {HTMLElement[]} All grid-header elements when the default template is used.
  */
@@ -9,9 +8,9 @@ export function getHeaders(grid: HTMLElement): HTMLElement[] {
 /**
  * @returns {string[]} textContents from all the grid-header elements when the default template is used.
  */
-export function getHeaderTextContent(grid: HTMLElement): string[] {
+export function getHeaderTextContent(grid: HTMLElement): (string | null)[] {
   return getHeaders(grid)
-    .map(header => header.querySelector('div>span')!.textContent!);
+    .map(header => getText(header.querySelector('div>span')));
 }
 
 /**
