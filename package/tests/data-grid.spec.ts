@@ -27,7 +27,12 @@ import {
   DataGrid,
 } from '../src/data-grid';
 import {
+  SortDirection,
+  SortOption,
+} from '../src/sorting-options';
+import {
   getContentRows,
+  getContentTextContent,
   getHeaders,
   getText,
 } from '../src/test-helpers';
@@ -200,7 +205,6 @@ describe('data-grid', function () {
         assert.isNotNull(grid);
 
         const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const headers = getHeaders(grid);
         assert.strictEqual(headers.length, 2);
@@ -262,7 +266,6 @@ describe('data-grid', function () {
         assert.isNotNull(grid);
 
         const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const headers = getHeaders(grid);
         assert.strictEqual(headers.length, 2);
@@ -423,8 +426,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('auto-generates column header if not provided',
       function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const headers = getHeaders(grid);
         assert.strictEqual(headers.length, 2);
@@ -484,8 +485,6 @@ describe('data-grid', function () {
     ($it as $It<App>)(`calls back the bound item-clicked when a row is clicked - selectionOptions: ${JSON.stringify(selectionOptions)}`,
       function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         content[0].click();
@@ -543,8 +542,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('clicking a row should not raise error when the item-clicked callback is not bound',
       function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         try {
@@ -604,8 +601,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects single items on click with single-selection mode',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.strictEqual(content[0].classList.contains('selected-row'), false, 'content[0].selected-row false 1');
@@ -639,8 +634,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('calls back the bound item-clicked on dblclick with single-selection mode',
       function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         content[0].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
@@ -667,8 +660,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('removes text selection on click with single-selection mode',
       function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         const selection = getSelection();
@@ -684,8 +675,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('removes text selection on dblclick with single-selection mode',
       function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         const selection = getSelection();
@@ -749,8 +738,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 1',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -787,8 +774,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 2',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -836,8 +821,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 3',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -885,8 +868,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects multiple individual items on ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -933,8 +914,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects a range of items on shift+click followed by shift+click with multiple-selection mode',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -971,8 +950,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('selects multiple items with shift+click combined with ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -1019,8 +996,6 @@ describe('data-grid', function () {
     ($it as $It<App>)('toggles selection with ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         assert.deepStrictEqual(
@@ -1059,8 +1034,6 @@ describe('data-grid', function () {
       ($it as $It<App>)(`removes text selection on click with multi-selection mode - ctrlKey: ${ctrlKey} - shiftKey: ${shiftKey}`,
         function ({ host }) {
           const grid = host.querySelector<HTMLElement>('data-grid')!;
-          const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-          assert.instanceOf(gridVm, DataGrid);
 
           const content = getContentRows(grid);
           content[0].click();
@@ -1079,8 +1052,6 @@ describe('data-grid', function () {
       ($it as $It<App>)(`removes text selection on dblclick with multi-selection mode - ctrlKey: ${ctrlKey} - shiftKey: ${shiftKey}`,
         function ({ host }) {
           const grid = host.querySelector<HTMLElement>('data-grid')!;
-          const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-          assert.instanceOf(gridVm, DataGrid);
 
           const content = getContentRows(grid);
           content[0].click();
@@ -1144,8 +1115,6 @@ describe('data-grid', function () {
     ($it as $It<App>)(`does not throw error on double-clicking item on ${mode === ItemSelectionMode.Single ? 'single' : 'multiple'}-selection mode if the item-clicked is not bound`,
       function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
-        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
-        assert.instanceOf(gridVm, DataGrid);
 
         const content = getContentRows(grid);
         try {
@@ -1155,6 +1124,281 @@ describe('data-grid', function () {
         } catch (e) {
           assert.fail((e as Error).message);
         }
+      },
+      { component: App });
+  }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property='firstName'>
+          \${item.firstName}
+        </grid-column>
+        <grid-column>
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          (options, oldOptions, allItems) => {
+            this.sortOptions.push([options, oldOptions]);
+            if ((allItems?.length ?? 0) === 0) return;
+            for (const option of options) {
+              const prop = option.property;
+              const isAsc = option.direction === SortDirection.Ascending;
+              allItems!.sort((pa, pb) => {
+                const aProp = pa[prop]!;
+                const bProp = pb[prop]!;
+                if (aProp > bProp) {
+                  return isAsc ? 1 : -1;
+                }
+                if (aProp < bProp) {
+                  return isAsc ? -1 : 1;
+                }
+                return 0;
+              });
+            }
+          },
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('calls the onSorting callback when a sortable header is clicked',
+      async function ({ app, host, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Pradosh C.', 'Mitra', '30'],
+            ['Ghanyasham', 'Das', '45'],
+            ['Bhajahari', 'Mukhujjee', '25'],
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+          ]
+        );
+
+        const queue = platform.domWriteQueue;
+        const headers = getHeaders(grid);
+        const headerContainer = headers[0].querySelector('div')!;
+        assert.isNotNull(headerContainer);
+        assert.isNull(headerContainer.querySelector('span:nth-of-type(2)'));
+        headerContainer.click();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Bhajahari', 'Mukhujjee', '25'],
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Ghanyasham', 'Das', '45'],
+            ['Pradosh C.', 'Mitra', '30'],
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+          ]
+        );
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          ['\u25B4', null, null]
+        );
+        assert.deepStrictEqual(
+          app.sortOptions,
+          [[[{ property: 'firstName', direction: SortDirection.Ascending }], []]]
+        );
+
+        headerContainer.click();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+            ['Pradosh C.', 'Mitra', '30'],
+            ['Ghanyasham', 'Das', '45'],
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Bhajahari', 'Mukhujjee', '25'],
+          ]
+        );
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          ['\u25BE', null, null]
+        );
+        assert.deepStrictEqual(
+          app.sortOptions,
+          [
+            [[{ property: 'firstName', direction: SortDirection.Ascending }], []],
+            [[{ property: 'firstName', direction: SortDirection.Descending }], [{ property: 'firstName', direction: SortDirection.Ascending }]]
+          ]
+        );
+
+        // un-sortable column ->  no-change
+        headers[1].querySelector('div')!.click();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+            ['Pradosh C.', 'Mitra', '30'],
+            ['Ghanyasham', 'Das', '45'],
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Bhajahari', 'Mukhujjee', '25'],
+          ]
+        );
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          ['\u25BE', null, null]
+        );
+        assert.deepStrictEqual(
+          app.sortOptions,
+          [
+            [[{ property: 'firstName', direction: SortDirection.Ascending }], []],
+            [[{ property: 'firstName', direction: SortDirection.Descending }], [{ property: 'firstName', direction: SortDirection.Ascending }]],
+          ]
+        );
+
+        headers[2].querySelector('div')!.click();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Bhajahari', 'Mukhujjee', '25'],
+            ['Pradosh C.', 'Mitra', '30'],
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Ghanyasham', 'Das', '45'],
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+          ]
+        );
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          [null, null, '\u25B4']
+        );
+        assert.deepStrictEqual(
+          app.sortOptions,
+          [
+            [[{ property: 'firstName', direction: SortDirection.Ascending }], []],
+            [[{ property: 'firstName', direction: SortDirection.Descending }], [{ property: 'firstName', direction: SortDirection.Ascending }]],
+            [[{ property: 'age', direction: SortDirection.Ascending }], [{ property: 'firstName', direction: SortDirection.Descending }]],
+          ]
+        );
+      },
+      { component: App });
+  }
+
+  function* getSortDirectionData(): Generator<{ direction: string; textContent: string[][] }> {
+    let textContent = [
+      ['Bhajahari', 'Mukhujjee', '25'],
+      ['Pradosh C.', 'Mitra', '30'],
+      ['Ghanyasham', 'Das', '45'],
+      ['Tarini Charan', 'Bandopadhyay', '65'],
+      ['Byomkesh', 'Bakshi', '42'],
+    ];
+    yield { direction: 'desc', textContent };
+    yield { direction: 'descending', textContent };
+
+    textContent = [
+      ['Byomkesh', 'Bakshi', '42'],
+      ['Tarini Charan', 'Bandopadhyay', '65'],
+      ['Ghanyasham', 'Das', '45'],
+      ['Pradosh C.', 'Mitra', '30'],
+      ['Bhajahari', 'Mukhujjee', '25'],
+    ];
+    yield { direction: 'asc', textContent };
+    yield { direction: 'ascending', textContent };
+  }
+  for (const { direction, textContent } of getSortDirectionData()) {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName" sort-direction="${direction}">
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          (options, oldOptions, allItems) => {
+            this.sortOptions.push([options, oldOptions]);
+            if ((allItems?.length ?? 0) === 0) return;
+            for (const option of options) {
+              const prop = option.property;
+              const isAsc = option.direction === SortDirection.Ascending;
+              allItems!.sort((pa, pb) => {
+                const aProp = pa[prop]!;
+                const bProp = pb[prop]!;
+                if (aProp > bProp) {
+                  return isAsc ? 1 : -1;
+                }
+                if (aProp < bProp) {
+                  return isAsc ? -1 : 1;
+                }
+                return 0;
+              });
+            }
+          },
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)(`respects the sort-direction set from the template - direction: ${direction}`,
+      function ({ app, host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+
+        assert.deepStrictEqual(getContentTextContent(grid), textContent);
+
+        const isDesc = /desc/.test(direction);
+        const headers = getHeaders(grid);
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          [null, isDesc ? '\u25BE' : '\u25B4', null]
+        );
+        assert.deepStrictEqual(
+          app.sortOptions,
+          [[[{ property: 'lastName', direction: isDesc ? SortDirection.Descending : SortDirection.Ascending }], []]]
+        );
       },
       { component: App });
   }
