@@ -158,7 +158,7 @@ export class GridContent implements ICustomAttributeViewModel {
       ?.find(c => c.viewModel instanceof GridHeaders)
       ?.viewModel as GridHeaders;
     if (headersTc == null) throw new Error('The grid-headers is not found.');
-    const indexMap =  this._indexMap = headersTc.indexMap;
+    const indexMap = this._indexMap = headersTc.indexMap;
 
     const item = this.item;
     const location = this.location;
@@ -167,7 +167,7 @@ export class GridContent implements ICustomAttributeViewModel {
     const len = indexMap.size;
     const cells = this.cells = new Array<ISyntheticView>(len);
     const activationPromises = new Array<void | Promise<void>>(len);
-    let  i = 0;
+    let i = 0;
     for (const [key,] of indexMap) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const cell = cells[i++] = columns[key].contentViewFactory!.create(initiator).setLocation(location);
@@ -222,7 +222,8 @@ function handleReordering(
   indexMap: Map<number, number>,
 ): void {
   const fromIdx = changeData.fromIndex;
-  const toIdx = changeData.toIndex;
+  let toIdx = changeData.toIndex;
+  const dropLocation = changeData.location;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const fromNodes = views[indexMap.get(fromIdx)!].nodes;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -230,14 +231,20 @@ function handleReordering(
 
   // link the next node with the previous node
   views[fromIdx - 1]?.nodes.link(views[fromIdx + 1]?.nodes ?? location);
-  switch (changeData.location) {
+  switch (dropLocation) {
     case OrderChangeDropLocation.Before:
       views[toIdx - 1]?.nodes.link(fromNodes);
       fromNodes.link(toNodes);
+      if (fromIdx < toIdx) {
+        toIdx--;
+      }
       break;
     case OrderChangeDropLocation.After:
       fromNodes.link(views[toIdx + 1]?.nodes ?? location);
       toNodes.link(fromNodes);
+      if (fromIdx > toIdx) {
+        toIdx++;
+      }
       break;
   }
   fromNodes.addToLinked();
