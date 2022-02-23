@@ -81,6 +81,7 @@ describe('data-grid', function () {
     await au
       .app({ component, host })
       .start();
+    await platform.taskQueue.yield();
 
     await testFunction({
       ctx,
@@ -1622,6 +1623,253 @@ describe('data-grid', function () {
           ],
           'act11 content');
         assert.deepStrictEqual(subscriber.log, new Array(9).fill(ChangeType.Order));
+      },
+      { component: App });
+  }
+
+  const widthPattern = /minmax\(0px, (\d+\.?\d*)px\)/g;
+  function extractWidths(templateColumns: string): number[] {
+    return Array.from(templateColumns.matchAll(widthPattern))
+      .map((match) => Number(match[1]));
+  }
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName">
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('supports column resizing',
+      async function ({ host, platform }) {
+        const queue = platform.domWriteQueue;
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const container = grid.querySelector<HTMLElement>('.container');
+        assert.strictEqual(
+          container?.style.gridTemplateColumns,
+          'minmax(0px, 1fr) minmax(0px, 1fr) minmax(0px, 1fr)'
+        );
+
+        const headers = getHeaders(grid);
+        const col1 = headers[0];
+        const handle1 = col1.querySelector('svg.resize-handle')!;
+        assert.isNotNull(handle1);
+
+        const baseEventData = { bubbles: true, cancelable: true };
+
+        // act1 - increase width
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        let rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX + 50 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths1 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths1.every(x => !Number.isNaN(x)), true, 'width1');
+
+        // act2 - decrease width
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX - 20 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths2 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths2.every(x => !Number.isNaN(x)), true, 'width2');
+        assert.isBelow(widths2[0], widths1[0]);
+
+        // act3 - attempt to decrease the width to 0
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths3 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
+        assert.isAbove(widths3[0], 0);
+      },
+      { component: App });
+  }
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName" width="300">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName" width="400">
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age" width="120">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('supports statically defined column widths and resizing thereafter',
+      async function ({ host, platform }) {
+        const queue = platform.domWriteQueue;
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const container = grid.querySelector<HTMLElement>('.container');
+        assert.deepStrictEqual(
+          extractWidths(container!.style.gridTemplateColumns),
+          [300, 400, 120]
+        );
+
+        const headers = getHeaders(grid);
+        const col1 = headers[0];
+        const handle1 = col1.querySelector('svg.resize-handle')!;
+        assert.isNotNull(handle1);
+
+        const baseEventData = { bubbles: true, cancelable: true };
+
+        // act1 - increase width
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        let rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX + 50 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths1 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths1.every(x => !Number.isNaN(x)), true, 'width1');
+        assert.isAbove(widths1[0], 300);
+
+        // act2 - decrease width
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX - 20 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths2 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths2.every(x => !Number.isNaN(x)), true, 'width2');
+        assert.isBelow(widths2[0], widths1[0]);
+
+        // act3 - attempt to decrease the width to 0
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        rightX = col1.getBoundingClientRect().right;
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+
+        const widths3 = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
+        assert.isAbove(widths3[0], 0);
+      },
+      { component: App });
+  }
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName" width="0">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName" width="1">
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age" width="2">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('maintains a minimum width',
+      function ({ host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const container = grid.querySelector<HTMLElement>('.container');
+        const widths = extractWidths(container!.style.gridTemplateColumns);
+        assert.strictEqual(widths.every(x => !Number.isNaN(x)), true);
+        assert.isAbove(widths[0], 0);
+        assert.isAbove(widths[1], 1);
+        assert.isAbove(widths[2], 2);
       },
       { component: App });
   }
