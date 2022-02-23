@@ -87,7 +87,7 @@ export class GridHeader implements ICustomElementViewModel {
     dt.dropEffect = 'move';
   }
 
-  private handleDragover(event: DragEvent) : boolean | undefined{
+  private handleDragover(event: DragEvent): boolean | undefined {
     // TODO: account for visual drop marker
     event.preventDefault();
     return event.dataTransfer?.types.includes('text/plain');
@@ -119,7 +119,7 @@ export class GridHeader implements ICustomElementViewModel {
       const len = columns.length;
       for (let i = 0; i < len; i++) {
         const column = columns[i];
-        if (column.widthPx !== null) continue;
+        if (column.hidden || column.widthPx !== null) continue;
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         column.widthPx = `${column.headerElement!.getBoundingClientRect().width}px`;
       }
