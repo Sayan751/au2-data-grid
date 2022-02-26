@@ -15,6 +15,6 @@
   "devDependencies": {
     "@types/faker": "^5.5.9",
     "@types/node": "^16.11.11",
-    "faker": "^5.5.3"
+    "@ngneat/falso": "^2.27.0"
   }
 }

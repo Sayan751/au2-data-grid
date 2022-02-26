@@ -1,5 +1,5 @@
 // @ts-check
-const faker = require('faker');
+const falso = require('@ngneat/falso');
 const fs = require('fs');
 
 const size = Number(process.argv[2]);
@@ -7,11 +7,11 @@ if (!Number.isInteger(size)) throw new Error(`Invalid size; expected an integer 
 
 const data = new Array(size);
 for (let i = 0; i < size; i++) {
-  const gender = /** @type {(binary: boolean) => string} */ (faker.name.gender)(Math.random() > 0.5);
+  const gender = falso.randGender();
   data[i] = {
-    firstName: faker.name.firstName(/** @type {any} */(gender)),
-    lastName: faker.name.firstName(/** @type {any} */(gender)),
-    age: faker.datatype.number({ min: 15, max: 90 }),
+    firstName: falso.randFirstName(),
+    lastName: falso.randLastName(),
+    age: falso.randNumber({ min: 15, max: 90 }),
     gender,
     pets: getPets(),
   };
@@ -36,22 +36,22 @@ function getPets() {
 
   const pets = new Array(numPets);
   for (let i = 0; i < numPets; i++) {
-    switch (faker.animal.type()) {
+    switch (falso.randAnimalType()) {
       case 'dog':
       default:
-        pets[i] = faker.animal.dog();
+        pets[i] = falso.randDog();
         break;
       case 'cat':
-        pets[i] = faker.animal.cat();
+        pets[i] = falso.randCat();
         break;
       case 'bird':
-        pets[i] = faker.animal.bird();
+        pets[i] = falso.randBird();
         break;
       case 'fish':
-        pets[i] = faker.animal.fish();
+        pets[i] = falso.randFish();
         break;
       case 'rabbit':
-        pets[i] = faker.animal.rabbit();
+        pets[i] = falso.randRabbit();
         break;
     }
   }
