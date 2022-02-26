@@ -31,6 +31,7 @@ import {
   ChangeType,
   GridStateChangeSubscriber,
   OrderChangeDropLocation,
+  ExportableGridState,
 } from '../src/grid-state';
 import {
   SortDirection,
@@ -292,6 +293,174 @@ describe('data-grid', function () {
         assert.isUndefined(gridVm.state);
       },
       { component: App, registrations: [NormalText, ValueText] });
+  }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName">
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly content: ContentModel<Person>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('supports change of data - all-items',
+      async function ({ host, app, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Byomkesh', 'Bakshi', '42'],
+            ['Pradosh C.', 'Mitra', '30'],
+          ],
+          'initial'
+        );
+
+        const queue = platform.domWriteQueue;
+        // replace collection
+        app.content.allItems = [
+          new Person('Ghanyasham', 'Das', 45),
+          new Person('Bhajahari', 'Mukhujjee', 25),
+        ];
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Ghanyasham', 'Das', '45'],
+            ['Bhajahari', 'Mukhujjee', '25'],
+          ],
+          'replace'
+        );
+
+        // collection mutation
+        app.content.allItems.push(new Person('Tarini Charan', 'Bandopadhyay', 65));
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Ghanyasham', 'Das', '45'],
+            ['Bhajahari', 'Mukhujjee', '25'],
+            ['Tarini Charan', 'Bandopadhyay', '65'],
+          ],
+          'mutation'
+        );
+      },
+      { component: App });
+  }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName">
+          \${item.lastName}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly content: ContentModel<Person>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        const content = this.content = new ContentModel(
+          null,
+          {
+            pageSize: 2,
+            fetchCount(): Promise<number> { return Promise.resolve(50); },
+            fetchPage(currentPage: number, pageSize: number, _model: ContentModel<Person>): Promise<Person[]> {
+              return Promise.resolve(Array.from({ length: pageSize }, (_, i) => new Person(`fn${currentPage}${i + 1}`, `ln${currentPage}${i + 1}`)));
+            }
+          },
+          null,
+          null,
+          logger,
+        );
+        void content.refresh();
+      }
+    }
+
+    ($it as $It<App>)('supports change of data - paged items',
+      async function ({ host, app, platform }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['fn11', 'ln11'],
+            ['fn12', 'ln12'],
+          ],
+          'initial'
+        );
+
+        const queue = platform.domWriteQueue;
+        const content = app.content;
+        content.goToNextPage();
+        await content.wait();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['fn21', 'ln21'],
+            ['fn22', 'ln22'],
+          ],
+          'change1'
+        );
+
+        content.goToNextPage();
+        await content.wait();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['fn31', 'ln31'],
+            ['fn32', 'ln32'],
+          ],
+          'change2'
+        );
+
+        content.setCurrentPageNumber(10);
+        await content.wait();
+        await queue.yield();
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['fn101', 'ln101'],
+            ['fn102', 'ln102'],
+          ],
+          'change1'
+        );
+      },
+      { component: App });
   }
 
   {
@@ -1625,6 +1794,53 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(9).fill(ChangeType.Order));
       },
       { component: App });
+
+    ($it as $It<App>)('column reordering holds after data change',
+      async function ({ host, platform, app }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const [, col2, , col4,] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
+        const queue = platform.domWriteQueue;
+        const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
+          log: [],
+          handleGridStateChange(type) {
+            this.log.push(type);
+          }
+        };
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+        gridVm['stateModel'].addSubscriber(subscriber);
+
+        // act-1 drag p4 before p2
+        await dragAnDropColumn(col4, col2, OrderChangeDropLocation.Before, queue);
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P4', 'P2', 'P3', 'P5',], 'act1 header');
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['11', '14', '12', '13', '15',],
+            ['21', '24', '22', '23', '25',],
+            ['31', '34', '32', '33', '35',],
+          ],
+          'act1 content'
+        );
+
+        // act-2 change data
+        app.content.allItems = [
+          new Data(41, 42, 43, 44, 45),
+          new Data(51, 52, 53, 54, 55),
+          new Data(61, 62, 63, 64, 65),
+        ];
+        await queue.yield();
+        assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P4', 'P2', 'P3', 'P5',], 'act2 header');
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['41', '44', '42', '43', '45',],
+            ['51', '54', '52', '53', '55',],
+            ['61', '64', '62', '63', '65',],
+          ],
+          'act2 content'
+        );
+      },
+      { component: App });
   }
 
   const widthPattern = /minmax\(0px, (\d+\.?\d*)px\)/g;
@@ -1650,7 +1866,6 @@ describe('data-grid', function () {
     class App {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
-      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
 
       public constructor(
         @ILogger logger: ILogger,
@@ -1744,7 +1959,6 @@ describe('data-grid', function () {
     class App {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
-      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
 
       public constructor(
         @ILogger logger: ILogger,
@@ -1839,7 +2053,6 @@ describe('data-grid', function () {
     class App {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
-      public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
 
       public constructor(
         @ILogger logger: ILogger,
@@ -1870,6 +2083,290 @@ describe('data-grid', function () {
         assert.isAbove(widths[0], 0);
         assert.isAbove(widths[1], 1);
         assert.isAbove(widths[2], 2);
+      },
+      { component: App });
+  }
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column property="firstName">
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName" non-resizable>
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age" non-resizable width="100">
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+            new Person('Bhajahari', 'Mukhujjee', 25),
+            new Person('Tarini Charan', 'Bandopadhyay', 65),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('supports non-resizable column',
+      function ({ host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const container = grid.querySelector<HTMLElement>('.container');
+        assert.strictEqual(
+          container?.style.gridTemplateColumns,
+          'minmax(0px, 1fr) minmax(0px, 1fr) minmax(0px, 1fr)'
+        );
+
+        assert.deepStrictEqual(
+          getHeaders(grid)
+            .map(el => !!el.querySelector('svg.resize-handle')),
+          [true, false, false]);
+      },
+      { component: App });
+  }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content" state.two-way>
+        <grid-column property="firstName" width="400">
+          <header>First name</header>
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName" width="300">
+          <header>Last name</header>
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age" width="150">
+          <header>Age</header>
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+      public state: ExportableGridState;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+          ],
+          null,
+          null,
+          () => { /** noop */ },
+          logger,
+        );
+        this.state = {
+          columns: [
+            { id: 'lastName', property: 'lastName', isResizable: true, direction: null, widthPx: '450px' },
+            { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
+            { id: 'age', property: 'age', isResizable: true, direction: null, widthPx: '200px' },
+          ]
+        };
+      }
+    }
+
+    ($it as $It<App>)('respects the bound state during binding and writes the changes back to the bound state',
+      async function ({ host, platform, app }) {
+        const queue = platform.domWriteQueue;
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        const container = grid.querySelector<HTMLElement>('.container');
+        assert.strictEqual(
+          container?.style.gridTemplateColumns,
+          'minmax(0px, 450px) minmax(0px, 500px) minmax(0px, 200px)'
+        );
+        assert.deepStrictEqual(
+          getHeaderTextContent(grid),
+          ['Last name', 'First name', 'Age']
+        );
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Bakshi', 'Byomkesh', '42'],
+            ['Mitra', 'Pradosh C.', '30'],
+            ['Das', 'Ghanyasham', '45'],
+          ]
+        );
+
+        // changing state is no-op
+        app.state = {
+          columns: [
+            { id: 'age', property: 'age', isResizable: true, direction: null, widthPx: '200px' },
+            { id: 'lastName', property: 'lastName', isResizable: true, direction: null, widthPx: '450px' },
+            { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
+          ]
+        };
+        await queue.yield();
+        assert.strictEqual(
+          container?.style.gridTemplateColumns,
+          'minmax(0px, 450px) minmax(0px, 500px) minmax(0px, 200px)'
+        );
+        assert.deepStrictEqual(
+          getHeaderTextContent(grid),
+          ['Last name', 'First name', 'Age']
+        );
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Bakshi', 'Byomkesh', '42'],
+            ['Mitra', 'Pradosh C.', '30'],
+            ['Das', 'Ghanyasham', '45'],
+          ]
+        );
+
+        const headers = getHeaders(grid);
+        // reordering reflects the change back to the state
+        const [colLn, , colAge] = headers.map(header => header.querySelector<HTMLSpanElement>('div>span')!);
+        await dragAnDropColumn(colAge, colLn, OrderChangeDropLocation.After, queue);
+        assert.strictEqual(
+          container?.style.gridTemplateColumns,
+          'minmax(0px, 450px) minmax(0px, 200px) minmax(0px, 500px)'
+        );
+        assert.deepStrictEqual(
+          getHeaderTextContent(grid),
+          ['Last name', 'Age', 'First name',]
+        );
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Bakshi', '42', 'Byomkesh',],
+            ['Mitra', '30', 'Pradosh C.',],
+            ['Das', '45', 'Ghanyasham',],
+          ]
+        );
+        assert.deepStrictEqual(
+          app.state,
+          {
+            columns: [
+              { id: 'lastName', property: 'lastName', isResizable: true, direction: null, widthPx: '450px' },
+              { id: 'age', property: 'age', isResizable: true, direction: null, widthPx: '200px' },
+              { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
+            ]
+          }
+        );
+
+        // resizing the columns reflects the change back to the state
+        const ageCol = headers[2];
+        const handle1 = ageCol.querySelector('svg.resize-handle')!;
+        assert.isNotNull(handle1);
+        const baseEventData = { bubbles: true, cancelable: true };
+        handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
+        handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: ageCol.getBoundingClientRect().right + 50 }));
+        await queue.yield();
+        handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
+        await queue.yield();
+        const widths = extractWidths(container!.style.gridTemplateColumns);
+        assert.deepStrictEqual(
+          app.state,
+          {
+            columns: [
+              { id: 'lastName', property: 'lastName', isResizable: true, direction: null, widthPx: '450px' },
+              { id: 'age', property: 'age', isResizable: true, direction: null, widthPx: `${widths[1]}px` },
+              { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
+            ]
+          }
+        );
+
+        // sorting reflects the change back to the state
+        const headerContainer = headers[0].querySelector('div')!; // lname
+        headerContainer.click();
+        await queue.yield();
+        assert.deepStrictEqual(
+          headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
+          ['\u25B4', null, null]
+        );
+        assert.deepStrictEqual(
+          app.state,
+          {
+            columns: [
+              { id: 'lastName', property: 'lastName', isResizable: true, direction: SortDirection.Ascending, widthPx: '450px' },
+              { id: 'age', property: 'age', isResizable: true, direction: null, widthPx: `${widths[1]}px` },
+              { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
+            ]
+          }
+        );
+      },
+      { component: App });
+  }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content" hidden-columns.bind="['age']">
+        <grid-column property="firstName">
+          <header>First name</header>
+          \${item.firstName}
+        </grid-column>
+        <grid-column property="lastName">
+          <header>Last name</header>
+          \${item.lastName}
+        </grid-column>
+        <grid-column property="age">
+          <header>Age</header>
+          \${item.age}
+        </grid-column>
+      </data-grid>`
+    })
+    class App {
+      public readonly content: ContentModel<Person>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          [
+            new Person('Byomkesh', 'Bakshi', 42),
+            new Person('Pradosh C.', 'Mitra', 30),
+            new Person('Ghanyasham', 'Das', 45),
+          ],
+          null,
+          null,
+          () => { /** noop */ },
+          logger,
+        );
+      }
+    }
+
+    ($it as $It<App>)('columns can be hidden',
+      function ({ host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        assert.deepStrictEqual(
+          getHeaderTextContent(grid),
+          ['First name', 'Last name']
+        );
+        assert.deepStrictEqual(
+          getContentTextContent(grid),
+          [
+            ['Byomkesh', 'Bakshi'],
+            ['Pradosh C.', 'Mitra'],
+            ['Ghanyasham', 'Das'],
+          ]
+        );
       },
       { component: App });
   }

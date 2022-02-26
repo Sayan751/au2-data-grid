@@ -224,8 +224,11 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
         }
       }
       const isResizable = !col.hasAttribute('non-resizable');
-      let width: string | null = col.getAttribute('width');
-      width = width === null || Number.isNaN(width) ? null : `${width}px`;
+      let width: string | null = null;
+      if (isResizable) {
+        width = col.getAttribute('width');
+        width = width === null || Number.isNaN(width) ? null : `${width}px`;
+      }
 
       // extract header
       let container = doc.createElement('grid-header');
