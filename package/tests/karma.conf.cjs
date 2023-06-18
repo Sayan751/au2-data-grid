@@ -5,8 +5,7 @@ const ResolveTypeScriptPlugin = require("resolve-typescript-plugin");
 const debug = !!process.env.DEBUG;
 const isDev = debug || !!process.env.DEV;
 
-const root = process.cwd();
-const testDir = join(root, 'tests');
+const testDir = __dirname;
 const artifactDir = join(testDir, '.artifacts');
 
 const reporters = ['mocha', 'junit', 'coverage-istanbul'];
