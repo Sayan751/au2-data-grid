@@ -1,5 +1,6 @@
 import { ILogger } from '@aurelia/kernel';
-import { customElement, ICustomElementViewModel, observable } from '@aurelia/runtime-html';
+import { observable } from '@aurelia/runtime';
+import { customElement, ICustomElementViewModel } from '@aurelia/runtime-html';
 import { ContentModel, SelectionMode, SortDirection, SortOption } from 'au2-data-grid';
 import template from './static-list.html';
 import { Person } from '../../common/Person';

@@ -1,17 +1,19 @@
 import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger, IPlatform } from '@aurelia/kernel';
-import { customElement, ICustomElementViewModel, IDialogService, observable, valueConverter } from '@aurelia/runtime-html';
+import { customElement, ICustomElementViewModel, valueConverter } from '@aurelia/runtime-html';
 import { ContentModel, SelectionMode, SortDirection, ExportableGridState } from 'au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
 import { PersonCardDialog } from './person-card-dialog';
 import { PersonCompareDialog } from './person-compare-dialog';
+import { observable } from '@aurelia/runtime';
+import { IDialogService } from '@aurelia/dialog';
 
 const endpoint = 'http://localhost:9000/people';
 const stateKey = 'list-state';
 
 @valueConverter('formatList')
-class FormatList {
+export class FormatList {
   public toView(value: string[]) {
     const len = value.length;
     switch (len) {

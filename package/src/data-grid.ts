@@ -4,6 +4,9 @@ import {
   ILogger,
 } from '@aurelia/kernel';
 import {
+  ISignaler,
+} from '@aurelia/runtime';
+import {
   bindable,
   CustomElement,
   CustomElementDefinition,
@@ -14,7 +17,6 @@ import {
   IHydrationContext,
   INode,
   IPlatform,
-  ISignaler,
   BindingMode,
 } from '@aurelia/runtime-html';
 import {

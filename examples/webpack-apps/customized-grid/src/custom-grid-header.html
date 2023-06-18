@@ -1,7 +1,7 @@
 <template role="columnheader button">
-  <div click.delegate="handleClick()">
-    <span ref="content" draggable="true" dragstart.delegate="handleDragStart($event)"
-      dragover.delegate="handleDragover($event)" drop.delegate="handleDrop($event)">
+  <div click.trigger="handleClick()">
+    <span ref="content" draggable="true" dragstart.trigger="handleDragStart($event)"
+      dragover.trigger="handleDragover($event)" drop.trigger="handleDrop($event)">
       <au-slot></au-slot>
     </span>
     <template if.bind="isSortable">

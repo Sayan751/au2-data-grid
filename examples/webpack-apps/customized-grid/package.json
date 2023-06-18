@@ -10,11 +10,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@aurelia/dialog": "latest",
     "@aurelia/fetch-client": "latest",
     "@aurelia/kernel": "latest",
     "@aurelia/runtime": "latest",
     "@aurelia/runtime-html": "latest",
-    "@aurelia/router": "latest",
+    "@aurelia/router-lite": "latest",
     "@fortawesome/fontawesome-free": "6.0.0-beta3",
     "au2-data-grid": "1.0.0",
     "css-loader": "^6.5.1",

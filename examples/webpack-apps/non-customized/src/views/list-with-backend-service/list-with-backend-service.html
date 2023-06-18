@@ -27,19 +27,19 @@
 </div>
 <div>
   <button if.bind="selectionMode !== 0" disabled.bind="!people.isOneSelected"
-    click.delegate="viewDetails(people.selectedItems[0])">
+    click.trigger="viewDetails(people.selectedItems[0])">
     Details
   </button>
   <button if.bind="selectionMode === 2" disabled.bind="people.selectionCount < 2 || people.selectionCount > 3"
-    click.delegate="compare()">
+    click.trigger="compare()">
     Compare
   </button>
-  <button click.delegate="people.goToPreviousPage()" disabled.bind="people.currentPageNumber === 1">Previous
+  <button click.trigger="people.goToPreviousPage()" disabled.bind="people.currentPageNumber === 1">Previous
     page</button>
-  <button click.delegate="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
+  <button click.trigger="people.goToNextPage()" disabled.bind="people.currentPageNumber === people.pageCount">Next
     page</button>
 </div>
-<data-grid model.bind="people" state.two-way item-clicked.call="viewDetails($event.item)" hidden-columns.bind="['hidden']">
+<data-grid model.bind="people" state.two-way item-clicked.bind="x => viewDetails(x.item)" hidden-columns.bind="['hidden']">
   <grid-column property="firstName">
     <header>
       <value-text value="First name"></value-text>

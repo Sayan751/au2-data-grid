@@ -24,11 +24,10 @@
 <br>
 
 
-<button click.delegate="useDataset1()">Use dataset1</button>
-<button click.delegate="useDataset2()">Use dataset2</button>
+<button click.trigger="useDataset1()">Use dataset1</button>
+<button click.trigger="useDataset2()">Use dataset2</button>
 <br>
 <br>
-
 <data-grid model.bind="people">
   <grid-column property="fname" width="100">
     <header>

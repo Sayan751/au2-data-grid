@@ -2,8 +2,8 @@
   <div class="row" role="row">
     <template grid-headers="state.bind: stateModel"></template>
   </div>
-  <div class="row" role="row" repeat.for="item of model.currentPage" click.delegate="handleClick($event,item,$index)"
-    dblclick.delegate="handleDblClick(item,$index)"
+  <div class="row" role="row" repeat.for="item of model.currentPage" click.trigger="handleClick($event,item,$index)"
+    dblclick.trigger="handleDblClick(item,$index)"
     selected-row.class="model.isSelected(item) & signal:selectionUpdateSignal">
     <template grid-content="item.bind: item; state.bind: stateModel"></template>
   </div>

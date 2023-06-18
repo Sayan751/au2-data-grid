@@ -1,18 +1,19 @@
 import {
   onResolve,
-  resolveAll,
+  onResolveAll,
 } from '@aurelia/kernel';
 import {
-  bindable,
   BindingContext,
+  Scope,
+} from '@aurelia/runtime';
+import {
+  bindable,
   ICustomAttributeController,
   ICustomAttributeViewModel,
   IHydratedController,
   IHydratedParentController,
   IRenderLocation,
   ISyntheticView,
-  LifecycleFlags,
-  Scope,
   templateController,
 } from '@aurelia/runtime-html';
 import {
@@ -55,7 +56,6 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
   public attaching(
     initiator: IHydratedController,
     parent: IHydratedParentController,
-    flags: LifecycleFlags
   ): void | Promise<void> {
     const indexMap = this._indexMap;
     indexMap.clear();
@@ -74,16 +74,16 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     for (let i = 0; i < len; i++) {
       const header = headers[i];
       header.nodes.link(headers[i + 1]?.nodes ?? location);
-      activationPromises[i] = header.activate(initiator, parent, flags, Scope.create(BindingContext.create({ state: columns[i] })));
+      activationPromises[i] = header.activate(initiator, parent, Scope.create(new BindingContext('state', columns[i])));
     }
-    this.queue(() => resolveAll(...activationPromises));
+    this.queue(() => onResolveAll(...activationPromises));
     state.addSubscriber(this);
     return this.promise;
   }
 
-  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
+  public detaching(initiator: IHydratedController, parent: IHydratedParentController): void | Promise<void> {
     this.state.removeSubscriber(this);
-    this.queue(() => resolveAll(...this.headers.map((header) => header.deactivate(initiator, parent, flags))));
+    this.queue(() => onResolveAll(...this.headers.map((header) => header.deactivate(initiator, parent))));
     return this.promise;
   }
 
@@ -148,7 +148,6 @@ export class GridContent implements ICustomAttributeViewModel {
   public attaching(
     initiator: IHydratedController,
     parent: IHydratedParentController,
-    flags: LifecycleFlags
   ): void | Promise<void> {
     const headersTc: GridHeaders = this.$controller
       .parent   // synthetic
@@ -171,16 +170,16 @@ export class GridContent implements ICustomAttributeViewModel {
     for (const [key,] of indexMap) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const cell = cells[i++] = columns[key].contentViewFactory!.create(initiator).setLocation(location);
-      activationPromises[i] = cell.activate(initiator, parent, flags, Scope.create(BindingContext.create({ item })));
+      activationPromises[i] = cell.activate(initiator, parent, Scope.create(new BindingContext('item', item)));
     }
-    this.queue(() => resolveAll(...activationPromises));
+    this.queue(() => onResolveAll(...activationPromises));
     state.addSubscriber(this);
     return this.promise;
   }
 
-  public detaching(initiator: IHydratedController, parent: IHydratedParentController, flags: LifecycleFlags): void | Promise<void> {
+  public detaching(initiator: IHydratedController, parent: IHydratedParentController): void | Promise<void> {
     this.state.removeSubscriber(this);
-    this.queue(() => resolveAll(...this.cells.map((cell) => cell.deactivate(initiator, parent, flags))));
+    this.queue(() => onResolveAll(...this.cells.map((cell) => cell.deactivate(initiator, parent))));
     return this.promise;
   }
 

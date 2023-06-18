@@ -1,6 +1,8 @@
+import { IDialogService } from '@aurelia/dialog';
 import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger } from '@aurelia/kernel';
-import { customElement, IDialogService, observable, valueConverter } from '@aurelia/runtime-html';
+import { observable } from '@aurelia/runtime';
+import { customElement, valueConverter } from '@aurelia/runtime-html';
 import { ContentModel, SelectionMode, SortDirection } from 'au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
@@ -10,7 +12,7 @@ import { PersonCompareDialog } from './person-compare-dialog';
 const endpoint = 'http://localhost:9000/people';
 
 @valueConverter('formatList')
-class FormatList {
+export class FormatList {
   public toView(value: string[]) {
     const len = value.length;
     switch (len) {

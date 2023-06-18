@@ -1,4 +1,5 @@
-import { customElement, IDialogController, IDialogDom } from '@aurelia/runtime-html';
+import { IDialogController, IDialogDom } from '@aurelia/dialog';
+import { customElement } from '@aurelia/runtime-html';
 import { FakePerson } from './data-contracts';
 import template from './person-compare-dialog.html';
 

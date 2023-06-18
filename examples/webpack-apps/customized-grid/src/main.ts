@@ -1,6 +1,7 @@
+import { DialogDefaultConfiguration } from '@aurelia/dialog';
 import { ConsoleSink, LoggerConfiguration, LogLevel } from '@aurelia/kernel';
-import { RouterConfiguration } from '@aurelia/router';
-import { Aurelia, CustomElement, DialogDefaultConfiguration, StandardConfiguration } from '@aurelia/runtime-html';
+import { RouterConfiguration } from '@aurelia/router-lite';
+import { Aurelia, CustomElement, StandardConfiguration } from '@aurelia/runtime-html';
 import { DataGrid, DataGridConfiguration, GridContent, GridHeader, GridHeaders } from 'au2-data-grid';
 import { AppRoot as component } from './app-root';
 import { NormalText } from './custom-elements/normal-text/normal-text';
@@ -9,6 +10,7 @@ import headerTemplate from './custom-grid-header.html';
 import gridTemplate from './custom-data-grid.html';
 import './styles.css';
 import { PersonCard } from './views/list-with-backend-service/person-card';
+import { FormatList } from './views/list-with-backend-service/list-with-backend-service';
 
 (async function () {
   const host = document.querySelector<HTMLElement>('app')!;
@@ -21,7 +23,7 @@ import { PersonCard } from './views/list-with-backend-service/person-card';
         sinks: [ConsoleSink]
       }),
       StandardConfiguration,
-      RouterConfiguration.customize({ useUrlFragmentHash: false }),
+      RouterConfiguration,
       DialogDefaultConfiguration,
 
       DataGridConfiguration.customize(opt => {
@@ -44,6 +46,7 @@ import { PersonCard } from './views/list-with-backend-service/person-card';
       NormalText,
       ValueText,
       PersonCard,
+      FormatList, // TODO: make it work without registering it globally
     );
   au.app({ host, component });
 

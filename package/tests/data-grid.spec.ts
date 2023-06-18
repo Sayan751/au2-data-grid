@@ -1,14 +1,21 @@
 import {
+  Constructable,
   ILogger,
   Registration,
-  TaskQueue,
 } from '@aurelia/kernel';
+import {
+  TaskQueue,
+} from '@aurelia/platform';
+import {
+  BrowserPlatform,
+} from '@aurelia/platform-browser';
 import {
   Aurelia,
   bindable,
-  BrowserPlatform,
   CustomElement,
   customElement,
+  CustomElementType,
+  ICustomElementViewModel,
   IPlatform,
   StandardConfiguration,
 } from '@aurelia/runtime-html';
@@ -55,10 +62,10 @@ import {
 } from './shared';
 
 describe('data-grid', function () {
-  interface TestSetupContext<TApp> extends $TestSetupContext<TApp> {
+  interface TestSetupContext<TApp extends ICustomElementViewModel> extends $TestSetupContext<TApp> {
     registrations: any[];
   }
-  async function runTest<TApp>(
+  async function runTest<TApp extends ICustomElementViewModel>(
     testFunction: TestFunction<TApp>,
     {
       component,
@@ -109,7 +116,7 @@ describe('data-grid', function () {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const $it = createSpecFunction(runTest as WrapperFunction<any, $TestContext<any>, TestSetupContext<any>>);
-  type $$It<TApp> = $It<TApp, $TestContext<TApp>, TestSetupContext<TApp>>;
+  type $$It<TApp extends ICustomElementViewModel> = $It<TApp, $TestContext<TApp>, TestSetupContext<TApp>>;
 
   {
     @customElement({
@@ -125,7 +132,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -170,7 +177,7 @@ describe('data-grid', function () {
         gridVm.exportState();
         assert.isUndefined(gridVm.state);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -187,7 +194,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -231,7 +238,7 @@ describe('data-grid', function () {
         gridVm.exportState();
         assert.isUndefined(gridVm.state);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -248,7 +255,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -292,7 +299,7 @@ describe('data-grid', function () {
         gridVm.exportState();
         assert.isUndefined(gridVm.state);
       },
-      { component: App, registrations: [NormalText, ValueText] });
+      { component: App as CustomElementType<Constructable<App>>, registrations: [NormalText, ValueText] });
   }
 
   {
@@ -310,7 +317,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
       public constructor(
@@ -371,7 +378,7 @@ describe('data-grid', function () {
           'mutation'
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -386,7 +393,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
       public constructor(
@@ -460,7 +467,7 @@ describe('data-grid', function () {
           'change1'
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -477,7 +484,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -512,7 +519,7 @@ describe('data-grid', function () {
             ]
           });
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -529,7 +536,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -564,7 +571,7 @@ describe('data-grid', function () {
             ]
           });
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -579,7 +586,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -618,13 +625,13 @@ describe('data-grid', function () {
           app.people.map(p => [p.firstName, p.lastName])
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   for (const selectionOptions of [null, { mode: ItemSelectionMode.None }, { mode: ItemSelectionMode.None, onSelectionChange(): void { throw new Error('unexpected callback'); } }]) {
     @customElement({
       name: 'my-app',
-      template: `<data-grid model.bind="content" item-clicked.call="logItemClick($event.item, $event.index)" >
+      template: `<data-grid model.bind="content" item-clicked.bind="x => logItemClick(x.item, x.index)" >
         <grid-column id='firstName'>
           \${item.firstName}
         </grid-column>
@@ -633,7 +640,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly clickLog: [Person, number][] = [];
@@ -680,7 +687,7 @@ describe('data-grid', function () {
         assert.strictEqual(log[2][0], people[1]);
         assert.strictEqual(log[2][1], 1);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -695,7 +702,7 @@ describe('data-grid', function () {
           </grid-column>
         </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -728,13 +735,13 @@ describe('data-grid', function () {
           assert.fail((e as Error).message);
         }
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
     @customElement({
       name: 'my-app',
-      template: `<data-grid model.bind="content" item-clicked.call="logItemClick($event.item, $event.index)" >
+      template: `<data-grid model.bind="content" item-clicked.bind="x => logItemClick(x.item, x.index)" >
         <grid-column id='firstName'>
           \${item.firstName}
         </grid-column>
@@ -743,7 +750,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly clickLog: [Person, number][] = [];
@@ -806,7 +813,7 @@ describe('data-grid', function () {
         assert.strictEqual(content[1].classList.contains('selected-row'), true, 'content[1].selected-row true');
         assert.strictEqual(content[0].classList.contains('selected-row'), false, 'content[0].selected-row false 2');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('calls back the bound item-clicked on dblclick with single-selection mode',
       function ({ app, host }) {
@@ -832,7 +839,7 @@ describe('data-grid', function () {
         assert.strictEqual(selectionLog.length, 0, 'selectionLog');
         assert.deepStrictEqual(clickLog[2], [people[1], 1]);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('removes text selection on click with single-selection mode',
       function ({ host }) {
@@ -847,7 +854,7 @@ describe('data-grid', function () {
         content[0].click();
         assert.equal(selection?.toString() ?? '', '');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('removes text selection on dblclick with single-selection mode',
       function ({ host }) {
@@ -862,13 +869,13 @@ describe('data-grid', function () {
         content[0].dispatchEvent(new Event('dblclick', { bubbles: true, cancelable: true }));
         assert.equal(selection?.toString() ?? '', '');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
     @customElement({
       name: 'my-app',
-      template: `<data-grid model.bind="content" item-clicked.call="logItemClick($event.item, $event.index)" >
+      template: `<data-grid model.bind="content" item-clicked.bind="x => logItemClick(x.item, x.index)" >
         <grid-column id='firstName'>
           \${item.firstName}
         </grid-column>
@@ -877,7 +884,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly clickLog: [Person, number][] = [];
@@ -946,7 +953,7 @@ describe('data-grid', function () {
           [true, true, true, true, false],
           'content.selected-row 3');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 2',
       async function ({ app, host, platform }) {
@@ -993,7 +1000,7 @@ describe('data-grid', function () {
           [true, true, true, true, false],
           'content.selected-row 4');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 3',
       async function ({ app, host, platform }) {
@@ -1040,7 +1047,7 @@ describe('data-grid', function () {
           [false, true, true, true, true],
           'content.selected-row 4');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects multiple individual items on ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
@@ -1086,7 +1093,7 @@ describe('data-grid', function () {
           [true, false, true, false, true],
           'content.selected-row 4');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on shift+click followed by shift+click with multiple-selection mode',
       async function ({ app, host, platform }) {
@@ -1122,7 +1129,7 @@ describe('data-grid', function () {
           [true, true, true, true, false],
           'content.selected-row 3');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects multiple items with shift+click combined with ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
@@ -1168,7 +1175,7 @@ describe('data-grid', function () {
           [true, true, true, false, true],
           'content.selected-row 4');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('toggles selection with ctrl+click with multiple-selection mode',
       async function ({ app, host, platform }) {
@@ -1204,7 +1211,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 3');
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
     for (const [ctrlKey, shiftKey] of [[true, false], [false, true], [true, true]]) {
@@ -1224,7 +1231,7 @@ describe('data-grid', function () {
           content[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey, shiftKey }));
           assert.equal(selection?.toString() ?? '', '');
         },
-        { component: App });
+        { component: App as CustomElementType<Constructable<App>> });
 
       ($it as $It<App>)(`removes text selection on dblclick with multi-selection mode - ctrlKey: ${ctrlKey} - shiftKey: ${shiftKey}`,
         function ({ host }) {
@@ -1242,7 +1249,7 @@ describe('data-grid', function () {
           content[1].dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, ctrlKey, shiftKey }));
           assert.equal(selection?.toString() ?? '', '');
         },
-        { component: App });
+        { component: App as CustomElementType<Constructable<App>> });
     }
   }
 
@@ -1258,7 +1265,7 @@ describe('data-grid', function () {
           </grid-column>
         </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly clickLog: [Person, number][] = [];
@@ -1302,7 +1309,7 @@ describe('data-grid', function () {
           assert.fail((e as Error).message);
         }
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -1320,7 +1327,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
@@ -1478,7 +1485,7 @@ describe('data-grid', function () {
           ]
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   function* getSortDirectionData(): Generator<{ direction: string; textContent: string[][] }> {
@@ -1517,7 +1524,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
@@ -1577,7 +1584,7 @@ describe('data-grid', function () {
           [[[{ property: 'lastName', direction: isDesc ? SortDirection.Descending : SortDirection.Ascending }], []]]
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   function getMidPoint(col: Element): number {
@@ -1612,7 +1619,7 @@ describe('data-grid', function () {
         <grid-column><header>P5</header>\${item.p5}</grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Data>;
 
       public constructor(
@@ -1793,7 +1800,7 @@ describe('data-grid', function () {
           'act11 content');
         assert.deepStrictEqual(subscriber.log, new Array(9).fill(ChangeType.Order));
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('column reordering holds after data change',
       async function ({ host, platform, app }) {
@@ -1840,7 +1847,7 @@ describe('data-grid', function () {
           'act2 content'
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   const widthPattern = /minmax\(0px, (\d+\.?\d*)px\)/g;
@@ -1863,7 +1870,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -1939,7 +1946,7 @@ describe('data-grid', function () {
         assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
         assert.isAbove(widths3[0], 0);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
   {
     @customElement({
@@ -1956,7 +1963,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -2033,7 +2040,7 @@ describe('data-grid', function () {
         assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
         assert.isAbove(widths3[0], 0);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
   {
     @customElement({
@@ -2050,7 +2057,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -2084,7 +2091,7 @@ describe('data-grid', function () {
         assert.isAbove(widths[1], 1);
         assert.isAbove(widths[2], 2);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
   {
     @customElement({
@@ -2101,7 +2108,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -2139,7 +2146,7 @@ describe('data-grid', function () {
             .map(el => !!el.querySelector('svg.resize-handle')),
           [true, false, false]);
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -2160,7 +2167,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
       public state: ExportableGridState;
@@ -2310,7 +2317,7 @@ describe('data-grid', function () {
           }
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 
   {
@@ -2331,7 +2338,7 @@ describe('data-grid', function () {
         </grid-column>
       </data-grid>`
     })
-    class App {
+    class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
       public constructor(
@@ -2368,6 +2375,6 @@ describe('data-grid', function () {
           ]
         );
       },
-      { component: App });
+      { component: App as CustomElementType<Constructable<App>> });
   }
 });
