@@ -1,6 +1,7 @@
 'use strict';
 /* eslint-disable */
 const { join } = require('path');
+const { mkdirSync } = require('fs');
 const ResolveTypeScriptPlugin = require("resolve-typescript-plugin");
 const debug = !!process.env.DEBUG;
 const isDev = debug || !!process.env.DEV;
@@ -26,6 +27,8 @@ const istanbulReporterConfig = {
 if (!debug) {
   process.env.CHROME_BIN = require('puppeteer').executablePath();
 }
+const webpackOutputPath = join(testDir, '.karma-webpack', Date.now().toString());
+mkdirSync(webpackOutputPath, { recursive: true });
 const webpackConfig = {
   mode: 'development',
   devtool: 'inline-source-map',
@@ -36,7 +39,7 @@ const webpackConfig = {
      * https://github.com/webpack/webpack/issues/12759
      * https://github.com/ryanclark/karma-webpack/issues/494
      */
-    path: join(testDir, '.karma-webpack', Date.now().toString()),
+    path: webpackOutputPath,
   },
   resolve: {
     extensions: ['.ts', '.js', '.json', '.html'],
