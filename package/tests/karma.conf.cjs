@@ -52,7 +52,7 @@ const webpackConfig = {
 };
 module.exports = function (config) {
   config.set({
-    basePath: process.cwd(),
+    basePath: join(__dirname, '..'),
     frameworks: ['source-map-support', 'mocha', 'webpack'],
     plugins: [
       'karma-*',
