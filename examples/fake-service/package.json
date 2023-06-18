@@ -13,8 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/faker": "^5.5.9",
-    "@types/node": "^16.11.11",
-    "@ngneat/falso": "^2.27.0"
+    "@types/node": "^20.3.1",
+    "@ngneat/falso": "^6.4.0"
   }
 }
