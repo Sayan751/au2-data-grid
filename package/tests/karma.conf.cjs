@@ -5,7 +5,8 @@ const ResolveTypeScriptPlugin = require("resolve-typescript-plugin");
 const debug = !!process.env.DEBUG;
 const isDev = debug || !!process.env.DEV;
 
-const testDir = __dirname;
+const root = process.cwd();
+const testDir = join(root, 'tests');
 const artifactDir = join(testDir, '.artifacts');
 
 const reporters = ['mocha', 'junit', 'coverage-istanbul'];
@@ -52,7 +53,7 @@ const webpackConfig = {
 };
 module.exports = function (config) {
   config.set({
-    basePath: join(__dirname, '..'),
+    basePath: process.cwd(),
     frameworks: ['source-map-support', 'mocha', 'webpack'],
     plugins: [
       'karma-*',

@@ -23,12 +23,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
 
       - name: build package
-        run: npm run build
-        working-directory: package
-
+        run: npm run build -w package
 
       - name: test package
-        run: npm test
-        working-directory: package
+        run: npm run test -w package
 
       # TODO: Changelog generation, version tagging, publish
