@@ -278,7 +278,6 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
 export const DefaultDataGrid = defineDataGridCustomElement(DefaultGridHeader);
 /**
  * Creates data-grid custom element registration.
- *
  * @param {CustomElementType<THeader>} header The grid-header custom element registration.
  * @returns {CustomElementType<Constructable<DataGrid>>} Data grid custom element registration.
  * @template THeader

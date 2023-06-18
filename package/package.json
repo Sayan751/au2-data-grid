@@ -16,7 +16,7 @@
     "watch:other": "cpx ./src/**/*.{html,css} ./dist --watch",
     "watch": "run-p watch:ts watch:other",
     "lint:src": "eslint -c ./.eslintrc.cjs --cache --ext .ts src",
-    "lint:tests": "eslint -c ./tests/unit/.eslintrc.js --cache --ext .ts tests/unit",
+    "lint:tests": "eslint -c ./tests/.eslintrc.cjs --cache --ext .ts tests",
     "lint": "npm run lint:src",
     "test:debug": "cross-env DEBUG=true npm run test",
     "test:watch": "cross-env DEV=true npm run test",

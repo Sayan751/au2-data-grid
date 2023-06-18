@@ -29,7 +29,6 @@ import {
 
 /**
  * Template controller to render the headers.
- *
  * @internal
  */
 @templateController('grid-headers')
@@ -120,7 +119,6 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
 
 /**
  * Template controller to render the content cells.
- *
  * @internal
  */
 @templateController('grid-content')

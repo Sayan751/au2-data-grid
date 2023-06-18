@@ -25,7 +25,6 @@ export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateMo
 /**
  * This aggregates the structural metadata for the grid.
  * This is meant for internal use.
- *
  * @internal
  */
 export class GridStateModel implements IGridState {
@@ -54,7 +53,6 @@ export class GridStateModel implements IGridState {
 
   /**
    * Applies a previously exported state.
-   *
    * @param {ExportableGridState} state The state to apply.
    */
   public applyState(state: ExportableGridState): void {
@@ -77,7 +75,6 @@ export class GridStateModel implements IGridState {
   /**
    * Marks the hidden columns as per the given column ids.
    * Note that in absence of a `id` attribute in `grid-column`, the `property` is used as the `id`.
-   *
    * @param {string[]} columnIds The collection of ids of the columns to hide.
    */
   public hideColumns(columnIds: string[]): void {
@@ -227,7 +224,6 @@ export interface ColumnState extends ExportableColumnState {
 /**
  * This describes the structural metadata of a column.
  * This is meant for internal use.
- *
  * @internal
  */
 export class Column implements ColumnState {
@@ -245,7 +241,6 @@ export class Column implements ColumnState {
   private _contentViewFactory: ViewFactory | null = null;
   /**
    * This is registered from inside the grid-header CE during `binding`.
-   *
    * @internal
    */
   public headerElement?: HTMLElement;
