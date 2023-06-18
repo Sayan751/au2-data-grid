@@ -1,0 +1,34 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ v* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install
+        run: npm ci
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '18.x'
+          registry-url: https://registry.npmjs.org/
+
+      - name: build package
+        run: npm run build
+        working-directory: package
+
+
+      - name: test package
+        run: npm test
+        working-directory: package
+
+      # TODO: Changelog generation, version tagging, publish
