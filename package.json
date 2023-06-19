@@ -4,8 +4,7 @@
   "description": "",
   "scripts": {
     "build": "npm run build -ws",
-    "build:fake-service": "npm run build -w examples/fake-service",
-    "start:fake-service": "npm start -w examples/fake-service",
+    "fake-service": "npm -w examples/fake-service run",
     "test": "npm run test -ws --if-present"
   },
   "keywords": [],
