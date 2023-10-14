@@ -78,13 +78,14 @@ export class GridHeader implements ICustomElementViewModel {
     state.setDirection(newDirection, true);
   }
 
-  private handleDragStart(event: DragEvent): void {
+  private handleDragStart(event: DragEvent): boolean {
     const id = this.state.id;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const dt = event.dataTransfer!;
     dt.setData('text/plain', id);
     dt.setDragImage(this.content, 10, 10);
     dt.dropEffect = 'move';
+    return true;
   }
 
   private handleDragover(event: DragEvent): boolean | undefined {
