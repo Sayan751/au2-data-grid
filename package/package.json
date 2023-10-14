@@ -27,14 +27,14 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@aurelia/testing": "latest",
+    "@aurelia/testing": "dev",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@netatwork/mocha-utils": "^2.1.5",
     "@netatwork/spy": "^1.1.4",
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "chai": "^4.3.7",
-    "cpx2": "^4.2.3",
+    "@types/chai": "^4.3.8",
+    "@types/mocha": "^10.0.2",
+    "chai": "^4.3.10",
+    "cpx2": "^5.0.0",
     "cross-env": "^7.0.3",
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.2.0",
@@ -48,13 +48,13 @@
     "karma-webpack": "^5.0.0",
     "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5",
-    "puppeteer": "^20.7.2",
+    "puppeteer": "^21.3.8",
     "resolve-typescript-plugin": "^2.0.1",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "@aurelia/kernel": "latest",
-    "@aurelia/runtime": "latest",
-    "@aurelia/runtime-html": "latest"
+    "@aurelia/kernel": "dev",
+    "@aurelia/runtime": "dev",
+    "@aurelia/runtime-html": "dev"
   }
 }
