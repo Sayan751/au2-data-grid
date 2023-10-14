@@ -2379,21 +2379,31 @@ describe('data-grid', function () {
   }
 
   {
+
+    @customElement({ name: 'n-t', template: '<span>${value}</span>' })
+    class NT {
+      @bindable public value: unknown;
+    }
+
+    @customElement({ name: 'v-t', template: '<strong>${value}</strong>' })
+    class VT {
+      @bindable public value: unknown;
+    }
     @customElement({
-      name: 'my-app',
+      name: 'pe-ep',
       template: `<data-grid model.bind="content">
         <grid-column>
-          <header><value-text value="First name"></value-text></header>
-          <normal-text value.bind="item.firstName"></normal-text>
+          <header><v-t value="First name"></v-t></header>
+          <n-t value.bind="item.firstName"></n-t>
         </grid-column>
         <grid-column>
-          <header><value-text value="Last name"></value-text></header>
-          <normal-text value.bind="item.lastName"></normal-text>
+          <header><v-t value="Last name"></v-t></header>
+          <n-t value.bind="item.lastName"></n-t>
         </grid-column>
       </data-grid>`,
-      dependencies: [NormalText, ValueText]
+      dependencies: [NT, VT]
     })
-    class App implements ICustomElementViewModel {
+    class PeopleList implements ICustomElementViewModel {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
@@ -2414,8 +2424,17 @@ describe('data-grid', function () {
       }
     }
 
+    @customElement({
+      name: 'my-app',
+      template: '<pe-ep></pe-ep>',
+      dependencies: [PeopleList]
+    })
+    class App implements ICustomElementViewModel {
+
+    }
+
     ($it as $$It<App>)('respects the locally registered dependencies of parent components',
-      function ({ app, host }) {
+      function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         assert.isNotNull(grid);
 
@@ -2424,19 +2443,22 @@ describe('data-grid', function () {
         const headers = getHeaders(grid);
         assert.strictEqual(headers.length, 2);
         assert.deepStrictEqual(
-          headers.map(header => getText(header.querySelector('div>span>value-text'))),
+          headers.map(header => getText(header.querySelector('div>span>v-t'))),
           ['First name', 'Last name']
         );
 
         const content = getContentRows(grid);
         assert.strictEqual(content.length, 2);
         assert.deepStrictEqual(
-          content.map(c => Array.from(c.querySelectorAll('normal-text')).map((el) => getText(el))),
-          app.people.map(p => [p.firstName, p.lastName])
+          content.map(c => Array.from(c.querySelectorAll('n-t')).map((el) => getText(el))),
+          [
+            ['Byomkesh', 'Bakshi'],
+            ['Pradosh C.', 'Mitra'],
+          ]
         );
         gridVm.exportState();
         assert.isUndefined(gridVm.state);
       },
-      { component: App as CustomElementType<Constructable<App>> });
+      { component: App as CustomElementType<Constructable<App>>, registrations: [NT, VT] });
   }
 });
