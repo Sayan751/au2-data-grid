@@ -2377,4 +2377,66 @@ describe('data-grid', function () {
       },
       { component: App as CustomElementType<Constructable<App>> });
   }
+
+  {
+    @customElement({
+      name: 'my-app',
+      template: `<data-grid model.bind="content">
+        <grid-column>
+          <header><value-text value="First name"></value-text></header>
+          <normal-text value.bind="item.firstName"></normal-text>
+        </grid-column>
+        <grid-column>
+          <header><value-text value="Last name"></value-text></header>
+          <normal-text value.bind="item.lastName"></normal-text>
+        </grid-column>
+      </data-grid>`,
+      dependencies: [NormalText, ValueText]
+    })
+    class App implements ICustomElementViewModel {
+      public readonly people: Person[];
+      public readonly content: ContentModel<Person>;
+
+      public constructor(
+        @ILogger logger: ILogger,
+      ) {
+        logger = logger.scopeTo('App');
+        this.content = new ContentModel(
+          this.people = [
+            new Person('Byomkesh', 'Bakshi'),
+            new Person('Pradosh C.', 'Mitra'),
+          ],
+          null,
+          null,
+          null,
+          logger,
+        );
+      }
+    }
+
+    ($it as $$It<App>)('respects the locally registered dependencies of parent components',
+      function ({ app, host }) {
+        const grid = host.querySelector<HTMLElement>('data-grid')!;
+        assert.isNotNull(grid);
+
+        const gridVm = CustomElement.for(grid).viewModel as DataGrid;
+
+        const headers = getHeaders(grid);
+        assert.strictEqual(headers.length, 2);
+        assert.deepStrictEqual(
+          headers.map(header => getText(header.querySelector('div>span>value-text'))),
+          ['First name', 'Last name']
+        );
+
+        const content = getContentRows(grid);
+        assert.strictEqual(content.length, 2);
+        assert.deepStrictEqual(
+          content.map(c => Array.from(c.querySelectorAll('normal-text')).map((el) => getText(el))),
+          app.people.map(p => [p.firstName, p.lastName])
+        );
+        gridVm.exportState();
+        assert.isUndefined(gridVm.state);
+      },
+      { component: App as CustomElementType<Constructable<App>> });
+  }
 });

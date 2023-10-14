@@ -1,6 +1,5 @@
 import {
   Constructable,
-  IContainer,
   ILogger,
 } from '@aurelia/kernel';
 import {
@@ -93,14 +92,13 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
 
   public constructor(
     @INode private readonly node: HTMLElement,
-    @IContainer private readonly container: IContainer,
     @ISignaler private readonly signaler: ISignaler,
     @ILogger logger: ILogger,
   ) {
     this.logger = logger.scopeTo('DataGrid');
   }
 
-  public define(_controller: IDryCustomElementController, _hydrationContext: IHydrationContext | null, _definition: CustomElementDefinition): void {
+  public define(_controller: IDryCustomElementController, hydrationContext: IHydrationContext | null, definition: CustomElementDefinition): void {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const instanceIdStr = this.node.dataset.instanceId!;
     const instanceId = Number(instanceIdStr);
@@ -111,7 +109,13 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     if (state === undefined) throw new Error(`Cannot find the model for the instance #${instanceIdStr}`);
 
     this.stateModel = state;
-    state.createViewFactories(this.container);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const container = hydrationContext!
+      .controller
+      .container
+      .createChild({ inheritParentResources: true })
+      .register(definition.dependencies);
+      state.createViewFactories(container);
     this.node.style.setProperty('--num-columns', state.columns.length.toString());
   }
 

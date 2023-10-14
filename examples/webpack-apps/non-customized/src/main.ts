@@ -8,7 +8,6 @@ import { NormalText } from './custom-elements/normal-text/normal-text';
 import { ValueText } from './custom-elements/value-text/value-text';
 import './styles.css';
 import { PersonCard } from './views/list-with-backend-service/person-card';
-import { FormatList } from './views/list-with-backend-service/list-with-backend-service';
 
 (async function () {
   const host = document.querySelector<HTMLElement>('app')!;
@@ -29,7 +28,6 @@ import { FormatList } from './views/list-with-backend-service/list-with-backend-
       NormalText,
       ValueText,
       PersonCard,
-      FormatList, // TODO: make it work without registering it globally
     );
   au.app({ host, component });
 
