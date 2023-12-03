@@ -117,6 +117,6 @@ import './app.css';
 
 See this example in action below.
 
-<iframe src="https://stackblitz.com/edit/au2-data-grid-getting-started?embed=1&file=src%2Fmy-app.ts"></iframe>
+<iframe src="https://stackblitz.com/edit/au2-data-grid-getting-started?ctl=1&embed=1&file=src%2Fmy-app.ts" width="600px" height="400px"></iframe>
 
 ## Content model
