@@ -36,6 +36,9 @@
     "type": "git",
     "url": "https://github.com/Sayan751/au2-data-grid"
   },
+  "files": [
+    "dist/**/*.*"
+  ],
   "devDependencies": {
     "@aurelia/testing": "dev",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
