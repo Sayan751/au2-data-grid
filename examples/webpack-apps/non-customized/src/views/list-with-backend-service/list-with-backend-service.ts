@@ -1,7 +1,7 @@
 import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger, IPlatform } from '@aurelia/kernel';
 import { customElement, ICustomElementViewModel, valueConverter } from '@aurelia/runtime-html';
-import { ContentModel, SelectionMode, SortDirection, ExportableGridState } from 'au2-data-grid';
+import { ContentModel, SelectionMode, SortDirection, ExportableGridState } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
 import { PersonCardDialog } from './person-card-dialog';

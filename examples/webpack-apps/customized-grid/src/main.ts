@@ -2,7 +2,7 @@ import { DialogDefaultConfiguration } from '@aurelia/dialog';
 import { ConsoleSink, LoggerConfiguration, LogLevel } from '@aurelia/kernel';
 import { RouterConfiguration } from '@aurelia/router-lite';
 import { Aurelia, CustomElement, StandardConfiguration } from '@aurelia/runtime-html';
-import { DataGrid, DataGridConfiguration, GridContent, GridHeader, GridHeaders } from 'au2-data-grid';
+import { DataGrid, DataGridConfiguration, GridContent, GridHeader, GridHeaders } from '@sparser/au2-data-grid';
 import { AppRoot as component } from './app-root';
 import { NormalText } from './custom-elements/normal-text/normal-text';
 import { ValueText } from './custom-elements/value-text/value-text';

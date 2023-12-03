@@ -1,6 +1,6 @@
 import { ILogger } from '@aurelia/kernel';
 import { bindable, customElement, valueConverter } from '@aurelia/runtime-html';
-import { ContentModel } from 'au2-data-grid';
+import { ContentModel } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './person-card.html';
 

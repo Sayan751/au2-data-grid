@@ -1,4 +1,4 @@
-# au2-data-grid
+# @sparser/au2-data-grid
 
 > The development for this project is still in progress. Thus the following documentation can change in future.
 

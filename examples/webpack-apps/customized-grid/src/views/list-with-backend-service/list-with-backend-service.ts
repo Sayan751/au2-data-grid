@@ -3,7 +3,7 @@ import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger } from '@aurelia/kernel';
 import { observable } from '@aurelia/runtime';
 import { customElement, valueConverter } from '@aurelia/runtime-html';
-import { ContentModel, SelectionMode, SortDirection } from 'au2-data-grid';
+import { ContentModel, SelectionMode, SortDirection } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
 import { PersonCardDialog } from './person-card-dialog';

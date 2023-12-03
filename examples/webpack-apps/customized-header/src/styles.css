@@ -1,4 +1,4 @@
-@import 'au2-data-grid/dist/styles.css';
+@import '@sparser/au2-data-grid/dist/styles.css';
 @import '~@fortawesome/fontawesome-free/css/all.min.css';
 
 :root {

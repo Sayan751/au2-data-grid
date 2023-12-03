@@ -1,6 +1,6 @@
 {
-  "name": "au2-data-grid",
-  "version": "1.0.0",
+  "name": "@sparser/au2-data-grid",
+  "version": "1.0.0-alpha.1",
   "description": "",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
