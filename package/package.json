@@ -1,10 +1,11 @@
 {
   "name": "@sparser/au2-data-grid",
-  "version": "1.0.0-alpha.1",
-  "description": "",
+  "version": "1.0.0-alpha.2",
+  "description": "A data grid for Aurelia 2",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "typings": "./dist/types/index.d.ts",
+  "sideEffects": false,
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
@@ -23,9 +24,18 @@
     "pretest": "rimraf ./tests/.karma-webpack/* --glob",
     "test": "karma start ./tests/karma.conf.cjs"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "aurelia2",
+    "data-grid"
+  ],
+  "author": {
+    "name": "Sayan751"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sayan751/au2-data-grid"
+  },
   "devDependencies": {
     "@aurelia/testing": "dev",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
