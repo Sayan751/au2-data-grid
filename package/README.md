@@ -115,8 +115,6 @@ import './app.css';
 })().catch(console.error);
 ```
 
-See this example in action below.
-
-<iframe src="https://stackblitz.com/edit/au2-data-grid-getting-started?ctl=1&embed=1&file=src%2Fmy-app.ts" width="600px" height="400px"></iframe>
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-getting-started?file=src%2Fmy-app.ts).
 
 ## Content model
