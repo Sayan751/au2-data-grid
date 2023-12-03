@@ -1,6 +1,6 @@
 {
   "name": "non-customized",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "",
   "private": true,
   "scripts": {
@@ -17,10 +17,10 @@
     "@aurelia/runtime": "dev",
     "@aurelia/runtime-html": "dev",
     "@aurelia/router-lite": "dev",
-    "@sparser/au2-data-grid": "1.0.0-alpha.2",
+    "@sparser/au2-data-grid": "1.0.0-alpha.3",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
-    "fake-service": "1.0.0-alpha.2",
+    "fake-service": "1.0.0-alpha.3",
     "ts-loader": "^9.5.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.3",
