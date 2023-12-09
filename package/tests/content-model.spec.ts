@@ -84,7 +84,7 @@ describe('content-model', function () {
       spy.isCalledWith('fetchPage', [[1, pageSize ?? 50, sut]]);
       spy.isCalledWith('fetchCount', [[sut]]);
 
-      sut.setCurrentPageNumber(3);
+      sut.goToPage(3);
       assert.deepStrictEqual(sut.currentPage, [{ a: 3, b: pageSize ?? 50 }], 'currentPage');
       spy.isCalled('fetchPage', 2);
       spy.isCalled('fetchCount', 2);
@@ -132,7 +132,7 @@ describe('content-model', function () {
       spy.isCalledWith('fetchPage', [[1, pageSize ?? 50, sut]]);
       spy.isCalledWith('fetchCount', [[sut]]);
 
-      sut.setCurrentPageNumber(3);
+      sut.goToPage(3);
       await sut.wait();
       assert.strictEqual(sut.currentPageNumber, 3, 'currentPageNumber');
       assert.deepStrictEqual(sut.currentPage, [{ a: 3 }], 'currentPage');
@@ -171,7 +171,7 @@ describe('content-model', function () {
       assert.strictEqual(sut.currentPageNumber, 1);
       assert.strictEqual(sut.pageCount, length / pageSize);
 
-      sut.setCurrentPageNumber(2);
+      sut.goToPage(2);
       assert.strictEqual(sut.currentPageNumber, 2, 'currentPageNumber');
       assert.deepStrictEqual(sut.currentPage, allItems.slice(pageSize, pageSize * 2));
       assert.strictEqual(sut.currentPageNumber, 2);
@@ -241,7 +241,7 @@ describe('content-model', function () {
     spy.isCalledWith('fetchCount', [[sut]]);
     assert.isUndefined(sut.pageCount);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     await sut.wait();
     assert.strictEqual(sut.currentPageNumber, 3, 'currentPageNumber');
     spy.isCalled('fetchPage', 2);
@@ -735,7 +735,7 @@ describe('content-model', function () {
       assert.strictEqual(sut.selectionCount, 0);
       spy.isCalled('onSelectionChange', 0);
 
-      sut.setCurrentPageNumber(2);
+      sut.goToPage(2);
       sut.selectItem(item);
       assert.strictEqual(sut.selectionCount, 1);
       spy.isCalledWith('onSelectionChange', [[[item], true, true]]);
@@ -766,7 +766,7 @@ describe('content-model', function () {
       assert.isFalse(sut.isAnySelected);
       spy.isCalled('onSelectionChange', 0);
 
-      sut.setCurrentPageNumber(2);
+      sut.goToPage(2);
       sut.selectItem(item);
       assert.strictEqual(sut.selectionCount, 1);
       spy.isCalledWith('onSelectionChange', [[[item], true, true]]);
@@ -791,18 +791,18 @@ describe('content-model', function () {
     );
     void sut.refresh();
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Descending });
     assert.strictEqual(sut.currentPageNumber, 1);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
@@ -840,18 +840,18 @@ describe('content-model', function () {
     );
     void sut.refresh();
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Descending });
     assert.strictEqual(sut.currentPageNumber, 1);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
@@ -884,13 +884,13 @@ describe('content-model', function () {
     );
     void sut.refresh();
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
     assert.strictEqual(sut.currentPageNumber, 1);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
@@ -918,20 +918,20 @@ describe('content-model', function () {
     );
     void sut.refresh();
     assert.strictEqual(sut.currentPageNumber, 1);
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'foo', direction: SortDirection.Ascending });
     assert.strictEqual(sut.currentPageNumber, 1);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
 
     sut.applySorting({ property: 'bar', direction: SortDirection.Descending });
     assert.strictEqual(sut.currentPageNumber, 1);
   });
 
-  it('ignores subsequent setCurrentPageNumber requests for the same page number when either the page or the count promise is pending', async function () {
+  it('ignores subsequent goToPage requests for the same page number when either the page or the count promise is pending', async function () {
     let resolvePage: (_: unknown[]) => void = undefined!;
     let resolveCount: (_: number) => void = undefined!;
     let pageNumber: number = 0;
@@ -964,7 +964,7 @@ describe('content-model', function () {
     spy.isCalled('fetchPage', 1);
 
     spy.clearCallRecords();
-    sut.setCurrentPageNumber(1);
+    sut.goToPage(1);
     assert.isUndefined(sut.currentPage);
     assert.isUndefined(sut.totalCount);
     spy.isCalled('fetchCount', 0);
@@ -976,7 +976,7 @@ describe('content-model', function () {
     assert.strictEqual(sut.currentPage, page);
     assert.isUndefined(sut.totalCount);
 
-    sut.setCurrentPageNumber(1);
+    sut.goToPage(1);
     assert.isDefined(sut.currentPage);
     assert.isUndefined(sut.totalCount);
     spy.isCalled('fetchCount', 0);
@@ -987,12 +987,12 @@ describe('content-model', function () {
     await sut['countPromise'];
     assert.strictEqual(sut.totalCount, count);
 
-    sut.setCurrentPageNumber(3);
+    sut.goToPage(3);
     assert.strictEqual(sut.currentPageNumber, 3);
     assert.strictEqual(sut.currentPage, page);
     assert.strictEqual(sut.totalCount, count);
 
-    sut.setCurrentPageNumber(4);
+    sut.goToPage(4);
     assert.strictEqual(sut.currentPageNumber, 4);
     assert.strictEqual(sut.currentPage, page);
     assert.strictEqual(sut.totalCount, count);
@@ -1065,7 +1065,7 @@ describe('content-model', function () {
     assert.strictEqual(sut.currentPageNumber, 1);
     spy.isCalled('warn', 0);
 
-    sut.setCurrentPageNumber(5);
+    sut.goToPage(5);
     assert.strictEqual(sut.currentPageNumber, 5);
 
     sut.goToNextPage();
@@ -1091,7 +1091,7 @@ describe('content-model', function () {
     assert.strictEqual(sut.currentPageNumber, 1);
     spy.isCalled('warn', 0);
 
-    sut.setCurrentPageNumber(5);
+    sut.goToPage(5);
     assert.strictEqual(sut.currentPageNumber, 5);
 
     sut.goToNextPage();

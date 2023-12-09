@@ -157,10 +157,10 @@ export class ContentModel<T> {
     const oldValue = this._sortOptions;
     const newValue = this._sortOptions = sortOptions;
     this.onSorting?.(newValue, oldValue, this.allItems, this);
-    this.setCurrentPageNumber(1, true);
+    this.goToPage(1, true);
   }
 
-  public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
+  public goToPage(pageNumber: number, force: boolean = false): void {
     if (!this.initialized) return;
     const oldNumber = this._currentPageNumber;
     if (oldNumber === pageNumber
@@ -182,7 +182,7 @@ export class ContentModel<T> {
       this.logger.warn('Cannot go to previous page; already on the first page.');
       return;
     }
-    this.setCurrentPageNumber(pageNumber - 1);
+    this.goToPage(pageNumber - 1);
   }
 
   public goToNextPage(): void {
@@ -191,7 +191,7 @@ export class ContentModel<T> {
       this.logger.warn('Cannot go to next page; already on the last page.');
       return;
     }
-    this.setCurrentPageNumber(pageNumber + 1);
+    this.goToPage(pageNumber + 1);
   }
 
   /** @internal */
@@ -276,12 +276,12 @@ export class ContentModel<T> {
   }
 
   public async refresh(rethrowError: boolean = false): Promise<void> {
-    this.setCurrentPageNumber(1, true);
+    this.goToPage(1, true);
     return this.wait(rethrowError);
   }
 
   private allItemsChanged(): void {
-    this.setCurrentPageNumber(1, true);
+    this.goToPage(1, true);
   }
 }
 

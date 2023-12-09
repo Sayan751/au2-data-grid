@@ -455,7 +455,7 @@ describe('data-grid', function () {
           'change2'
         );
 
-        content.setCurrentPageNumber(10);
+        content.goToPage(10);
         await content.wait();
         await queue.yield();
         assert.deepStrictEqual(
