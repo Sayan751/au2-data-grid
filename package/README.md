@@ -181,4 +181,10 @@ To navigate to the previous page, use `goToPreviousPage()` method.
 model.goToPreviousPage();
 ```
 
-To see example of navigating to the next and/or previous page, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service?file=src%2Fmy-app.ts).
+To navigate to a specific page, use `goToPage()` method.
+
+```typescript
+model.goToPage(3);
+```
+
+To see example of navigating between pages, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service?file=src%2Fmy-app.ts).
