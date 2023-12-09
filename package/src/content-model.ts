@@ -161,7 +161,6 @@ export class ContentModel<T> {
   }
 
   public setCurrentPageNumber(pageNumber: number, force: boolean = false): void {
-    // console.log('setCurrentPageNumber');
     if (!this.initialized) return;
     const oldNumber = this._currentPageNumber;
     if (oldNumber === pageNumber
