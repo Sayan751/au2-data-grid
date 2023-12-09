@@ -37,6 +37,7 @@
     "url": "https://github.com/Sayan751/au2-data-grid"
   },
   "files": [
+    "src/**/*.*",
     "dist/**/!(.tsbuildinfo)"
   ],
   "devDependencies": {
