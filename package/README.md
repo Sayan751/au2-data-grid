@@ -202,6 +202,28 @@ this.people = new ContentModel<Person>(
 
 See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-without-paging?file=src%2Fmy-app.ts).
 
+## Page a static list
+
+The [getting started example](#getting-started), showed how to use a static list of objects.
+However, the example did not show how to page the static list.
+This can be done by setting the `pageSize` in the paging options of the content model.
+
+An example looks as follows.
+
+```typescript
+this.people = new ContentModel<Person>(
+  /** allItems */ data,
+  /** pagingOptions    */ {
+    pageSize: 5, // <-- page size
+  },
+  /** selectionOptions */ null,
+  /** onSorting        */ null,
+  /** logger           */ logger
+);
+```
+
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-static-list-and-paging?file=src%2Fmy-app.ts).
+
 ## Content model API
 
 ### Navigate between pages
