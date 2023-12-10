@@ -121,8 +121,12 @@ See this example in action in this [StackBlitz demo](https://stackblitz.com/edit
 
 The previous example dealt with a static list of objects.
 However, it is often the case, that the data, shown in the grid, is fetched from a backend service.
-The integration with a backend service is supported by configuring the content model for paging.
+The integration with a backend service is supported by configuring the paging options for the content model.
+Note that it is possible to integrate with a backend service with and without paging.
 
+### With paging
+
+Let us first see how to integrate with a backend service with paging, as it is probably the most common scenario.
 To this end, we can modify the previous example, as follows:
 
 ```typescript
@@ -161,9 +165,42 @@ This information is used to calculate the total number of pages.
 
 These callbacks are useful when dealing with paged data-grids.
 
-See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service?file=src%2Fmy-app.ts).
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-paging?file=src%2Fmy-app.ts).
 
 > If you are wondering about the backend service in the example, the data is fetched from a JSON file, via webpack-dev-server middleware.
+
+### Without paging
+
+If you do not want use paging, then you can set the `pageSize` to `null` in the paging options of the content model.
+In this case as well, the `fetchPage` callback is used to fetch the data from the backend service.
+
+An example looks as follows.
+
+```typescript
+this.people = new ContentModel<Person>(
+  /** allItems */ null,
+  /** pagingOptions    */ {
+    pageSize: null, // <-- no paging
+    async fetchPage(
+      _currentPage: number,
+      _pageSize: number,
+      _model: ContentModel<Person>
+    ) {
+      const res = await fetch(`/people`);
+      return await res.json();
+    },
+    async fetchCount() {
+      const response = await fetch(`/people/count`);
+      return response.json();
+    },
+  },
+  /** selectionOptions */ null,
+  /** onSorting        */ null,
+  /** logger           */ logger
+);
+```
+
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-without-paging?file=src%2Fmy-app.ts).
 
 ## Content model API
 
@@ -187,4 +224,4 @@ To navigate to a specific page, use `goToPage()` method.
 model.goToPage(3);
 ```
 
-To see example of navigating between pages, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service?file=src%2Fmy-app.ts).
+To see example of navigating between pages, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-paging?file=src%2Fmy-app.ts).
