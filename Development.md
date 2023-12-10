@@ -5,6 +5,6 @@
   - `npm ci`
   - `npm run build`
   - `npm run test`
-- Commit the changes with the message `chore: bump version to <version>`.
+- Commit the changes with the message `chore: bump version to v<version>`.
 - Tag the commit with the version number. Example, `git tag v1.0.0-alpha.1 -m v1.0.0-alpha.1`.
 - Push the commit and the tag to GitHub. Example, `git push origin main --tags`.
