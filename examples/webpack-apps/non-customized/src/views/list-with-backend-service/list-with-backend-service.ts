@@ -1,7 +1,7 @@
 import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger, IPlatform } from '@aurelia/kernel';
 import { customElement, ICustomElementViewModel, valueConverter } from '@aurelia/runtime-html';
-import { ContentModel, SelectionMode, SortDirection, ExportableGridState } from '@sparser/au2-data-grid';
+import { ContentModel, ItemSelectionMode, SortDirection, ExportableGridState } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
 import { PersonCardDialog } from './person-card-dialog';
@@ -44,7 +44,7 @@ export class ListWithBackendService implements ICustomElementViewModel {
   private readonly logger: ILogger;
   private fetchFailed: boolean = false;
   @observable({ callback: 'createContentModel' })
-  private selectionMode: SelectionMode;
+  private selectionMode: ItemSelectionMode;
   private persistState!: boolean;
   @observable private state?: ExportableGridState = void 0;
 
@@ -55,7 +55,7 @@ export class ListWithBackendService implements ICustomElementViewModel {
     @ILogger logger: ILogger,
   ) {
     this.logger = logger.scopeTo('list-with-backend-service');
-    this.selectionMode = SelectionMode.Single;
+    this.selectionMode = ItemSelectionMode.Single;
   }
 
   public binding() {

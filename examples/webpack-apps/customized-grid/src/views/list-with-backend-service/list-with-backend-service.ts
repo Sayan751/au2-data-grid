@@ -3,7 +3,7 @@ import { IHttpClient } from '@aurelia/fetch-client';
 import { ILogger } from '@aurelia/kernel';
 import { observable } from '@aurelia/runtime';
 import { customElement, valueConverter } from '@aurelia/runtime-html';
-import { ContentModel, SelectionMode, SortDirection } from '@sparser/au2-data-grid';
+import { ContentModel, ItemSelectionMode, SortDirection } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
 import template from './list-with-backend-service.html';
 import { PersonCardDialog } from './person-card-dialog';
@@ -43,7 +43,7 @@ export class ListWithBackendService {
   private readonly logger: ILogger;
   private fetchFailed: boolean = false;
   @observable({ callback: 'createContentModel' })
-  private selectionMode: SelectionMode;
+  private selectionMode: ItemSelectionMode;
 
   public constructor(
     @IHttpClient private readonly httpClient: IHttpClient,
@@ -51,7 +51,7 @@ export class ListWithBackendService {
     @ILogger logger: ILogger,
   ) {
     this.logger = logger.scopeTo('list-with-backend-service');
-    this.selectionMode = SelectionMode.Single;
+    this.selectionMode = ItemSelectionMode.Single;
   }
   private createContentModel() {
     const httpClient = this.httpClient;

@@ -1,5 +1,7 @@
 # @sparser/au2-data-grid
 
+> This documentation is still a work in progress.
+
 This is a data-grid that can be used in [Aurelia2](https://github.com/aurelia/aurelia) applications.
 The grids can be defined completely in markup which gives you the freedom of using your own awesome Aurelia2 custom elements, instead of writing a tons of configuration code.
 

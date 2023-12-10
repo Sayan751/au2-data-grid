@@ -1,7 +1,7 @@
 import { ILogger } from '@aurelia/kernel';
 import { observable } from '@aurelia/runtime';
 import { customElement, ICustomElementViewModel } from '@aurelia/runtime-html';
-import { ContentModel, SelectionMode, SortDirection, SortOption } from '@sparser/au2-data-grid';
+import { ContentModel, ItemSelectionMode, SortDirection, SortOption } from '@sparser/au2-data-grid';
 import { Person } from '../../common/Person';
 import template from './static-list.html';
 
@@ -10,7 +10,7 @@ export class StaticList implements ICustomElementViewModel {
   private logger: ILogger;
   private people!: ContentModel<Person>;
   @observable({ callback: 'createContentModel' })
-  private selectionMode: SelectionMode;
+  private selectionMode: ItemSelectionMode;
 
   private static readonly ds1 = [
     new Person('Bruce', 'Wayne', 42),
@@ -28,7 +28,7 @@ export class StaticList implements ICustomElementViewModel {
     @ILogger logger: ILogger,
   ) {
     this.logger = logger.scopeTo('static-list');
-    this.selectionMode = SelectionMode.Single;
+    this.selectionMode = ItemSelectionMode.Single;
     this.createContentModel();
   }
 

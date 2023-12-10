@@ -7,7 +7,7 @@ export {
 } from './configuration.js';
 export {
   ContentModel,
-  ItemSelectionMode as SelectionMode,
+  ItemSelectionMode,
   SelectionOptions,
 } from './content-model.js';
 export {
