@@ -226,6 +226,50 @@ this.people = new ContentModel<Person>(
 
 See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-static-list-and-paging?file=src%2Fmy-app.ts).
 
+## Selection
+
+The selection options of the content model can be configured to support selection of items.
+
+An example looks as follows.
+
+```typescript
+import { ContentModel, ItemSelectionMode } from '@sparser/au2-data-grid';
+
+// code omitted for brevity
+
+this.people = new ContentModel<Person>(
+  /** allItems */ data,
+  /** pagingOptions    */ null,
+  /** selectionOptions */ {
+    mode: ItemSelectionMode.single,
+    onSelectionChange(
+      selectedPeople: Person[],
+      isOneSelected: boolean,
+      isAnySelected: boolean
+    ) {
+      console.log(
+        `isOneSelected: ${isOneSelected} | isAnySelected: ${isAnySelected}`
+      );
+      for (const person of selectedPeople) {
+        console.log(person.toString());
+      }
+    },
+  },
+  /** onSorting        */ null,
+  /** logger           */ logger
+);
+```
+
+Note that you need to configure the `mode` of the selection options to either `ItemSelectionMode.single` or `ItemSelectionMode.multiple`, as per your need.
+The `onSelectionChange` callback is invoked whenever the selection changes.
+
+The items can be selected by clicking on the row.
+When the `mode` is set to `ItemSelectionMode.multiple`, then multiple items can be selected by <kbd>Ctrl + Click</kbd> (individual items) or <kbd>Shift + Click</kbd> (range of items).
+
+If the mode is configured to `ItemSelectionMode.none`, then the selection of items is disabled.
+
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-selection?file=src%2Fmy-app.ts).
+
 ## Content model API
 
 ### Navigate between pages
