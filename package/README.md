@@ -270,6 +270,107 @@ If the mode is configured to `ItemSelectionMode.none`, then the selection of ite
 
 See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-selection?file=src%2Fmy-app.ts).
 
+## Sorting
+
+To sort data, one need to firstly mark the columns as sortable.
+To that end, the `property` attribute of the `grid-column` element needs to be set.
+This marks the columns as sortable; that is column header can be clicked to sort the data.
+
+```html
+<data-grid model.bind="people">
+  <grid-column property="fname"> <!-- the grid is configured to be sorted by first name -->
+    <header>
+      <strong>First name</strong>
+    </header>
+    <span>\${item.fname}</span>
+  </grid-column>
+  <grid-column>                  <!-- the grid is configured not to be sorted bz the last name -->
+    <header>
+      <strong>Last name</strong>
+    </header>
+    <span>\${item.lname}</span>
+  </grid-column>
+  <grid-column property="age">    <!-- the grid is configured to be sorted by age -->
+    <header>
+      <strong>Age</strong>
+    </header>
+    <span>\${item.age}</span>
+  </grid-column>
+</data-grid>
+```
+
+Secondly, the `onSorting` option of the content model needs to be configured.
+It takes a callback that is invoked whenever the sorting changes.
+The method signature is as follows.
+
+```typescript
+function (
+  newValue: SortOption<T>[],
+  oldValue: SortOption<T>[],
+  allItems: T[] | null,
+  model: ContentModel<T>
+):void;
+```
+
+The `newValue` and `oldValue` are the new and old sort options respectively.
+A `SortOption` is consists of a `property` and a `direction`.
+The `property` comes from the `property` attribute of the `grid-column` element.
+The `direction` can be either `Ascending` or `Descending`.
+
+The `allItems` is the list of all items in the content model, when the content model is backed by a static list.
+In that case, the `allItems` can be directly sorted.
+When the content model is backed by a backend service, then the `allItems` is `null`, and appropriate action needs to be taken to sort the data.
+
+The `model` is the content model itself.
+
+Note that the data-grid does not provide any way to sort the data out-of-the-box.
+Rather, the responsibility is delegated to the consumer of the data-grid.
+One must leverage the `onSorting` callback to sort the data, depending on whether the data is static or backed by a backend service.
+
+### Examples
+Here is couple of concrete examples related to sorting.
+
+- [Grid backed by static list](https://stackblitz.com/edit/au2-data-grid-with-static-list-and-sorting?file=src%2Fmy-app.ts)
+- [Grid backed by backend service](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-sorting?file=src%2Fmy-app.ts)
+
+### Default sorting
+
+If you have visited the preceding examples, you might have noticed that the grid is not sorted by default.
+To load sorted data in the grid, one must use the `sort-direction` attribute of the `grid-column` element.
+There are two possible values for the `sort-direction` attribute: `Ascending` and `Descending`.
+An example looks as follows.
+
+```html
+<data-grid model.bind="people">
+  <grid-column property="fname" sort-direction="Descending">
+    <header>
+      <strong>First name</strong>
+    </header>
+    <span>\${item.fname}</span>
+  </grid-column>
+  <grid-column>
+    <header>
+      <strong>Last name</strong>
+    </header>
+    <span>\${item.lname}</span>
+  </grid-column>
+  <grid-column property="age"  sort-direction="Ascending">
+    <header>
+      <strong>Age</strong>
+    </header>
+    <span>\${item.age}</span>
+  </grid-column>
+</data-grid>
+```
+
+In this example, the grid is configured to be sorted by the first name in descending order, and by age in ascending order, by default.
+e are assuming here that a capable `onSorting` callback is configured for the content model.
+
+**Examples:**
+
+- [Grid backed by static list](https://stackblitz.com/edit/au2-data-grid-with-static-list-and-default-sorting?file=src%2Fmy-app.ts)
+- [Grid backed by backend service](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-default-sorting?file=src%2Fmy-app.ts)
+
 ## Content model API
 
 ### Navigate between pages
