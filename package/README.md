@@ -371,6 +371,16 @@ e are assuming here that a capable `onSorting` callback is configured for the co
 - [Grid backed by static list](https://stackblitz.com/edit/au2-data-grid-with-static-list-and-default-sorting?file=src%2Fmy-app.ts)
 - [Grid backed by backend service](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-default-sorting?file=src%2Fmy-app.ts)
 
+## Column reordering
+
+The columns of the grid can be reordered by dragging the column headers and dropping them at the desired position (left/right of other columns).
+For this to work, you don't need to configure anything else.
+
+You can try to reorder the columns in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-getting-started?file=src%2Fmy-app.ts) from the [getting started section](#getting-started).
+
+Note that the column reordering happens without re-rendering the grid completely.
+Thus, when the list is backed by a backend service, the reordering of columns does not trigger a new request to the backend service.
+
 ## Content model API
 
 ### Navigate between pages
