@@ -4,6 +4,7 @@
   --col-gap: 1rem;
   --row-gap: calc(var(--col-gap)/2);
   --selected-row-bg: #999;
+  --handle-color: #333;
 }
 
 .container {
