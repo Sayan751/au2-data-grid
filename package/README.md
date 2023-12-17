@@ -525,6 +525,46 @@ export class MyApp {
 
 This example can be seen in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-state?file=src%2Fmy-app.ts).
 
+## Customization
+
+This package provides a minimal CSS to style the grid.
+In a real application, such minimal CSS might not be sufficient or may not match the existing styles and/or theme of the application.
+To support such cases, this package provides a way to register custom implementations.
+
+There are two custom elements provided by this package out of the box, namely `data-grid` and `grid-header`.
+It is possible to register custom implementations and/or markup for these custom elements.
+
+> If you want to customize the out of the box custom elements, it is assumed that you are familiar with Aurelia 2 custom elements.
+
+To this end, you can use the `customize` method of the `DataGridConfiguration`.
+An example looks as follows.
+
+```typescript
+import {
+  Aurelia,
+  CustomElement,
+  StandardConfiguration,
+} from '@aurelia/runtime-html';
+import { DataGridConfiguration, GridHeader, DataGrid } from '@sparser/au2-data-grid';
+
+const au = new Aurelia();
+au.register(
+  StandardConfiguration,
+  DataGridConfiguration.customize((opt) => {
+    opt.header = CustomElement.define(
+      { name: 'grid-header', template: `CUSTOM_TEMPLATE` },
+      GridHeader // <- this is the place to plug your custom implementation
+    );
+    opt.grid = // <-- register custom definition for the data-grid custom element
+  })
+);
+```
+
+**Examples**
+
+- [Custom grid header](https://stackblitz.com/edit/au2-data-grid-custom-header?file=src%2Fmain.ts): Customization of sort marker icon in the grid header.
+- [Custom data grid](https://stackblitz.com/edit/au2-data-grid-custom-grid?file=src%2Fmain.ts): Customization of the data grid with a row separator.
+
 ## Content model API
 
 ### Navigate between pages
@@ -548,3 +588,18 @@ model.goToPage(3);
 ```
 
 To see example of navigating between pages, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-paging?file=src%2Fmy-app.ts).
+
+## CSS variables used
+
+This section lists the CSS variables used while styling the grid.
+If you are overriding the CSS, then these information might be useful.
+
+| CSS variable name | Description |Default value|
+|-------------------|-------------|-------------|
+|`--resize-handle-width`|The width of the resize handle, the `svg` element used to mark the end of a column, and can be dragged to resize the column.|`7px`|
+|`--resize-handle-height`|The height of the resize handle.|`15px`|
+|`--handle-color`|The color of the resize handle.|`#333`|
+|`--col-gap`|The gap between columns in the grid.|`1rem`|
+|`--row-gap`|The gap between rows in the grid.|The half of the `col-gap`|
+|`--selected-row-bg`|The background color of the selected rows.|`#999`|
+|`--num-columns`|The number of columns in the grid; used to determine the column templates in the grid. |set programmatically on runtime|
