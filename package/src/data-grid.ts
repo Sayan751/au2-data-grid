@@ -64,7 +64,7 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   /**
    * Any bound state is read only once in the binding stage.
    * Any 'incoming' changes from the consumer side thereafter is disregarded.
-   * Post-binding phase this property is treated as a write-only property to provide the consumer side with any changes in the exportable grid state.
+   * In the post-binding phase this property is treated as a write-only property to provide the consumer side with any changes in the exportable grid state.
    */
   @bindable
   public state?: ExportableGridState = void 0;

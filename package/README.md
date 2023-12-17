@@ -381,6 +381,42 @@ You can try to reorder the columns in this [StackBlitz demo](https://stackblitz.
 Note that the column reordering happens without re-rendering the grid completely.
 Thus, when the list is backed by a backend service, the reordering of columns does not trigger a new request to the backend service.
 
+## Invoke action on row click
+
+The grid supports invoking an action when a row is clicked.
+To this end, bind the `item-clicked` delegate of the `data-grid` custom element to a method in your view-model.
+The method signature is as follows.
+
+```typescript
+function (data: { item: unknown, index: number }): void;
+```
+
+The `item` is the item that was clicked, and the `index` is the index of the item in the list.
+
+When the `item-clicked` delegate is bound, the delegate is invoked whenever a row is clicked when the selection mode is set to `ItemSelectionMode.None`, or a row is double clicked when the selection mode is set to `ItemSelectionMode.Single` or `ItemSelectionMode.Multiple`.
+
+An example looks as follows.
+
+```html
+<data-grid model.bind item-clicked.bind>
+  <!-- code omitted for brevity -->
+</data-grid>
+```
+
+```typescript
+import { bound } from '@aurelia/kernel';
+
+export class MyApp {
+  // code omitted for brevity
+  @bound
+  private itemClicked({ item, index }: { item: Person; index: number }): void {
+    console.log(`#${index + 1} item clicked: ${item.toString()}`);
+  }
+}
+```
+
+See the example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-item-clicked-delegate?file=src%2Fmy-app.ts).
+
 ## Content model API
 
 ### Navigate between pages
