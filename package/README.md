@@ -460,6 +460,71 @@ See this example in action in this [StackBlitz demo](https://stackblitz.com/edit
 
 ## Grid state
 
+The grid has a bindable `state` property.
+It can be used to persist and apply the state of the grid.
+The state of the grid consists of the following information.
+
+- The order of the columns in the grid.
+- The name of the property for the column that is used to sort the data, and the direction of the sort.
+- If the column is re-sizeable.
+- The width of the column.
+
+The contract of the `state` property is as follows.
+
+```typescript
+interface ExportableGridState {
+  columns: ExportableColumnState[];
+}
+
+interface ExportableColumnState {
+  readonly id: string;
+  readonly property: string | null;
+  readonly isResizable: boolean;
+  widthPx: string | null;
+  direction: SortDirection | null;
+}
+```
+
+When the `state` property is not bound, these information are collected from markup (how the `data-grid` is used).
+Any changes done to the grid by the end user are persisted in the `state` property.
+
+Note that the column state includes an `id` property.
+The usage of `id` attribute for a `grid-column` element is optional.
+If the `id` attribute is not specified, then the `property` attribute is used as the `id`.
+If none of the `id` and `property` attributes are specified, then the grid state is considered to be non exportable.
+In other words, the grid state can only be exported when the `id` or `property` attribute is specified for all the `grid-column` elements.
+
+Persisting and applying the grid state is useful when one wants to persist the preferences (order of the column, default sorting etc.) of the end user for a grid.
+
+A simplistic example can look as follows.
+
+```html
+<data-grid model.bind state.two-way>
+  <!-- code omitted for brevity -->
+</data-grid>
+```
+
+```typescript
+export class MyApp {
+  private static readonly storageKey = 'fe95a996-e588-4c3d-ac77-d73d478c4c19';
+
+  @observable
+  private state: ExportableGridState;
+
+  public constructor() {
+    // restore the state from the persistance store
+    this.state = JSON.parse(localStorage.getItem(MyApp.storageKey));
+  }
+
+  private stateChanged() {
+    // persist the state in the persistance store
+    localStorage.setItem(MyApp.storageKey, JSON.stringify(this.state));
+  }
+}
+```
+
+This example can be seen in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-state?file=src%2Fmy-app.ts).
+
 ## Content model API
 
 ### Navigate between pages
