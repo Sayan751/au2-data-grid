@@ -417,6 +417,49 @@ export class MyApp {
 
 See the example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-item-clicked-delegate?file=src%2Fmy-app.ts).
 
+## Hidden columns
+
+The columns of a data-grid can be hidden by binding the `hidden-columns` property of the `data-grid` custom element to an array of column names.
+An example looks as follows.
+
+```html
+<data-grid model.bind="people" hidden-columns.bind="['age', 'hidden']">
+  <grid-column>
+    <header>
+      <strong>First name</strong>
+    </header>
+    <span>\${item.fname}</span>
+  </grid-column>
+  <grid-column>
+    <header>
+      <strong>Last name</strong>
+    </header>
+    <span>\${item.lname}</span>
+  </grid-column>
+  <grid-column property="age">
+    <header>
+      <strong>Age</strong>
+    </header>
+    <span>\${item.age}</span>
+  </grid-column>
+  <grid-column id="hidden">
+    <header>
+      <strong>Hidden</strong>
+    </header>
+    <span>This should not be visible</span>
+  </grid-column>
+</data-grid>
+```
+
+In this example, the `age` and `hidden` columns are hidden.
+The values in the `hidden-columns` array are the `id` or `property` values of the `grid-column` elements.
+
+> For more information on the `id` and `property` attributes refer the [state documentation](#grid-state).
+
+See this example in action in this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-hidden-columns?file=src%2Fmy-app.ts).
+
+## Grid state
+
 ## Content model API
 
 ### Navigate between pages
