@@ -14,6 +14,11 @@ Moreover, the following features are also supported:
 - Columns can be reordered, without essentially rerendering the grid completely.
 - Columns can be resized (also without rerendering the grid).
 
+## Examples
+
+To explore the features of the data-grid on your own, you can check out this [collection of examples](https://stackblitz.com/@Sayan751/collections/sparser-au2-data-grid).
+Note that these examples are used in this documentations as well.
+
 ## Installation
 
 ```shell
@@ -567,7 +572,36 @@ au.register(
 
 ## Content model API
 
-### Navigate between pages
+This section describes the useful methods and properties of the `ContentModel` class.
+
+### Constructor
+
+The constructor of the `ContentModel` class takes the following arguments.
+
+```typescript
+constructor(
+  allItems: T[] | null,
+  pagingOptions: PagingOptions<T> | null,
+  selectionOptions: SelectionOptions<T> | null,
+  onSorting: OnSorting<T> | null,
+  logger: ILogger
+)
+```
+
+The `allItems` is the list of all items in the content model, when the content model is backed by a static list.
+To back the content model, and thereby the grid, with a backend service, the `allItems` can be set to `null`.
+In that case, the `fetchPage` callback of the `pagingOptions` is used to fetch the data from the backend service.
+Note that either one of those two options must be set.
+If both are set, then the `allItems` is used; that is the grid is considered to be backed by a static list.
+
+### Paging
+
+The following properties provides paging related information.
+
+- `currentPage`: The collection of items in the current page of the grid.
+- `totalCount`: The total number of items in the grid. When the grid is backed by a backend service, this information is fetched using the `fetchCount` callback of the `pagingOptions`. Otherwise, this is the length of the `allItems` array.
+- `pageCount`: The total number of pages in the grid.
+- `currentPageNumber`: The current page number.
 
 To navigate to the next page, use `goToNextPage()` method.
 
@@ -588,6 +622,85 @@ model.goToPage(3);
 ```
 
 To see example of navigating between pages, see this [StackBlitz demo](https://stackblitz.com/edit/au2-data-grid-with-backend-service-and-paging?file=src%2Fmy-app.ts).
+
+### Waiting for backend service
+
+When the grid is backed by a backend service, the `fetchPage` and `fetchCount` callback is expected to be asynchronous.
+The content model exposes a `wait` method to wait for the promises returned by these callbacks to settle.
+An example looks as follows.
+
+```typescript
+await model.wait();
+```
+
+Based on your error handling strategy, you can use `await model.wait(true)` to throw an error when any of those promises are rejected.
+
+### Refreshing data
+
+To refresh the data in the grid, use the `refresh()` method.
+
+```typescript
+await model.refresh();
+```
+
+This sets the page number to `1` and causes the grid to display the first page of data.
+When backed by a backend service, this method causes the `fetchPage` and `fetchCount` callbacks to be invoked.
+
+### Selection
+
+The following readonly properties provides selection related information.
+
+- `selectedItems`: The list of selected items in the grid.
+- `isOneSelected`: `true` if exactly one item is selected; `false` otherwise.
+- `isAnySelected`: `true` if at least one item is selected; `false` otherwise.
+- `selectionCount`: The number of selected items in the grid.
+- `selectionMode`: The selection mode of the grid (`ItemSelectionMode.None`, `ItemSelectionMode.Single`, or `ItemSelectionMode.Multiple`)
+
+To select a single item in the grid, use the `selectItem()` method.
+
+```typescript
+model.selectItem(item);
+```
+
+To select a range of items in the grid, use the `selectRange()` method.
+
+```typescript
+// selects the first 5 items in the current page of the grid
+model.selectRange(0, 4);
+```
+
+To toggle the selection of an item in the grid, use the `toggleSelection()` method.
+
+```typescript
+model.toggleSelection(item);
+```
+
+To clear all of the selected items in the grid, use the `clearSelections()` method.
+
+```typescript
+model.clearSelections();
+```
+
+To detect if an item is selected, use the `isSelected()` method.
+
+```typescript
+model.isSelected(item);
+```
+
+### Sorting
+
+To apply sorting, use the `applySorting()` method.
+
+```typescript
+model.applySorting(
+  { property: 'fname', direction: SortDirection.Ascending },
+  { property: 'age', direction: SortDirection.Descending }
+);
+```
+
+This method invokes the `onSorting` callback with the new and old sort options, and sets the page number to 1.
+Note that the content model does not provide any way to sort the data out-of-the-box.
+It needs to be done by the consumer of the content model using the `onSorting` callback and/or the `fetchPage` callback.
 
 ## CSS variables used
 
