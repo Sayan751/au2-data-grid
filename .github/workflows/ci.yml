@@ -8,6 +8,16 @@ on:
     branches: [ main ]
 
 jobs:
+  event_file:
+    name: "Event File"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
+
   build:
     runs-on: ubuntu-latest
 
@@ -28,12 +38,20 @@ jobs:
       - name: test package
         run: npm test
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      - name: Upload Test Results
         if: always()
+        uses: actions/upload-artifact@v3
         with:
-          files: |
+          name: Test Results
+          path: |
             package/tests/.artifacts/results.xml
+
+      # - name: Publish Test Results
+      #   uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      #   if: always()
+      #   with:
+      #     files: |
+      #       package/tests/.artifacts/results.xml
 
       # publish to npm
       - name: publish to npm
