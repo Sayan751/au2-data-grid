@@ -1,6 +1,6 @@
 # @sparser/au2-data-grid
 
-> The development for this project is still in progress. Thus the following documentation can change in future.
+[Documentation](./package/README.md)
 
 This repository contains a data-grid implementation based on Aurelia2 and CSS grid. The highlight of this implementation is that the grid can be defined completely in markup which gives you the freedom of using your own awesome Aurelia2 custom elements. An example usage looks something like below.
 
