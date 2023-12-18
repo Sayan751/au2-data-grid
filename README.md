@@ -1,5 +1,10 @@
 # @sparser/au2-data-grid
 
+
+[![npm version](https://img.shields.io/npm/v/@sparser/au2-data-grid)](https://www.npmjs.com/package/@sparser/au2-data-grid)
+[![npm download](https://img.shields.io/npm/dt/@sparser/au2-data-grid?label=npm%20download)](https://www.npmjs.com/package/@sparser/au2-data-grid)
+![build status](https://github.com/Sayan751/au2-data-grid/workflows/build/badge.svg)
+
 [Documentation](./package/README.md)
 
 This repository contains a data-grid implementation based on Aurelia2 and CSS grid. The highlight of this implementation is that the grid can be defined completely in markup which gives you the freedom of using your own awesome Aurelia2 custom elements. An example usage looks something like below.
