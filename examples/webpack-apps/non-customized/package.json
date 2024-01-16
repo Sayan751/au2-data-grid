@@ -19,7 +19,7 @@
     "@aurelia/router-lite": "dev",
     "@sparser/au2-data-grid": "1.0.0-rc.1",
     "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^6.8.1",
+    "css-loader": "^6.9.0",
     "fake-service": "1.0.0-rc.1",
     "ts-loader": "^9.5.1",
     "html-loader": "^4.2.0",
