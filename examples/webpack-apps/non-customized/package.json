@@ -22,7 +22,7 @@
     "css-loader": "^6.9.0",
     "fake-service": "1.0.0-rc.1",
     "ts-loader": "^9.5.1",
-    "html-loader": "^4.2.0",
+    "html-loader": "^5.0.0",
     "html-webpack-plugin": "^5.5.3",
     "style-loader": "^3.3.4",
     "webpack": "^5.89.0",
