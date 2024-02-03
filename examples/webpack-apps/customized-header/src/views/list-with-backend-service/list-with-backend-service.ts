@@ -1,6 +1,6 @@
 import { IDialogService } from '@aurelia/dialog';
 import { IHttpClient } from '@aurelia/fetch-client';
-import { ILogger } from '@aurelia/kernel';
+import { ILogger, resolve } from '@aurelia/kernel';
 import { observable } from '@aurelia/runtime';
 import { customElement, valueConverter } from '@aurelia/runtime-html';
 import { ContentModel, ItemSelectionMode, SortDirection } from '@sparser/au2-data-grid';
@@ -40,19 +40,13 @@ const directionMap = {
 export class ListWithBackendService {
 
   private people!: ContentModel<FakePerson>;
-  private readonly logger: ILogger;
+  private readonly httpClient: IHttpClient = resolve(IHttpClient);
+  private readonly dialogService: IDialogService = resolve(IDialogService);
+  private readonly logger: ILogger = resolve(ILogger).scopeTo('list-with-backend-service');
   private fetchFailed: boolean = false;
   @observable({ callback: 'createContentModel' })
-  private selectionMode: ItemSelectionMode;
+  private selectionMode: ItemSelectionMode = ItemSelectionMode.Single;
 
-  public constructor(
-    @IHttpClient private readonly httpClient: IHttpClient,
-    @IDialogService private readonly dialogService: IDialogService,
-    @ILogger logger: ILogger,
-  ) {
-    this.logger = logger.scopeTo('list-with-backend-service');
-    this.selectionMode = ItemSelectionMode.Single;
-  }
   private createContentModel() {
     const httpClient = this.httpClient;
     const handleError = (e: Error): never => { this.fetchFailed = true; throw e; }

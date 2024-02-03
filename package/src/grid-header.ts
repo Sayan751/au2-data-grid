@@ -1,3 +1,4 @@
+import { resolve } from '@aurelia/kernel';
 import {
   bindable,
   BindingMode,
@@ -27,10 +28,8 @@ export class GridHeader implements ICustomElementViewModel {
   private readonly content!: HTMLElement;
   private readonly sortingMarker?: HTMLElement;
 
-  public constructor(
-    @INode private readonly node: HTMLElement,
-    @IPlatform private readonly platform: IPlatform,
-  ) { }
+  private readonly node: HTMLElement = resolve(INode) as HTMLElement;
+  private readonly platform: IPlatform = resolve(IPlatform);
 
   public get isSortable(): boolean {
     return this.state.sortable;

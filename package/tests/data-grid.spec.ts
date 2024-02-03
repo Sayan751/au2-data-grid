@@ -2,6 +2,7 @@ import {
   Constructable,
   ILogger,
   Registration,
+  resolve,
 } from '@aurelia/kernel';
 import {
   TaskQueue,
@@ -136,10 +137,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -148,7 +146,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -198,10 +196,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -210,7 +205,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -259,10 +254,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -271,7 +263,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -320,10 +312,7 @@ describe('data-grid', function () {
     class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -332,7 +321,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -396,10 +385,7 @@ describe('data-grid', function () {
     class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         const content = this.content = new ContentModel(
           null,
           {
@@ -411,7 +397,7 @@ describe('data-grid', function () {
           },
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
         void content.refresh();
       }
@@ -488,10 +474,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -500,7 +483,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -540,10 +523,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -552,7 +532,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -590,10 +570,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -602,7 +579,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -645,10 +622,7 @@ describe('data-grid', function () {
       public readonly content: ContentModel<Person>;
       public readonly clickLog: [Person, number][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -657,7 +631,7 @@ describe('data-grid', function () {
           null,
           selectionOptions,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
 
@@ -706,10 +680,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -718,7 +689,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -756,10 +727,7 @@ describe('data-grid', function () {
       public readonly clickLog: [Person, number][] = [];
       public readonly selectionLog: [items: Person[], isOneSelected: boolean, isAnySelected: boolean][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -773,7 +741,7 @@ describe('data-grid', function () {
             }
           },
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
 
@@ -890,10 +858,7 @@ describe('data-grid', function () {
       public readonly clickLog: [Person, number][] = [];
       public readonly selectionLog: [items: Person[], isOneSelected: boolean, isAnySelected: boolean][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -910,7 +875,7 @@ describe('data-grid', function () {
             }
           },
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
 
@@ -1271,10 +1236,7 @@ describe('data-grid', function () {
       public readonly clickLog: [Person, number][] = [];
       public readonly selectionLog: [items: Person[], isOneSelected: boolean, isAnySelected: boolean][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -1288,7 +1250,7 @@ describe('data-grid', function () {
             }
           },
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
 
@@ -1332,10 +1294,7 @@ describe('data-grid', function () {
       public readonly content: ContentModel<Person>;
       public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -1365,7 +1324,7 @@ describe('data-grid', function () {
               });
             }
           },
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -1529,10 +1488,7 @@ describe('data-grid', function () {
       public readonly content: ContentModel<Person>;
       public readonly sortOptions: [newOptions: SortOption<Person>[], oldOptions: SortOption<Person>[]][] = [];
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -1562,7 +1518,7 @@ describe('data-grid', function () {
               });
             }
           },
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -1622,10 +1578,7 @@ describe('data-grid', function () {
     class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Data>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel<Data>(
           [
             new Data(11, 12, 13, 14, 15),
@@ -1635,7 +1588,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -1874,10 +1827,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -1889,7 +1839,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -1967,10 +1917,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -1982,7 +1929,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -2061,10 +2008,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -2076,7 +2020,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -2112,10 +2056,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -2127,7 +2068,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -2172,10 +2113,7 @@ describe('data-grid', function () {
       public readonly content: ContentModel<Person>;
       public state: ExportableGridState;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -2185,7 +2123,7 @@ describe('data-grid', function () {
           null,
           null,
           () => { /** noop */ },
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
         this.state = {
           columns: [
@@ -2341,10 +2279,7 @@ describe('data-grid', function () {
     class App implements ICustomElementViewModel {
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           [
             new Person('Byomkesh', 'Bakshi', 42),
@@ -2354,7 +2289,7 @@ describe('data-grid', function () {
           null,
           null,
           () => { /** noop */ },
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }
@@ -2407,10 +2342,7 @@ describe('data-grid', function () {
       public readonly people: Person[];
       public readonly content: ContentModel<Person>;
 
-      public constructor(
-        @ILogger logger: ILogger,
-      ) {
-        logger = logger.scopeTo('App');
+      public constructor() {
         this.content = new ContentModel(
           this.people = [
             new Person('Byomkesh', 'Bakshi'),
@@ -2419,7 +2351,7 @@ describe('data-grid', function () {
           null,
           null,
           null,
-          logger,
+          resolve(ILogger).scopeTo('App'),
         );
       }
     }

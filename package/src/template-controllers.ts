@@ -1,6 +1,7 @@
 import {
   onResolve,
   onResolveAll,
+  resolve,
 } from '@aurelia/kernel';
 import {
   BindingContext,
@@ -33,6 +34,7 @@ import {
  */
 @templateController('grid-headers')
 export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSubscriber {
+  private readonly location: IRenderLocation = resolve(IRenderLocation);
   public readonly $controller!: ICustomAttributeController<this>; // This is set by the controller after this instance is constructed
 
   @bindable
@@ -47,10 +49,6 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
   private _indexMap: Map<number, number> = new Map<number, number>();
 
   public get indexMap(): Map<number, number> { return this._indexMap; }
-
-  public constructor(
-    @IRenderLocation private readonly location: IRenderLocation,
-  ) { }
 
   public attaching(
     initiator: IHydratedController,
@@ -123,6 +121,7 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
  */
 @templateController('grid-content')
 export class GridContent implements ICustomAttributeViewModel {
+  private readonly location: IRenderLocation = resolve(IRenderLocation);
 
   @bindable
   public item: unknown;
@@ -138,10 +137,6 @@ export class GridContent implements ICustomAttributeViewModel {
    * Key: original column-index; Value: view-index
    */
   private _indexMap: Map<number, number> = new Map<number, number>();
-
-  public constructor(
-    @IRenderLocation private readonly location: IRenderLocation,
-  ) { }
 
   public attaching(
     initiator: IHydratedController,

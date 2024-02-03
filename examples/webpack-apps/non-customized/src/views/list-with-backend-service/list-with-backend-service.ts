@@ -1,5 +1,5 @@
 import { IHttpClient } from '@aurelia/fetch-client';
-import { ILogger, IPlatform } from '@aurelia/kernel';
+import { ILogger, IPlatform, resolve } from '@aurelia/kernel';
 import { customElement, ICustomElementViewModel, valueConverter } from '@aurelia/runtime-html';
 import { ContentModel, ItemSelectionMode, SortDirection, ExportableGridState } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
@@ -40,23 +40,16 @@ const directionMap = {
 })
 export class ListWithBackendService implements ICustomElementViewModel {
 
+  private readonly httpClient: IHttpClient = resolve(IHttpClient);
+  private readonly dialogService: IDialogService = resolve(IDialogService);
+  private readonly platform: IPlatform = resolve(IPlatform);
+  private readonly logger: ILogger = resolve(ILogger).scopeTo('list-with-backend-service');
   private people!: ContentModel<FakePerson>;
-  private readonly logger: ILogger;
   private fetchFailed: boolean = false;
   @observable({ callback: 'createContentModel' })
-  private selectionMode: ItemSelectionMode;
+  private selectionMode: ItemSelectionMode = ItemSelectionMode.Single;
   private persistState!: boolean;
   @observable private state?: ExportableGridState = void 0;
-
-  public constructor(
-    @IHttpClient private readonly httpClient: IHttpClient,
-    @IDialogService private readonly dialogService: IDialogService,
-    @IPlatform private readonly platform: IPlatform,
-    @ILogger logger: ILogger,
-  ) {
-    this.logger = logger.scopeTo('list-with-backend-service');
-    this.selectionMode = ItemSelectionMode.Single;
-  }
 
   public binding() {
     const state = this.platform.globalThis.localStorage.getItem(stateKey);

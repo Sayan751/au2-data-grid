@@ -1,6 +1,7 @@
 import {
   Constructable,
   ILogger,
+  resolve,
 } from '@aurelia/kernel';
 import {
   ISignaler,
@@ -12,7 +13,6 @@ import {
   CustomElementType,
   ICustomElementController,
   ICustomElementViewModel,
-  IDryCustomElementController,
   IHydrationContext,
   INode,
   IPlatform,
@@ -86,20 +86,15 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
   private stateModel!: IGridStateModel;
   public readonly $controller?: ICustomElementController<this>; // This is set by the controller after this instance is constructed
   private readonly containerEl!: HTMLElement;
-  private readonly logger: ILogger;
   private lastClickedRow: number | null = null;
   private selectionUpdateSignal: string = '';
+  private readonly hydrationContext: IHydrationContext = resolve(IHydrationContext);
 
-  public constructor(
-    @INode private readonly node: HTMLElement,
-    @ISignaler private readonly signaler: ISignaler,
-    @ILogger logger: ILogger,
-  ) {
-    this.logger = logger.scopeTo('DataGrid');
-  }
+  private readonly node: HTMLElement = resolve(INode) as HTMLElement;
+  private readonly signaler: ISignaler = resolve(ISignaler);
+  private readonly logger: ILogger = resolve(ILogger).scopeTo('DataGrid');
 
-  public define(_controller: IDryCustomElementController, hydrationContext: IHydrationContext | null, definition: CustomElementDefinition): void {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  public created(controller: ICustomElementController<this>): void {
     const instanceIdStr = this.node.dataset.instanceId!;
     const instanceId = Number(instanceIdStr);
     if (!Number.isInteger(instanceId)) throw new Error(`Invalid data grid instanceId: ${instanceIdStr}; expected integer.`);
@@ -109,13 +104,12 @@ export class DataGrid implements ICustomElementViewModel, GridStateChangeSubscri
     if (state === undefined) throw new Error(`Cannot find the model for the instance #${instanceIdStr}`);
 
     this.stateModel = state;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const container = hydrationContext!
+    const container = this.hydrationContext
       .controller
       .container
       .createChild({ inheritParentResources: true })
-      .register(definition.dependencies);
-      state.createViewFactories(container);
+      .register(controller.definition.dependencies);
+    state.createViewFactories(container);
     this.node.style.setProperty('--num-columns', state.columns.length.toString());
   }
 

@@ -2,6 +2,7 @@ import { IDialogController, IDialogDom } from '@aurelia/dialog';
 import { customElement } from '@aurelia/runtime-html';
 import { FakePerson } from './data-contracts';
 import template from './person-card-dialog.html';
+import { resolve } from '@aurelia/kernel';
 
 @customElement({
   name: 'person-card-dialog',
@@ -10,10 +11,9 @@ import template from './person-card-dialog.html';
 export class PersonCardDialog {
   public person!: FakePerson;
 
-  public constructor(
-    @IDialogController private readonly controller: IDialogController,
-    @IDialogDom dialogDom: IDialogDom,
-  ) {
+  private readonly controller: IDialogController = resolve(IDialogController);
+  public constructor() {
+    const dialogDom: IDialogDom = resolve(IDialogDom);
     dialogDom.overlay.classList.add('dialog-overlay');
     dialogDom.contentHost.classList.add('dialog');
   }

@@ -1,4 +1,4 @@
-import { ILogger } from '@aurelia/kernel';
+import { ILogger, resolve } from '@aurelia/kernel';
 import { bindable, customElement, valueConverter } from '@aurelia/runtime-html';
 import { ContentModel } from '@sparser/au2-data-grid';
 import { FakePerson } from './data-contracts';
@@ -24,15 +24,9 @@ class FormatName {
   ]
 })
 export class PersonCard {
-  private readonly logger: ILogger;
+  private readonly logger: ILogger = resolve(ILogger).scopeTo('person-card');
   @bindable public person!: FakePerson;
   public pets!: ContentModel<string>;
-
-  public constructor(
-    @ILogger logger: ILogger
-  ) {
-    this.logger = logger.scopeTo('person-card');
-  }
 
   public bound() {
     this.pets = new ContentModel(this.person.pets, null, null, null, this.logger);
