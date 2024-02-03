@@ -24,14 +24,6 @@ export class StaticList implements ICustomElementViewModel {
     new Person('Bruce', 'Banner', 43),
   ];
 
-  // public constructor(
-  //   @ILogger logger: ILogger,
-  // ) {
-  //   this.logger = logger.scopeTo('static-list');
-  //   this.selectionMode = ItemSelectionMode.Single;
-  //   this.createContentModel();
-  // }
-
   public useDataset1() {
     this.people.allItems = StaticList.ds1;
   }
