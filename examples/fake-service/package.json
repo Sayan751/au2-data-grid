@@ -14,6 +14,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.11.25",
-    "@ngneat/falso": "^7.1.1"
+    "@ngneat/falso": "^7.2.0"
   }
 }
