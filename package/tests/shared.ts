@@ -19,7 +19,7 @@ export interface $TestContext<TApp extends ICustomElementViewModel> {
   platform: IPlatform;
 }
 export interface TestSetupContext<TApp extends ICustomElementViewModel> {
-  component: CustomElementType<Constructable<TApp>>;
+  component: Constructable<TApp>;
 }
 export type TestFunction<
   TApp extends ICustomElementViewModel,

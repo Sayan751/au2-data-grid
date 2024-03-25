@@ -79,7 +79,6 @@ export class GridHeader implements ICustomElementViewModel {
 
   private handleDragStart(event: DragEvent): boolean {
     const id = this.state.id;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const dt = event.dataTransfer!;
     dt.setData('text/plain', id);
     dt.setDragImage(this.content, 10, 10);
@@ -120,7 +119,6 @@ export class GridHeader implements ICustomElementViewModel {
       for (let i = 0; i < len; i++) {
         const column = columns[i];
         if (column.hidden || column.widthPx !== null) continue;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         column.widthPx = `${column.headerElement!.getBoundingClientRect().width}px`;
       }
       this.state.parent.handleChange(ChangeType.Width);

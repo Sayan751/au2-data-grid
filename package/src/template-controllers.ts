@@ -62,7 +62,6 @@ export class GridHeaders implements ICustomAttributeViewModel, GridStateChangeSu
     let len = 0;
     const headers = this.headers = columns.reduce((acc, column, i) => {
       if (column.hidden) return acc;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       acc.push(column.headerViewFactory!.create(initiator).setLocation(location));
       indexMap.set(i, len++);
       return acc;
@@ -161,7 +160,6 @@ export class GridContent implements ICustomAttributeViewModel {
     const activationPromises = new Array<void | Promise<void>>(len);
     let i = 0;
     for (const [key,] of indexMap) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const cell = cells[i++] = columns[key].contentViewFactory!.create(initiator).setLocation(location);
       activationPromises[i] = cell.activate(initiator, parent, Scope.create(new BindingContext('item', item)));
     }
@@ -216,9 +214,7 @@ function handleReordering(
   const fromIdx = changeData.fromIndex;
   let toIdx = changeData.toIndex;
   const dropLocation = changeData.location;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const fromNodes = views[indexMap.get(fromIdx)!].nodes;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const toNodes = views[indexMap.get(toIdx)!].nodes;
 
   // link the next node with the previous node

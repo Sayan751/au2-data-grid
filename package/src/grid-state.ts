@@ -17,7 +17,6 @@ export interface ExportableGridState {
 export interface IGridState {
   export(): ExportableGridState;
 }
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IGridStateModel extends GridStateModel { }
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateModel');
@@ -110,9 +109,7 @@ export class GridStateModel implements IGridState {
     const column = this.columns.find(c => c.direction !== null);
     if (column == null) return null;
     return this._activeSortOptions = {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       property: column.property!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       direction: column.direction!,
     };
   }
@@ -170,7 +167,6 @@ export class GridStateModel implements IGridState {
       case ChangeType.Sort: {
         const oldSortOptions = this._activeSortOptions;
         const oldProperty = oldSortOptions?.property;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const newProperty = (columnOrId as Column).property!;
         if (oldProperty !== newProperty) {
           // this is needed so that change to the old sort column can be propagated to the view.
@@ -178,7 +174,6 @@ export class GridStateModel implements IGridState {
             .find(c => c.property === oldProperty)
             ?.setDirection(null, false);
         }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const newSortOptions = this._activeSortOptions = { property: newProperty, direction: (columnOrId as Column).direction! };
         this.notifySubscribers(type, newSortOptions, oldSortOptions);
         return;

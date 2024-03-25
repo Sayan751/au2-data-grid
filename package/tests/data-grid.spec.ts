@@ -88,7 +88,7 @@ describe('data-grid', function () {
     doc.body.appendChild(host);
     const au = new Aurelia(container);
     await au
-      .app({ component, host })
+      .app({ component: component!, host })
       .start();
     await platform.taskQueue.yield();
 

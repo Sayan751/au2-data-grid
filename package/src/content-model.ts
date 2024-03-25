@@ -37,10 +37,8 @@ export class ContentModel<T> {
   private _currentPageNumber: number = 0;
   private pagePromise: Promise<void> | null = null;
   private countPromise: Promise<void> | null = null;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   private _totalCount: number = undefined!;
   private _sortOptions: SortOption<T>[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   private _pageCount: number = undefined!;
   private initialized: boolean = false;
 
@@ -64,7 +62,6 @@ export class ContentModel<T> {
     this.pageSize = isPagingDisabled ? null : (pageSize ?? defaultPageSize);
 
     if (isPagingDisabled && hasAllItems) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this._currentPage = allItems!;
       this._totalCount = allItems.length;
     }
@@ -247,9 +244,7 @@ export class ContentModel<T> {
     }
 
     // one of fetchPage or allItems should always be there.
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const fetchPage = this.fetchPage!;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const pagePromise = fetchPage(pageNumber, pageSize!, this);
     if (pagePromise instanceof Promise) {
       const promise = this.pagePromise = pagePromise
