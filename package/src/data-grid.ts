@@ -4,9 +4,6 @@ import {
   resolve,
 } from '@aurelia/kernel';
 import {
-  ISignaler,
-} from '@aurelia/runtime';
-import {
   bindable,
   CustomElement,
   CustomElementDefinition,
@@ -17,6 +14,7 @@ import {
   INode,
   IPlatform,
   BindingMode,
+  ISignaler,
 } from '@aurelia/runtime-html';
 import {
   ContentModel,

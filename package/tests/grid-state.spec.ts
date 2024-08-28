@@ -140,10 +140,10 @@ describe('grid state', function () {
     const contentVf = col.contentViewFactory;
     assert.instanceOf(headerVf, ViewFactory);
     assert.instanceOf(contentVf, ViewFactory);
-    assert.strictEqual(headerVf?.def, header);
-    assert.strictEqual(contentVf?.def, content);
-    assert.strictEqual(headerVf?.container, container);
-    assert.strictEqual(contentVf?.container, container);
+    assert.strictEqual((headerVf as ViewFactory).def, header);
+    assert.strictEqual((contentVf as ViewFactory).def, content);
+    assert.strictEqual((headerVf as ViewFactory).container, container);
+    assert.strictEqual((contentVf as ViewFactory).container, container);
 
     const child = container.createChild();
     col.createViewFactories(child);

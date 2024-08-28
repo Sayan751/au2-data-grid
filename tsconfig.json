@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "ES2018",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Node10",
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,

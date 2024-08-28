@@ -4,10 +4,6 @@ import {
   resolve,
 } from '@aurelia/kernel';
 import {
-  BindingContext,
-  Scope,
-} from '@aurelia/runtime';
-import {
   bindable,
   ICustomAttributeController,
   ICustomAttributeViewModel,
@@ -16,6 +12,8 @@ import {
   IRenderLocation,
   ISyntheticView,
   templateController,
+  BindingContext,
+  Scope,
 } from '@aurelia/runtime-html';
 import {
   ChangeType,

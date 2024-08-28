@@ -64,6 +64,7 @@ import {
 
 describe('data-grid', function () {
   interface TestSetupContext<TApp extends ICustomElementViewModel> extends $TestSetupContext<TApp> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     registrations: any[];
   }
   async function runTest<TApp extends ICustomElementViewModel>(
@@ -78,7 +79,6 @@ describe('data-grid', function () {
     const container = ctx.container;
     container.register(
       Registration.instance(IPlatform, platform),
-      StandardConfiguration,
       DataGridConfiguration,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       ...registrations,
