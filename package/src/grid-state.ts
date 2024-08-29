@@ -17,6 +17,7 @@ export interface ExportableGridState {
 export interface IGridState {
   export(): ExportableGridState;
 }
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IGridStateModel extends GridStateModel { }
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const IGridStateModel = DI.createInterface<IGridStateModel>('IGridStateModel');

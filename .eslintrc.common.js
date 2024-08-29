@@ -12,6 +12,7 @@ function configureEslint(tsConfigPath) {
       '@typescript-eslint',
       'import',
       'jsdoc',
+      '@stylistic/ts'
     ],
     parserOptions: {
       project: tsConfigPath,
@@ -26,7 +27,6 @@ function configureEslint(tsConfigPath) {
       'plugin:eslint-comments/recommended',
     ],
     rules: {
-      'semi': 'off',
       'no-shadow': 'off',
       'quotes': ['warn', 'single'],
       'object-shorthand': 'error',
@@ -36,8 +36,9 @@ function configureEslint(tsConfigPath) {
       'eslint-comments/no-unused-disable': 'error',
       'eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }],
 
-      '@typescript-eslint/semi': ['error'],
-      '@typescript-eslint/member-delimiter-style': ['error'],
+      '@stylistic/ts/semi': ['error'],
+      '@stylistic/ts/member-delimiter-style': ['error'],
+
       '@typescript-eslint/explicit-member-accessibility': ['error'],
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', {
