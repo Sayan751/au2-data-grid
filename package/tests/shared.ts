@@ -1,5 +1,5 @@
 import { Constructable, IContainer } from '@aurelia/kernel';
-import { CustomElementType, ICustomElementViewModel, IPlatform } from '@aurelia/runtime-html';
+import { ICustomElementViewModel, IPlatform } from '@aurelia/runtime-html';
 import { TestContext } from '@aurelia/testing';
 
 /* eslint-disable mocha/no-exports, jsdoc/require-jsdoc, mocha/no-exclusive-tests, mocha/no-skipped-tests */

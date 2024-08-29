@@ -18,7 +18,6 @@ import {
   CustomElementType,
   ICustomElementViewModel,
   IPlatform,
-  StandardConfiguration,
 } from '@aurelia/runtime-html';
 import {
   TestContext,
