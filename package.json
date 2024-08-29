@@ -1,6 +1,6 @@
 {
   "name": "aurelia2-data-grid-monorepo",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "description": "",
   "scripts": {
     "build": "npm run build -ws",

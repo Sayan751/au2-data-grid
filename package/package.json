@@ -1,6 +1,6 @@
 {
   "name": "@sparser/au2-data-grid",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "description": "A data grid for Aurelia 2",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
