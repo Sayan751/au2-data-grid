@@ -1,4 +1,4 @@
-@import '@sparser/au2-data-grid/dist/styles.css';
+@import '@sparser/au2-data-grid/style';
 
 :root {
   --gap: 1rem;

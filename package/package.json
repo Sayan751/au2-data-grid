@@ -2,10 +2,18 @@
   "name": "@sparser/au2-data-grid",
   "version": "1.0.0-rc.3",
   "description": "A data grid for Aurelia 2",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "typings": "./dist/types/index.d.ts",
-  "sideEffects": false,
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./style": {
+      "default": "./dist/styles.css"
+    }
+  },
+  "sideEffects": [
+    "*.css"
+  ],
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
