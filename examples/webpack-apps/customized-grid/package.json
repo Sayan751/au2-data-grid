@@ -1,6 +1,6 @@
 {
   "name": "customized-grid",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.5",
   "description": "",
   "private": true,
   "scripts": {
@@ -18,10 +18,10 @@
     "@aurelia/runtime-html": "^2.0.0-beta.22",
     "@aurelia/router-lite": "^2.0.0-beta.22",
     "@fortawesome/fontawesome-free": "^6.6.0",
-    "@sparser/au2-data-grid": "1.0.0-rc.4",
+    "@sparser/au2-data-grid": "1.0.0-rc.5",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
-    "fake-service": "1.0.0-rc.4",
+    "fake-service": "1.0.0-rc.5",
     "ts-loader": "^9.5.1",
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.0",
