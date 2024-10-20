@@ -18,14 +18,14 @@
     "examples/webpack-apps/customized-grid"
   ],
   "devDependencies": {
-    "@stylistic/eslint-plugin-ts": "^2.7.1",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
+    "@stylistic/eslint-plugin-ts": "^2.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.10.0",
     "eslint": "^8.57.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-jsdoc": "^50.2.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsdoc": "^50.4.3",
     "eslint-plugin-mocha": "^10.4.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.3"
   }
 }

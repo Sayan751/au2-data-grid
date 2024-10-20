@@ -53,9 +53,9 @@ export class GridHeader implements ICustomElementViewModel {
       const state = this.state;
       const parent = state.parent;
       const widthPx = state.widthPx;
-      if (!widthPx?.endsWith('px') ?? false) return;
+      if (!(widthPx?.endsWith('px') ?? false)) return;
 
-      const configuredWidth = Number(widthPx.substring(0, widthPx.length - 2));
+      const configuredWidth = Number(widthPx!.substring(0, widthPx!.length - 2));
       if (Number.isNaN(configuredWidth)) return;
 
       const minWidth = this.minColumnWidth;
