@@ -53,7 +53,7 @@
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@netatwork/mocha-utils": "^2.1.5",
     "@netatwork/spy": "^1.2.0",
-    "@types/chai": "^4.3.19",
+    "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.9",
     "chai": "^5.1.1",
     "cpx2": "^8.0.0",
