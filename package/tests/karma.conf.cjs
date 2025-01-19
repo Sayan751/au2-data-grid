@@ -94,7 +94,13 @@ module.exports = function (config) {
       ? debug
         ? ['Chrome'/* , 'Firefox' */]
         : ['ChromeHeadless', 'FirefoxHeadless']
-      : ['ChromeHeadless'],
+      : ['ChromiumHeadless'],
+    customLaunchers: {
+      ChromiumHeadless: {
+        base: 'Chromium',
+        flags: ['--no-sandbox', '--headless'],
+      }
+    },
     singleRun: !isDev,
     concurrency: Infinity,
   });
