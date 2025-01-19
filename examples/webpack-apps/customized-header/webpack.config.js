@@ -12,11 +12,11 @@ module.exports = function (env, { mode }) {
       extensions: ['.ts', '.js', '.json', '.html'],
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
       mainFields: ['module'],
-      // sadly these fallbacks are required to run the app via webpack-dev-server
-      fallback: {
-        'html-entities': require.resolve('html-entities/'),
-        'events': require.resolve('events/'),
-      },
+      // // sadly these fallbacks are required to run the app via webpack-dev-server
+      // fallback: {
+      //   'html-entities': require.resolve('html-entities/'),
+      //   'events': require.resolve('events/'),
+      // },
     },
     devServer: {
       port: 9500,
