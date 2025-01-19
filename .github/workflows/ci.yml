@@ -35,6 +35,9 @@ jobs:
       - name: build package
         run: npm run build
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
       - name: test package
         run: npm test
 
