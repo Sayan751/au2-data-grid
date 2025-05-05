@@ -15,7 +15,7 @@
     "@aurelia/fetch-client": "^2.0.0-beta.23",
     "@aurelia/kernel": "^2.0.0-beta.23",
     "@aurelia/runtime": "^2.0.0-beta.23",
-    "@aurelia/runtime-html": "^2.0.0-beta.23",
+    "@aurelia/runtime-html": "^2.0.0-beta.24",
     "@aurelia/router-lite": "^2.0.0-beta.23",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@sparser/au2-data-grid": "1.0.0-rc.5",
