@@ -1,6 +1,6 @@
 {
   "name": "aurelia2-data-grid-monorepo",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0-rc.6",
   "description": "",
   "scripts": {
     "build": "npm run build -ws",
@@ -19,12 +19,12 @@
   ],
   "devDependencies": {
     "@stylistic/eslint-plugin-ts": "^4.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.31.0",
-    "@typescript-eslint/parser": "^8.31.0",
-    "eslint": "^9.25.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jsdoc": "^50.6.9",
+    "eslint-plugin-jsdoc": "^50.6.17",
     "eslint-plugin-mocha": "^11.0.0",
     "typescript": "^5.8.3"
   }

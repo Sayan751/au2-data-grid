@@ -1,6 +1,6 @@
 {
   "name": "@sparser/au2-data-grid",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0-rc.6",
   "description": "A data grid for Aurelia 2",
   "exports": {
     ".": {
@@ -49,7 +49,7 @@
     "dist/**/!(.tsbuildinfo)"
   ],
   "devDependencies": {
-    "@aurelia/testing": "^2.0.0-beta.23",
+    "@aurelia/testing": "^2.0.0-beta.24",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@netatwork/mocha-utils": "^2.1.5",
     "@netatwork/spy": "^1.2.0",
@@ -75,8 +75,8 @@
     "rimraf": "^6.0.1"
   },
   "dependencies": {
-    "@aurelia/kernel": "^2.0.0-beta.23",
-    "@aurelia/runtime": "^2.0.0-beta.23",
-    "@aurelia/runtime-html": "^2.0.0-beta.23"
+    "@aurelia/kernel": "^2.0.0-beta.24",
+    "@aurelia/runtime": "^2.0.0-beta.24",
+    "@aurelia/runtime-html": "^2.0.0-beta.24"
   }
 }
