@@ -25,7 +25,7 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsdoc": "^50.6.17",
-    "eslint-plugin-mocha": "^11.0.0",
+    "eslint-plugin-mocha": "^11.1.0",
     "typescript": "^5.8.3"
   }
 }
