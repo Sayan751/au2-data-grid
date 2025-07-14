@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "@aurelia/dialog": "^2.0.0-beta.24",
-    "@aurelia/fetch-client": "^2.0.0-beta.24",
+    "@aurelia/fetch-client": "^2.0.0-beta.25",
     "@aurelia/kernel": "^2.0.0-beta.24",
     "@aurelia/runtime": "^2.0.0-beta.24",
     "@aurelia/runtime-html": "^2.0.0-beta.24",
