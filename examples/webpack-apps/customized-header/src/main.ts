@@ -1,6 +1,6 @@
-import { DialogDefaultConfiguration } from '@aurelia/dialog';
+import { DialogConfigurationClassic } from '@aurelia/dialog';
 import { ConsoleSink, LoggerConfiguration, LogLevel } from '@aurelia/kernel';
-import { RouterConfiguration } from '@aurelia/router-lite';
+import { RouterConfiguration } from '@aurelia/router';
 import { Aurelia, CustomElement, StandardConfiguration } from '@aurelia/runtime-html';
 import { DataGridConfiguration, GridHeader } from '@sparser/au2-data-grid';
 import { AppRoot as component } from './app-root';
@@ -22,7 +22,7 @@ import { PersonCard } from './views/list-with-backend-service/person-card';
       }),
       StandardConfiguration,
       RouterConfiguration,
-      DialogDefaultConfiguration,
+      DialogConfigurationClassic,
 
       DataGridConfiguration.customize(opt => {
         opt.header = CustomElement.define(

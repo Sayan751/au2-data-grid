@@ -47,6 +47,10 @@ export class ListWithBackendService {
   @observable({ callback: 'createContentModel' })
   private selectionMode: ItemSelectionMode = ItemSelectionMode.Single;
 
+  public binding() {
+    this.createContentModel();
+  }
+
   private createContentModel() {
     const httpClient = this.httpClient;
     const handleError = (e: Error): never => { this.fetchFailed = true; throw e; }
@@ -92,8 +96,7 @@ export class ListWithBackendService {
     void this.dialogService.open({
       component: () => PersonCardDialog,
       model: person,
-      lock: false,
-      overlayDismiss: false,
+      options: { lock: false, overlayDismiss: false },
     });
   }
 
@@ -101,8 +104,7 @@ export class ListWithBackendService {
     void this.dialogService.open({
       component: () => PersonCompareDialog,
       model: this.people.selectedItems,
-      lock: false,
-      overlayDismiss: false,
+      options: { lock: false, overlayDismiss: false },
     });
   }
 }

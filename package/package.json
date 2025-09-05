@@ -1,6 +1,6 @@
 {
   "name": "@sparser/au2-data-grid",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0-rc.7",
   "description": "A data grid for Aurelia 2",
   "exports": {
     ".": {

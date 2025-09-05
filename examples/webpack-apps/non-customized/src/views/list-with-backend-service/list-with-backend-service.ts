@@ -52,13 +52,14 @@ export class ListWithBackendService implements ICustomElementViewModel {
   @observable private state?: ExportableGridState = void 0;
 
   public binding() {
+    this.createContentModel();
     const state = this.platform.globalThis.localStorage.getItem(stateKey);
     if (!(this.persistState = state !== null)) return;
     this.state = JSON.parse(state);
   }
 
   public unbinding() {
-    if(this.persistState) {
+    if (this.persistState) {
       this.platform.globalThis.localStorage.setItem(stateKey, JSON.stringify(this.state));
     }
   }
@@ -108,8 +109,7 @@ export class ListWithBackendService implements ICustomElementViewModel {
     void this.dialogService.open({
       component: () => PersonCardDialog,
       model: person,
-      lock: false,
-      overlayDismiss: false,
+      options: { lock: false, overlayDismiss: false },
     });
   }
 
@@ -117,13 +117,12 @@ export class ListWithBackendService implements ICustomElementViewModel {
     void this.dialogService.open({
       component: () => PersonCompareDialog,
       model: this.people.selectedItems,
-      lock: false,
-      overlayDismiss: false,
+      options: { lock: false, overlayDismiss: false },
     });
   }
 
   private stateChanged(nv: boolean) {
-    if(!nv) {
+    if (!nv) {
       this.platform.globalThis.localStorage.removeItem(stateKey);
     }
   }

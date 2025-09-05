@@ -1,4 +1,4 @@
-import { IDialogController, IDialogDom } from '@aurelia/dialog';
+import { DialogDomClassic, IDialogController, IDialogDom } from '@aurelia/dialog';
 import { customElement } from '@aurelia/runtime-html';
 import { FakePerson } from './data-contracts';
 import template from './person-compare-dialog.html';
@@ -13,7 +13,7 @@ export class PersonCompareDialog {
 
   private readonly controller: IDialogController = resolve(IDialogController);
   public constructor() {
-    const  dialogDom: IDialogDom = resolve(IDialogDom);
+    const  dialogDom: DialogDomClassic = resolve(IDialogDom) as DialogDomClassic;
     dialogDom.overlay.classList.add('dialog-overlay');
     dialogDom.contentHost.classList.add('dialog');
   }

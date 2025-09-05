@@ -12,6 +12,7 @@ module.exports = function (env, { mode }) {
       extensions: ['.ts', '.js', '.json', '.html'],
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
       mainFields: ['module'],
+      fallback: { events: require.resolve('events/') },
     },
     devServer: {
       port: 9500,
