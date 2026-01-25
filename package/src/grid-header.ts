@@ -16,6 +16,7 @@ import {
 import {
   SortDirection,
 } from './sorting-options.js';
+import { queueTask } from '@aurelia/runtime';
 
 const columnPaddingPx = 30;
 
@@ -49,7 +50,7 @@ export class GridHeader implements ICustomElementViewModel {
 
   public attached(): void {
     // it is essential to queue to queue so that all child get rendered first.
-    this.platform.taskQueue.queueTask(() => {
+    queueTask(() => {
       const state = this.state;
       const parent = state.parent;
       const widthPx = state.widthPx;

@@ -5,9 +5,6 @@ import {
   resolve,
 } from '@aurelia/kernel';
 import {
-  TaskQueue,
-} from '@aurelia/platform';
-import {
   BrowserPlatform,
 } from '@aurelia/platform-browser';
 import {
@@ -60,6 +57,7 @@ import {
   WrapperFunction,
   $TestContext,
 } from './shared';
+import { tasksSettled } from '@aurelia/runtime';
 
 describe('data-grid', function () {
   interface TestSetupContext<TApp extends ICustomElementViewModel> extends $TestSetupContext<TApp> {
@@ -89,7 +87,7 @@ describe('data-grid', function () {
     await au
       .app({ component: component!, host })
       .start();
-    await platform.taskQueue.yield();
+    await tasksSettled();
 
     await testFunction({
       ctx,
@@ -337,13 +335,12 @@ describe('data-grid', function () {
           'initial'
         );
 
-        const queue = platform.domWriteQueue;
         // replace collection
         app.content.allItems = [
           new Person('Ghanyasham', 'Das', 45),
           new Person('Bhajahari', 'Mukhujjee', 25),
         ];
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -355,7 +352,7 @@ describe('data-grid', function () {
 
         // collection mutation
         app.content.allItems.push(new Person('Tarini Charan', 'Bandopadhyay', 65));
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -414,11 +411,10 @@ describe('data-grid', function () {
           'initial'
         );
 
-        const queue = platform.domWriteQueue;
         const content = app.content;
         content.goToNextPage();
         await content.wait();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -430,7 +426,7 @@ describe('data-grid', function () {
 
         content.goToNextPage();
         await content.wait();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -442,7 +438,7 @@ describe('data-grid', function () {
 
         content.goToPage(10);
         await content.wait();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -756,8 +752,7 @@ describe('data-grid', function () {
         const content = getContentRows(grid);
         assert.strictEqual(content[0].classList.contains('selected-row'), false, 'content[0].selected-row false 1');
         content[0].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -773,7 +768,7 @@ describe('data-grid', function () {
 
         assert.strictEqual(content[1].classList.contains('selected-row'), false, 'content[1].selected-row false');
         content[1].click();
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [[people[1]], true, true]);
@@ -893,8 +888,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 1');
         content[0].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -908,7 +902,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[3].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [people.slice(0, 4), false, true]);
@@ -934,8 +928,7 @@ describe('data-grid', function () {
         const people = app.people;
 
         content[4].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 1);
         assert.deepStrictEqual(selectionLog[0], [[people[4]], true, true]);
@@ -945,7 +938,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[3].click();
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [[people[3]], true, true]);
@@ -955,7 +948,7 @@ describe('data-grid', function () {
           'content.selected-row 3');
 
         content[0].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 3);
         assert.deepStrictEqual(selectionLog[2], [[people[3], people[0], people[1], people[2]], false, true]);
@@ -981,8 +974,7 @@ describe('data-grid', function () {
         const people = app.people;
 
         content[2].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 1);
         assert.deepStrictEqual(selectionLog[0], [[people[2]], true, true]);
@@ -992,7 +984,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[4].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [[people[2], people[3], people[4]], false, true]);
@@ -1002,7 +994,7 @@ describe('data-grid', function () {
           'content.selected-row 3');
 
         content[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 3);
         assert.deepStrictEqual(selectionLog[2], [[people[2], people[3], people[4], people[1]], false, true]);
@@ -1023,8 +1015,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 1');
         content[0].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -1038,7 +1029,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[2].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [[people[0], people[2]], false, true]);
@@ -1048,7 +1039,7 @@ describe('data-grid', function () {
           'content.selected-row 3');
 
         content[4].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 3);
         assert.deepStrictEqual(selectionLog[2], [[people[0], people[2], people[4]], false, true]);
@@ -1069,8 +1060,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 1');
         content[0].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -1084,7 +1074,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[3].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [people.slice(0, 4), false, true]);
@@ -1105,8 +1095,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 1');
         content[0].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -1120,7 +1109,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[2].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [people.slice(0, 3), false, true]);
@@ -1130,7 +1119,7 @@ describe('data-grid', function () {
           'content.selected-row 3');
 
         content[4].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 3);
         assert.deepStrictEqual(selectionLog[2], [[...people.slice(0, 3), people[4]], false, true]);
@@ -1151,8 +1140,7 @@ describe('data-grid', function () {
           new Array(5).fill(false),
           'content.selected-row 1');
         content[0].click();
-        const queue = platform.domWriteQueue;
-        await queue.yield();
+        await tasksSettled();
 
         const clickLog = app.clickLog;
         const selectionLog = app.selectionLog;
@@ -1166,7 +1154,7 @@ describe('data-grid', function () {
           'content.selected-row 2');
 
         content[0].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }));
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(clickLog.length, 0);
         assert.strictEqual(selectionLog.length, 2);
         assert.deepStrictEqual(selectionLog[1], [[], false, false]);
@@ -1343,13 +1331,12 @@ describe('data-grid', function () {
           ]
         );
 
-        const queue = platform.domWriteQueue;
         const headers = getHeaders(grid);
         const headerContainer = headers[0].querySelector('div')!;
         assert.isNotNull(headerContainer);
         assert.isNull(headerContainer.querySelector('span:nth-of-type(2)'));
         headerContainer.click();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -1370,7 +1357,7 @@ describe('data-grid', function () {
         );
 
         headerContainer.click();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -1395,7 +1382,7 @@ describe('data-grid', function () {
 
         // un-sortable column ->  no-change
         headers[1].querySelector('div')!.click();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -1419,7 +1406,7 @@ describe('data-grid', function () {
         );
 
         headers[2].querySelector('div')!.click();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           getContentTextContent(grid),
           [
@@ -1546,13 +1533,13 @@ describe('data-grid', function () {
     const rect = col.getBoundingClientRect();
     return rect.left + (rect.right - rect.left) / 2;
   }
-  async function dragAnDropColumn(srcCol: HTMLElement, destCol: HTMLElement, dropLocation: OrderChangeDropLocation, queue: TaskQueue): Promise<void> {
+  async function dragAnDropColumn(srcCol: HTMLElement, destCol: HTMLElement, dropLocation: OrderChangeDropLocation): Promise<void> {
     const dataTransfer = new DataTransfer();
     const eventInit: DragEventInit = { bubbles: true, cancelable: true, dataTransfer };
     srcCol.dispatchEvent(new DragEvent('dragstart', eventInit));
     srcCol.dispatchEvent(new DragEvent('dragover', eventInit));
     destCol.dispatchEvent(new DragEvent('drop', { ...eventInit, clientX: getMidPoint(destCol) + (dropLocation === OrderChangeDropLocation.Before ? - 1 : 1) }));
-    await queue.yield();
+    await tasksSettled();
   }
   {
     class Data {
@@ -1596,7 +1583,6 @@ describe('data-grid', function () {
       async function ({ host, platform }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const [col1, col2, col3, col4, col5] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
-        const queue = platform.domWriteQueue;
         const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
           log: [],
           handleGridStateChange(type) {
@@ -1607,7 +1593,7 @@ describe('data-grid', function () {
         gridVm['stateModel'].addSubscriber(subscriber);
 
         // act-1 drag p5 before p1
-        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',], 'act1 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1621,7 +1607,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
 
         // act-2 drag p1 after p5 - no change
-        await dragAnDropColumn(col1, col5, OrderChangeDropLocation.After, queue);
+        await dragAnDropColumn(col1, col5, OrderChangeDropLocation.After);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',], 'act2 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1635,7 +1621,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
 
         // act-3 drag p5 before p1 - no change
-        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',], 'act3 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1649,7 +1635,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, [ChangeType.Order]);
 
         // act-4 drag p5 after p1
-        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.After, queue);
+        await dragAnDropColumn(col5, col1, OrderChangeDropLocation.After);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P5', 'P2', 'P3', 'P4',], 'act4 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1662,7 +1648,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(2).fill(ChangeType.Order));
 
         // act-5 drag p1 before p2
-        await dragAnDropColumn(col1, col2, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col1, col2, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P3', 'P4',], 'act5 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1675,7 +1661,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(3).fill(ChangeType.Order));
 
         // act-6 drag p4 after p2
-        await dragAnDropColumn(col4, col2, OrderChangeDropLocation.After, queue);
+        await dragAnDropColumn(col4, col2, OrderChangeDropLocation.After);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P5', 'P1', 'P2', 'P4', 'P3',], 'act6 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1688,7 +1674,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(4).fill(ChangeType.Order));
 
         // act-7 drag p2 before p5
-        await dragAnDropColumn(col2, col5, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col2, col5, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P2', 'P5', 'P1', 'P4', 'P3',], 'act7 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1701,7 +1687,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(5).fill(ChangeType.Order));
 
         // act-8 drag p1 after p3
-        await dragAnDropColumn(col1, col3, OrderChangeDropLocation.After, queue);
+        await dragAnDropColumn(col1, col3, OrderChangeDropLocation.After);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P2', 'P5', 'P4', 'P3', 'P1',], 'act8 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1714,7 +1700,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(6).fill(ChangeType.Order));
 
         // act-9 drag p1 before p2
-        await dragAnDropColumn(col1, col2, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col1, col2, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P2', 'P5', 'P4', 'P3',], 'act9 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1727,7 +1713,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(7).fill(ChangeType.Order));
 
         // act-10 drag p3 before p5
-        await dragAnDropColumn(col3, col5, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col3, col5, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P2', 'P3', 'P5', 'P4',], 'act10 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1740,7 +1726,7 @@ describe('data-grid', function () {
         assert.deepStrictEqual(subscriber.log, new Array(8).fill(ChangeType.Order));
 
         // act-11 drag p4 before p5
-        await dragAnDropColumn(col4, col5, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col4, col5, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P2', 'P3', 'P4', 'P5',], 'act11 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1758,7 +1744,6 @@ describe('data-grid', function () {
       async function ({ host, platform, app }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const [, col2, , col4,] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
-        const queue = platform.domWriteQueue;
         const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
           log: [],
           handleGridStateChange(type) {
@@ -1769,7 +1754,7 @@ describe('data-grid', function () {
         gridVm['stateModel'].addSubscriber(subscriber);
 
         // act-1 drag p4 before p2
-        await dragAnDropColumn(col4, col2, OrderChangeDropLocation.Before, queue);
+        await dragAnDropColumn(col4, col2, OrderChangeDropLocation.Before);
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P4', 'P2', 'P3', 'P5',], 'act1 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1787,7 +1772,7 @@ describe('data-grid', function () {
           new Data(51, 52, 53, 54, 55),
           new Data(61, 62, 63, 64, 65),
         ];
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(getHeaderTextContent(grid), ['P1', 'P4', 'P2', 'P3', 'P5',], 'act2 header');
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -1845,7 +1830,6 @@ describe('data-grid', function () {
 
     ($it as $It<App>)('supports column resizing',
       async function ({ host, platform }) {
-        const queue = platform.domWriteQueue;
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.strictEqual(
@@ -1864,9 +1848,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         let rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX + 50 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths1 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths1.every(x => !Number.isNaN(x)), true, 'width1');
@@ -1875,9 +1859,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX - 20 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths2 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths2.every(x => !Number.isNaN(x)), true, 'width2');
@@ -1887,9 +1871,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths3 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
@@ -1935,7 +1919,6 @@ describe('data-grid', function () {
 
     ($it as $It<App>)('supports statically defined column widths and resizing thereafter',
       async function ({ host, platform }) {
-        const queue = platform.domWriteQueue;
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.deepStrictEqual(
@@ -1954,9 +1937,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         let rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX + 50 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths1 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths1.every(x => !Number.isNaN(x)), true, 'width1');
@@ -1966,9 +1949,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: rightX - 20 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths2 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths2.every(x => !Number.isNaN(x)), true, 'width2');
@@ -1978,9 +1961,9 @@ describe('data-grid', function () {
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
 
         const widths3 = extractWidths(container!.style.gridTemplateColumns);
         assert.strictEqual(widths3.every(x => !Number.isNaN(x)), true, 'width3');
@@ -2136,7 +2119,6 @@ describe('data-grid', function () {
 
     ($it as $It<App>)('respects the bound state during binding and writes the changes back to the bound state',
       async function ({ host, platform, app }) {
-        const queue = platform.domWriteQueue;
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.strictEqual(
@@ -2164,7 +2146,7 @@ describe('data-grid', function () {
             { id: 'firstName', property: 'firstName', isResizable: true, direction: null, widthPx: '500px' },
           ]
         };
-        await queue.yield();
+        await tasksSettled();
         assert.strictEqual(
           container?.style.gridTemplateColumns,
           'minmax(0px, 450px) minmax(0px, 500px) minmax(0px, 200px)'
@@ -2185,7 +2167,7 @@ describe('data-grid', function () {
         const headers = getHeaders(grid);
         // reordering reflects the change back to the state
         const [colLn, , colAge] = headers.map(header => header.querySelector<HTMLSpanElement>('div>span')!);
-        await dragAnDropColumn(colAge, colLn, OrderChangeDropLocation.After, queue);
+        await dragAnDropColumn(colAge, colLn, OrderChangeDropLocation.After);
         assert.strictEqual(
           container?.style.gridTemplateColumns,
           'minmax(0px, 450px) minmax(0px, 200px) minmax(0px, 500px)'
@@ -2220,9 +2202,9 @@ describe('data-grid', function () {
         const baseEventData = { bubbles: true, cancelable: true };
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: ageCol.getBoundingClientRect().right + 50 }));
-        await queue.yield();
+        await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
-        await queue.yield();
+        await tasksSettled();
         const widths = extractWidths(container!.style.gridTemplateColumns);
         assert.deepStrictEqual(
           app.state,
@@ -2238,7 +2220,7 @@ describe('data-grid', function () {
         // sorting reflects the change back to the state
         const headerContainer = headers[0].querySelector('div')!; // lname
         headerContainer.click();
-        await queue.yield();
+        await tasksSettled();
         assert.deepStrictEqual(
           headers.map(el => el.querySelector('div')?.querySelector('span:nth-of-type(2)')?.textContent ?? null),
           ['\u25B4', null, null]
