@@ -42,7 +42,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sayan751/au2-data-grid"
+    "url": "git+https://github.com/Sayan751/au2-data-grid.git"
   },
   "files": [
     "src/**/*.*",
