@@ -17,7 +17,7 @@
     "@aurelia/runtime": "^2.0.0-rc.0",
     "@aurelia/runtime-html": "^2.0.0-rc.0",
     "@aurelia/router": "^2.0.0-rc.0",
-    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@fortawesome/fontawesome-free": "^7.2.0",
     "@sparser/au2-data-grid": "1.0.0-rc.8",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.4",
