@@ -1145,6 +1145,7 @@ describe('grid state', function () {
       CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>foo3</span>' }),
       CustomElementDefinition.create({ name: CustomElement.generateName(), template: '<span>bar3</span>' }),
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const col4 = new Column(
       sut,
       'id4',

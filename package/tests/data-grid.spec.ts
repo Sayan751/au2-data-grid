@@ -159,14 +159,14 @@ describe('data-grid', function () {
         const headers = getHeaders(grid);
         assert.strictEqual(headers.length, 2);
         assert.deepStrictEqual(
-          headers.map(header => header.querySelector('div>span>strong')!.textContent!),
+          headers.map(header => header.querySelector('div>span>strong')!.textContent),
           ['First name', 'Last name']
         );
 
         const content = getContentRows(grid);
         assert.strictEqual(content.length, 2);
         assert.deepStrictEqual(
-          content.map(c => Array.from(c.querySelectorAll('span')).map(el => el.textContent!)),
+          content.map(c => Array.from(c.querySelectorAll('span')).map(el => el.textContent)),
           app.people.map(p => [p.firstName, p.lastName])
         );
         gridVm.exportState();
@@ -324,7 +324,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('supports change of data - all-items',
-      async function ({ host, app, platform }) {
+      async function ({ host, app }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -400,7 +400,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('supports change of data - paged items',
-      async function ({ host, app, platform }) {
+      async function ({ host, app }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         assert.deepStrictEqual(
           getContentTextContent(grid),
@@ -746,7 +746,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('selects single items on click with single-selection mode',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -879,7 +879,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 1',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -914,7 +914,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 2',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -960,7 +960,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on click followed by shift+click with multiple-selection mode - 3',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -1006,7 +1006,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects multiple individual items on ctrl+click with multiple-selection mode',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -1051,7 +1051,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects a range of items on shift+click followed by shift+click with multiple-selection mode',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -1086,7 +1086,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('selects multiple items with shift+click combined with ctrl+click with multiple-selection mode',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -1131,7 +1131,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('toggles selection with ctrl+click with multiple-selection mode',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         const content = getContentRows(grid);
@@ -1317,7 +1317,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('calls the onSorting callback when a sortable header is clicked',
-      async function ({ app, host, platform }) {
+      async function ({ app, host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
 
         assert.deepStrictEqual(
@@ -1580,7 +1580,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('supports column reordering',
-      async function ({ host, platform }) {
+      async function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const [col1, col2, col3, col4, col5] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
         const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
@@ -1741,7 +1741,7 @@ describe('data-grid', function () {
       { component: App as CustomElementType<Constructable<App>> });
 
     ($it as $It<App>)('column reordering holds after data change',
-      async function ({ host, platform, app }) {
+      async function ({ host, app }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const [, col2, , col4,] = getHeaders(grid).map(header => header.querySelector<HTMLSpanElement>('div>span')!);
         const subscriber: GridStateChangeSubscriber & { log: ChangeType[] } = {
@@ -1829,7 +1829,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('supports column resizing',
-      async function ({ host, platform }) {
+      async function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.strictEqual(
@@ -1869,7 +1869,6 @@ describe('data-grid', function () {
 
         // act3 - attempt to decrease the width to 0
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
-        rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
         await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
@@ -1918,7 +1917,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('supports statically defined column widths and resizing thereafter',
-      async function ({ host, platform }) {
+      async function ({ host }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.deepStrictEqual(
@@ -1959,7 +1958,6 @@ describe('data-grid', function () {
 
         // act3 - attempt to decrease the width to 0
         handle1.dispatchEvent(new MouseEvent('mousedown', { ...baseEventData }));
-        rightX = col1.getBoundingClientRect().right;
         handle1.dispatchEvent(new MouseEvent('mousemove', { ...baseEventData, clientX: 0 }));
         await tasksSettled();
         handle1.dispatchEvent(new MouseEvent('mouseup', { ...baseEventData }));
@@ -2118,7 +2116,7 @@ describe('data-grid', function () {
     }
 
     ($it as $It<App>)('respects the bound state during binding and writes the changes back to the bound state',
-      async function ({ host, platform, app }) {
+      async function ({ host, app }) {
         const grid = host.querySelector<HTMLElement>('data-grid')!;
         const container = grid.querySelector<HTMLElement>('.container');
         assert.strictEqual(

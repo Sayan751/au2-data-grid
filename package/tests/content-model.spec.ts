@@ -4,7 +4,7 @@ import { assert } from 'chai';
 import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model';
 import { SortDirection, SortOption } from '../src/sorting-options';
 
-// eslint-disable-next-line mocha/no-hooks
+// eslint-disable-next-line mocha/no-hooks, mocha/no-top-level-hooks
 before(async function () {
   await AssertionFactory.configureDefault();
 });

@@ -2,7 +2,7 @@ import { Constructable, IContainer } from '@aurelia/kernel';
 import { ICustomElementViewModel, IPlatform } from '@aurelia/runtime-html';
 import { TestContext } from '@aurelia/testing';
 
-/* eslint-disable mocha/no-exports, jsdoc/require-jsdoc, mocha/no-exclusive-tests, mocha/no-skipped-tests */
+/* eslint-disable mocha/no-exports, jsdoc/require-jsdoc, mocha/no-exclusive-tests, mocha/no-pending-tests */
 export class Person {
   public constructor(
     public readonly firstName: string,
@@ -64,4 +64,4 @@ export function createSpecFunction<
 
   return $it;
 }
-/* eslint-enable mocha/no-exports, jsdoc/require-jsdoc, mocha/no-exclusive-tests, mocha/no-skipped-tests */
+/* eslint-enable mocha/no-exports, jsdoc/require-jsdoc, mocha/no-exclusive-tests, mocha/no-pending-tests */
