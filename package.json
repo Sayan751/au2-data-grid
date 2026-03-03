@@ -3,9 +3,9 @@
   "version": "1.0.0-rc.8",
   "description": "",
   "scripts": {
-    "build": "npm run build -ws",
+    "build": "npm run build --workspaces",
     "fake-service": "npm -w examples/fake-service run",
-    "test": "npm run test -ws --if-present"
+    "test": "npm run test --workspaces --if-present"
   },
   "keywords": [],
   "author": "",
