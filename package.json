@@ -24,7 +24,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^10.0.3",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.7.1",
-    "eslint-plugin-jsdoc": "^62.7.1",
+    "eslint-plugin-jsdoc": "^62.8.0",
     "eslint-plugin-mocha": "^11.2.0",
     "typescript": "^5.9.3"
   }
