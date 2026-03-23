@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@aurelia/kernel": "^2.0.0-rc.0",
-    "@aurelia/runtime": "^2.0.0-rc.0",
+    "@aurelia/runtime": "^2.0.0-rc.1",
     "@aurelia/runtime-html": "^2.0.0-rc.0"
   }
 }

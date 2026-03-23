@@ -14,7 +14,7 @@
     "@aurelia/dialog": "^2.0.0-rc.0",
     "@aurelia/fetch-client": "^2.0.0-rc.0",
     "@aurelia/kernel": "^2.0.0-rc.0",
-    "@aurelia/runtime": "^2.0.0-rc.0",
+    "@aurelia/runtime": "^2.0.0-rc.1",
     "@aurelia/runtime-html": "^2.0.0-rc.0",
     "@aurelia/router": "^2.0.0-rc.0",
     "@fortawesome/fontawesome-free": "^7.2.0",
