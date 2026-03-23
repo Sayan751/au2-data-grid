@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@aurelia/dialog": "^2.0.0-rc.0",
+    "@aurelia/dialog": "^2.0.0-rc.1",
     "@aurelia/fetch-client": "^2.0.0-rc.0",
     "@aurelia/kernel": "^2.0.0-rc.0",
     "@aurelia/runtime": "^2.0.0-rc.0",
