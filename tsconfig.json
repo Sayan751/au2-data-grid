@@ -2,8 +2,8 @@
   "compilerOptions": {
     "incremental": true,
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Node10",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
@@ -13,5 +13,5 @@
     "strict": true,
     "skipLibCheck": true,
     "preserveConstEnums": true
-  },
+  }
 }

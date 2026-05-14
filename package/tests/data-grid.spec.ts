@@ -24,30 +24,30 @@ import {
 } from 'chai';
 import {
   DataGridConfiguration,
-} from '../src/configuration';
+} from '../src/configuration.js';
 import {
   ContentModel, ItemSelectionMode,
-} from '../src/content-model';
+} from '../src/content-model.js';
 import {
   DataGrid,
-} from '../src/data-grid';
+} from '../src/data-grid.js';
 import {
   ChangeType,
   GridStateChangeSubscriber,
   OrderChangeDropLocation,
   ExportableGridState,
-} from '../src/grid-state';
+} from '../src/grid-state.js';
 import {
   SortDirection,
   SortOption,
-} from '../src/sorting-options';
+} from '../src/sorting-options.js';
 import {
   getContentRows,
   getContentTextContent,
   getHeaders,
   getHeaderTextContent,
   getText,
-} from '../src/test-helpers';
+} from '../src/test-helpers.js';
 import {
   $It,
   createSpecFunction,
@@ -56,7 +56,7 @@ import {
   TestSetupContext as $TestSetupContext,
   WrapperFunction,
   $TestContext,
-} from './shared';
+} from './shared.js';
 import { tasksSettled } from '@aurelia/runtime';
 
 describe('data-grid', function () {

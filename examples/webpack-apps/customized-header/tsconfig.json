@@ -3,10 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "declarationMap": false,
-    "moduleResolution": "Bundler",
-    "typeRoots": [
-      "../../../node_modules/@types",
-      "../../../custom-types"
-    ]
+    "module": "esnext",
+    "moduleResolution": "Bundler"
   }
 }

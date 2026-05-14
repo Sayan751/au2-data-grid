@@ -3,10 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "declarationMap": false,
-    "typeRoots": [
-      "../../node_modules/@types/",
-      "../../custom-types/"
-    ]
+    "types": ["mocha"]
   },
   "include": [
     "./*"

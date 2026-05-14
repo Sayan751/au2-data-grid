@@ -1,8 +1,8 @@
 import { DI, ILogger, LoggerConfiguration } from '@aurelia/kernel';
 import { AssertionFactory, createSpy, Spy } from '@netatwork/spy';
 import { assert } from 'chai';
-import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model';
-import { SortDirection, SortOption } from '../src/sorting-options';
+import { ContentModel, ItemSelectionMode, SelectionOptions } from '../src/content-model.js';
+import { SortDirection, SortOption } from '../src/sorting-options.js';
 
 // eslint-disable-next-line mocha/no-hooks, mocha/no-top-level-hooks
 before(async function () {

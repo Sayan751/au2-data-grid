@@ -2,8 +2,8 @@ import { DI } from '@aurelia/kernel';
 import { CustomElement, CustomElementDefinition, ViewFactory } from '@aurelia/runtime-html';
 import { createSpy, Spy } from '@netatwork/spy';
 import { assert } from 'chai';
-import { GridStateModel, Column, ChangeType, GridStateChangeSubscriber, OrderChangeDropLocation } from '../src/grid-state';
-import { SortDirection } from '../src/sorting-options';
+import { GridStateModel, Column, ChangeType, GridStateChangeSubscriber, OrderChangeDropLocation } from '../src/grid-state.js';
+import { SortDirection } from '../src/sorting-options.js';
 
 describe('grid state', function () {
   function createSubscriberSpy(): Spy<GridStateChangeSubscriber> {
