@@ -22,7 +22,7 @@
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
-    "@typescript-eslint/parser": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.4",
     "eslint": "^10.3.0",
     "eslint-plugin-jsdoc": "^62.9.0",
     "eslint-plugin-mocha": "^11.2.0",
