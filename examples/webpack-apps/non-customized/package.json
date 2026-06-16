@@ -27,7 +27,7 @@
     "mocha": "11.7.6",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.6.0",
-    "webpack": "^5.105.2",
+    "webpack": "^5.107.2",
     "webpack-cli": "^7.0.3",
     "webpack-dev-server": "^5.2.5"
   }
