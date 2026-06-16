@@ -25,7 +25,7 @@
     "fake-service": "1.0.0-rc.8",
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.7",
-    "mocha": "11.3.0",
+    "mocha": "11.7.6",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.6.0",
     "webpack": "^5.105.2",
