@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@ngneat/falso": "^8.0.2",
-    "@types/node": "^25.9.3"
+    "@types/node": "^26.0.1"
   },
   "dependencies": {
     "mocha": "11.7.6"
