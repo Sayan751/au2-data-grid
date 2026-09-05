@@ -67,7 +67,7 @@ export class ContentModel<T> {
     }
 
     this.selectionMode = selectionOptions?.mode ?? ItemSelectionMode.None;
-    this.onSelectionChange = selectionOptions?.onSelectionChange ?? noop as SelectionChangeHandler<T>;
+    this.onSelectionChange = selectionOptions?.onSelectionChange ?? noop;
     this.initialized = true;
   }
 
