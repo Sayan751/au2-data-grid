@@ -16,7 +16,7 @@
     "@aurelia/kernel": "^2.0.0-rc.1",
     "@aurelia/router": "^2.0.0-rc.1",
     "@aurelia/runtime": "^2.0.0-rc.1",
-    "@aurelia/runtime-html": "^2.0.0-rc.1",
+    "@aurelia/runtime-html": "^2.0.0-rc.2",
     "@fortawesome/fontawesome-free": "^7.2.0",
     "@ngneat/falso": "8.0.2",
     "@sparser/au2-data-grid": "1.0.0-rc.8",
